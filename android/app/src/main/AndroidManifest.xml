@@ -55,6 +55,73 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
+
+        <!-- Widget 1: Mini Controls -->
+        <receiver android:name=".widgets.MiniControlsWidget"
+            android:exported="true"
+            android:label="Mini Controls">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_mini_controls_info"/>
+        </receiver>
+
+        <!-- Widget 2: Now Playing -->
+        <receiver android:name=".widgets.NowPlayingWidget"
+            android:exported="true"
+            android:label="Now Playing">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_now_playing_info"/>
+        </receiver>
+
+        <!-- Widget 3: Full Player -->
+        <receiver android:name=".widgets.FullPlayerWidget"
+            android:exported="true"
+            android:label="Full Player">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_full_player_info"/>
+        </receiver>
+
+        <!-- Widget 4: Quick Play -->
+        <receiver android:name=".widgets.QuickPlayWidget"
+            android:exported="true"
+            android:label="Quick Play">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_play_info"/>
+        </receiver>
+
+        <!-- Widget 5: Recent Playlist -->
+        <receiver android:name=".widgets.RecentPlaylistWidget"
+            android:exported="true"
+            android:label="Recent Playlist">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_recent_playlist_info"/>
+        </receiver>
+
+        <!-- Widget Action Receiver -->
+        <receiver android:name=".widgets.WidgetActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.musicplayer.widget.PLAY_PAUSE"/>
+                <action android:name="com.musicplayer.widget.NEXT"/>
+                <action android:name="com.musicplayer.widget.PREV"/>
+                <action android:name="com.musicplayer.widget.OPEN_APP"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
     <queries>

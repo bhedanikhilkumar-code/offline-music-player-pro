@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget 1: Mini Controls (4×1) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_dark"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <!-- Song Title -->
+    <TextView
+        android:id="@+id/widget_song_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:text="No song playing"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingStart="4dp"
+        android:paddingEnd="12dp"/>
+
+    <!-- Prev -->
+    <ImageView
+        android:id="@+id/widget_prev"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/widget_btn_bg"
+        android:contentDescription="Previous"
+        android:padding="8dp"
+        android:src="@drawable/ic_widget_prev"/>
+
+    <!-- Play/Pause -->
+    <ImageView
+        android:id="@+id/widget_play_pause"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/widget_btn_bg"
+        android:contentDescription="Play/Pause"
+        android:padding="8dp"
+        android:src="@drawable/ic_widget_play"/>
+
+    <!-- Next -->
+    <ImageView
+        android:id="@+id/widget_next"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/widget_btn_bg"
+        android:contentDescription="Next"
+        android:padding="8dp"
+        android:src="@drawable/ic_widget_next"/>
+</LinearLayout>

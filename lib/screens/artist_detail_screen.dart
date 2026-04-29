@@ -5,6 +5,7 @@ import '../constants/app_text_styles.dart';
 import '../models/artist_model.dart';
 import '../providers/audio_provider.dart';
 import '../providers/music_library_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
 
@@ -14,17 +15,12 @@ class ArtistDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MusicLibraryProvider>(
-      builder: (context, library, _) {
+    return Consumer2<MusicLibraryProvider, ThemeProvider>(
+      builder: (context, library, themeProvider, _) {
         final songs = library.getSongsForArtist(artist.name);
         return Scaffold(
           body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [AppColors.surfaceDark, AppColors.primaryDark],
-              ),
-            ),
+            decoration: themeProvider.backgroundDecoration,
             child: SafeArea(
               child: Column(
                 children: [

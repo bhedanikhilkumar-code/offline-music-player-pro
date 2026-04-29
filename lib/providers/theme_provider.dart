@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import 'package:offline_music_player/services/storage_service.dart';
@@ -13,6 +14,39 @@ class ThemeProvider extends ChangeNotifier {
   List<Color>? get gradientColors => _gradientColors;
   String? get backgroundImagePath => _backgroundImagePath;
   bool get isCustomTheme => _isCustomTheme;
+
+  BoxDecoration get backgroundDecoration {
+    if (_isCustomTheme && _backgroundImagePath != null) {
+      return BoxDecoration(
+        image: DecorationImage(
+          image: FileImage(File(_backgroundImagePath!)),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withOpacity(0.6),
+            BlendMode.darken,
+          ),
+        ),
+      );
+    }
+    
+    if (_gradientColors != null && _gradientColors!.length >= 2) {
+      return BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: _gradientColors!,
+        ),
+      );
+    }
+
+    return const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [AppColors.surfaceDark, AppColors.primaryDark],
+      ),
+    );
+  }
 
   ThemeData get themeData => ThemeData(
         brightness: Brightness.dark,

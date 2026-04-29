@@ -48,6 +48,10 @@ class StorageService {
   Future<void> setShuffleEnabled(bool enabled) => setBool('shuffle_enabled', enabled);
   Future<void> setRepeatMode(int mode) => setInt('repeat_mode', mode);
 
+  // Widget State
+  Future<void> setIsCurrentlyPlaying(bool value) => setBool('is_currently_playing', value);
+  Future<void> setLastPlayedArtist(String value) => setString('last_played_artist', value);
+
   // Library & UI Preferences
   List<String> get hiddenSongIds => getList('hidden_song_ids');
   List<String> get hiddenFolderPaths => getList('hidden_folder_paths');

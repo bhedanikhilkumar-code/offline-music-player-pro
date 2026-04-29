@@ -92,15 +92,22 @@ class AppConstants {
   // EQ frequency labels
   static const List<String> eqBandLabels = ['60Hz', '230Hz', '910Hz', '3.6kHz', '14kHz'];
 
-  // EQ presets
+  // EQ presets — values in dB (-15 to 15) for [60Hz, 230Hz, 910Hz, 3.6kHz, 14kHz]
   static const Map<String, List<double>> eqPresets = {
     'Custom': [0, 0, 0, 0, 0],
-    'Hip Hop': [5, 3, 0, 1, 3],
-    'Rock': [4, 2, -1, 3, 5],
     'Normal': [0, 0, 0, 0, 0],
-    'Dance': [3, 5, 2, 0, 1],
-    'Classical': [-1, 0, 0, 2, 4],
-    'Pop': [0, 2, 4, 2, 0],
+    'Pop': [1, 3, 5, 3, 1],
+    'Rock': [5, 3, -1, 4, 6],
+    'Hip Hop': [6, 4, 0, 2, 3],
+    'Dance': [4, 6, 3, 0, 2],
+    'Classical': [-2, 0, 0, 3, 5],
+    'Jazz': [3, 1, -1, 2, 4],
+    'R&B': [4, 7, 2, -1, 3],
+    'Electronic': [5, 3, 0, 2, 5],
+    'Vocal': [-2, 0, 4, 5, 2],
+    'Acoustic': [3, 1, 0, 2, 3],
+    'Bass Heavy': [8, 6, 0, -1, -2],
+    'Loudness': [6, 3, -1, 3, 6],
   };
 
   // App version

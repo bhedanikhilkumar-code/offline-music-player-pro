@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:on_audio_query/on_audio_query.dart' hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
+import 'package:palette_generator/palette_generator.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_constants.dart';
@@ -24,109 +25,152 @@ class PlayerScreen extends StatefulWidget {
   State<PlayerScreen> createState() => _PlayerScreenState();
 }
 
-class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderStateMixin {
+class _PlayerScreenState extends State<PlayerScreen> with TickerProviderStateMixin {
   late TabController _tabController;
+  late AnimationController _rotationController;
+  Color _accentColor = AppColors.accentOrange;
+  Color _dominantColor = AppColors.surfaceDark;
+  int? _lastSongId;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _rotationController = AnimationController(vsync: this, duration: const Duration(seconds: 15));
+  }
+
+  Future<void> _updatePalette(int songId) async {
+    if (_lastSongId == songId) return;
+    _lastSongId = songId;
+
+    try {
+      final artwork = await OnAudioQuery().queryArtwork(songId, ArtworkType.AUDIO);
+      final themeProvider = context.read<ThemeProvider>();
+      if (artwork != null) {
+        final palette = await PaletteGenerator.fromImageProvider(MemoryImage(artwork));
+        if (mounted) {
+          setState(() {
+            _dominantColor = palette.dominantColor?.color ?? AppColors.surfaceDark;
+            _accentColor = palette.vibrantColor?.color ?? palette.lightVibrantColor?.color ?? themeProvider.primaryColor;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _dominantColor = AppColors.surfaceDark;
+            _accentColor = themeProvider.primaryColor;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Palette error: $e");
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _rotationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
-
     return Scaffold(
-      body: Consumer<AudioProvider>(
-        builder: (context, audio, _) {
+      body: Consumer2<AudioProvider, ThemeProvider>(
+        builder: (context, audio, themeProvider, _) {
           final song = audio.currentSong;
           if (song == null) {
             return const Center(child: Text('No song playing', style: TextStyle(color: Colors.white54)));
           }
 
-          return Stack(
-            children: [
-              // Dynamic Blurred Background
-              Positioned.fill(
-                child: QueryArtworkWidget(
-                  id: song.id, type: ArtworkType.AUDIO,
-                  artworkHeight: double.infinity, artworkWidth: double.infinity,
-                  artworkBorder: BorderRadius.zero,
-                  artworkFit: BoxFit.cover,
-                  nullArtworkWidget: Container(color: AppColors.surfaceDark),
-                ),
-              ),
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.55),
+          _updatePalette(song.id);
+          
+          if (audio.isPlaying) {
+            if (!_rotationController.isAnimating) _rotationController.repeat();
+          } else {
+            if (_rotationController.isAnimating) _rotationController.stop();
+          }
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 800),
+            decoration: themeProvider.backgroundDecoration,
+            child: Stack(
+              children: [
+                // Dynamic Blurred Background Layer
+                Positioned.fill(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: 0.3,
+                    child: QueryArtworkWidget(
+                      id: song.id, type: ArtworkType.AUDIO,
+                      artworkHeight: double.infinity, artworkWidth: double.infinity,
+                      artworkBorder: BorderRadius.zero,
+                      artworkFit: BoxFit.cover,
+                      nullArtworkWidget: const SizedBox.shrink(),
+                    ),
                   ),
                 ),
-              ),
-              Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                  child: Container(color: Colors.transparent),
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                    child: Container(color: Colors.transparent),
+                  ),
                 ),
-              ),
 
-              // Foreground Content
-              SafeArea(
-                child: Column(
-                  children: [
-                    // Top bar
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32, color: Colors.white),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const Spacer(),
-                          SizedBox(
-                            width: 160,
-                            child: TabBar(
-                              controller: _tabController,
-                              indicatorColor: Colors.white,
-                              indicatorSize: TabBarIndicatorSize.label,
-                              labelColor: Colors.white,
-                              unselectedLabelColor: Colors.white54,
-                              labelStyle: AppTextStyles.tabLabel,
-                              dividerColor: Colors.transparent,
-                              tabs: const [Tab(text: 'Song'), Tab(text: 'Lyrics')],
+                // Foreground Content
+                SafeArea(
+                  child: Column(
+                    children: [
+                      // Top bar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 36, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
                             ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
-                            onPressed: () => SongOptionsSheet.show(context, song),
-                          ),
-                        ],
+                            const Spacer(),
+                            SizedBox(
+                              width: 160,
+                              child: TabBar(
+                                controller: _tabController,
+                                indicator: UnderlineTabIndicator(
+                                  borderSide: BorderSide(color: _accentColor, width: 3),
+                                  insets: const EdgeInsets.symmetric(horizontal: 16),
+                                ),
+                                labelColor: Colors.white,
+                                unselectedLabelColor: Colors.white54,
+                                labelStyle: AppTextStyles.tabLabel.copyWith(fontWeight: FontWeight.bold),
+                                dividerColor: Colors.transparent,
+                                tabs: const [Tab(text: 'Song'), Tab(text: 'Lyrics')],
+                              ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
+                              onPressed: () => SongOptionsSheet.show(context, song),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    // Content
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildSongTab(context, audio, song),
-                          LyricsScreen(songId: song.id, songTitle: song.displayTitle, songArtist: song.displayArtist),
-                        ],
+                      // Content
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildSongTab(context, audio, song),
+                            LyricsScreen(songId: song.id, songTitle: song.displayTitle, songArtist: song.displayArtist),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -139,38 +183,50 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
 
     return Column(
       children: [
-        // Album art
+        // Album art with Hero and Rotation
         Expanded(
           flex: 4,
           child: Center(
-            child: Container(
-              width: 260, height: 260,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 30, offset: const Offset(0, 10)),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: QueryArtworkWidget(
-                  id: song.id,
-                  type: ArtworkType.AUDIO,
-                  artworkHeight: 260, artworkWidth: 260,
-                  artworkFit: BoxFit.cover,
-                  artworkBorder: BorderRadius.circular(20),
-                  nullArtworkWidget: Container(
-                    width: 260, height: 260,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft, end: Alignment.bottomRight,
-                        colors: [Color(0xFFFF6B9D), Color(0xFF6B8CFF)],
+            child: Hero(
+              tag: 'album_art',
+              child: AnimatedBuilder(
+                animation: _rotationController,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: _rotationController.value * 2 * 3.14159,
+                    child: Container(
+                      width: 280, height: 280,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: _accentColor.withOpacity(0.3),
+                            blurRadius: 40,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: QueryArtworkWidget(
+                          id: song.id,
+                          type: ArtworkType.AUDIO,
+                          artworkHeight: 280, artworkWidth: 280,
+                          artworkFit: BoxFit.cover,
+                          nullArtworkWidget: Container(
+                            width: 280, height: 280,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft, end: Alignment.bottomRight,
+                                colors: [_accentColor, _dominantColor],
+                              ),
+                            ),
+                            child: const Icon(Icons.music_note_rounded, size: 100, color: Colors.white70),
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Icon(Icons.music_note_rounded, size: 80, color: Colors.white70),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ),
@@ -237,12 +293,12 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                           children: [
                             SliderTheme(
                               data: SliderTheme.of(context).copyWith(
-                                trackHeight: 4,
-                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                                overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-                                activeTrackColor: Colors.white,
+                                trackHeight: 6,
+                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                                activeTrackColor: _accentColor,
                                 inactiveTrackColor: Colors.white12,
                                 thumbColor: Colors.white,
+                                overlayColor: _accentColor.withOpacity(0.2),
                               ),
                               child: Slider(
                                 value: data.position.inMilliseconds.toDouble().clamp(0, data.duration.inMilliseconds.toDouble()),
@@ -251,7 +307,7 @@ class _PlayerScreenState extends State<PlayerScreen> with SingleTickerProviderSt
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [

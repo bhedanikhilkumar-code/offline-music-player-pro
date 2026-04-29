@@ -8,6 +8,7 @@ class EqualizerProvider extends ChangeNotifier {
   late StorageService _storage;
   final EqualizerService _eqService = EqualizerService();
   EqualizerModel _model = EqualizerModel.defaultEq;
+  int _lastSessionId = 0;
 
   EqualizerModel get model => _model;
   bool get enabled => _model.enabled;
@@ -15,6 +16,7 @@ class EqualizerProvider extends ChangeNotifier {
   List<double> get bandLevels => _model.bandLevels;
   double get bassBoost => _model.bassBoost;
   double get virtualizer => _model.virtualizer;
+  bool get isInitialized => _eqService.initialized;
 
   Future<void> init(StorageService storage) async {
     _storage = storage;
@@ -25,12 +27,22 @@ class EqualizerProvider extends ChangeNotifier {
       virtualizer: _storage.virtualizerLevel,
       enabled: _storage.equalizerEnabled,
     );
-    _applyToService();
+    notifyListeners();
   }
 
-  void _applyToService() {
+  /// Initialize the native equalizer with the audio session ID
+  /// Call this after audio playback starts and the session ID is available
+  Future<void> initWithAudioSession(int audioSessionId) async {
+    if (audioSessionId <= 0 || audioSessionId == _lastSessionId) return;
+    _lastSessionId = audioSessionId;
+
+    await _eqService.init(audioSessionId);
+    _applyAllSettings();
+    notifyListeners();
+  }
+
+  void _applyAllSettings() {
     _eqService.setEnabled(_model.enabled);
-    _eqService.setPreset(_model.presetName);
     _eqService.setBandLevels(_model.bandLevels);
     _eqService.setBassBoost(_model.bassBoost);
     _eqService.setVirtualizer(_model.virtualizer);
@@ -39,7 +51,13 @@ class EqualizerProvider extends ChangeNotifier {
   Future<void> setEnabled(bool value) async {
     _model = _model.copyWith(enabled: value);
     await _storage.setEqualizerEnabled(value);
-    _applyToService();
+    _eqService.setEnabled(value);
+    if (value) {
+      // Re-apply all settings when enabling
+      _eqService.setBandLevels(_model.bandLevels);
+      _eqService.setBassBoost(_model.bassBoost);
+      _eqService.setVirtualizer(_model.virtualizer);
+    }
     notifyListeners();
   }
 
@@ -48,7 +66,7 @@ class EqualizerProvider extends ChangeNotifier {
     _model = _model.copyWith(presetName: name, bandLevels: bands);
     await _storage.setEqualizerPreset(name);
     await _storage.setEqBandValues(bands);
-    _applyToService();
+    _eqService.setBandLevels(bands);
     notifyListeners();
   }
 
@@ -58,21 +76,21 @@ class EqualizerProvider extends ChangeNotifier {
     _model = _model.copyWith(presetName: 'Custom', bandLevels: bands);
     await _storage.setEqualizerPreset('Custom');
     await _storage.setEqBandValues(bands);
-    _applyToService();
+    _eqService.setBandLevel(index, level);
     notifyListeners();
   }
 
   Future<void> setBassBoost(double level) async {
     _model = _model.copyWith(bassBoost: level);
     await _storage.setBassBoostLevel(level);
-    _applyToService();
+    _eqService.setBassBoost(level);
     notifyListeners();
   }
 
   Future<void> setVirtualizer(double level) async {
     _model = _model.copyWith(virtualizer: level);
     await _storage.setVirtualizerLevel(level);
-    _applyToService();
+    _eqService.setVirtualizer(level);
     notifyListeners();
   }
 }

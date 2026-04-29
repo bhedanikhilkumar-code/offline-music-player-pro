@@ -4,6 +4,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_constants.dart';
+import '../providers/theme_provider.dart';
 import '../providers/sleep_timer_provider.dart';
 
 class SleepTimerScreen extends StatelessWidget {
@@ -11,108 +12,107 @@ class SleepTimerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter, end: Alignment.bottomCenter,
-            colors: [AppColors.surfaceDark, AppColors.primaryDark],
-          ),
-        ),
-        child: SafeArea(
-          child: Consumer<SleepTimerProvider>(
-            builder: (context, timer, _) {
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      children: [
-                        IconButton(icon: const Icon(Icons.arrow_back_rounded, color: Colors.white), onPressed: () => Navigator.pop(context)),
-                        const SizedBox(width: 8),
-                        Text(AppStrings.sleepTimer, style: AppTextStyles.headingMedium),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (timer.isRunning) ...[
-                            Container(
-                              width: 180, height: 180,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Theme.of(context).primaryColor, width: 4),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(timer.remainingFormatted, style: AppTextStyles.headingLarge),
-                                    Text(AppStrings.timerRunning, style: AppTextStyles.bodySmall),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                            SizedBox(
-                              width: double.infinity, height: 52,
-                              child: ElevatedButton(
-                                onPressed: () => timer.cancelTimer(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.error,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                ),
-                                child: Text(AppStrings.cancelTimer, style: AppTextStyles.buttonText),
-                              ),
-                            ),
-                          ] else ...[
-                            Icon(Icons.bedtime_rounded, size: 64, color: Theme.of(context).primaryColor),
-                            const SizedBox(height: 16),
-                            Text('Set sleep timer', style: AppTextStyles.headingSmall),
-                            const SizedBox(height: 8),
-                            Text('Music will stop after the selected time', style: AppTextStyles.bodySmall),
-                            const SizedBox(height: 32),
-                            Wrap(
-                              spacing: 12, runSpacing: 12,
-                              alignment: WrapAlignment.center,
-                              children: AppConstants.sleepTimerPresets.map((minutes) {
-                                return SizedBox(
-                                  width: 100, height: 52,
-                                  child: ElevatedButton(
-                                    onPressed: () => timer.startTimer(minutes),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.cardDark,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    ),
-                                    child: Text('$minutes min', style: AppTextStyles.bodyMedium),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            const SizedBox(height: 16),
-                            OutlinedButton(
-                              onPressed: () => _showCustomTimerDialog(context, timer),
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              child: Text(AppStrings.customTimer, style: AppTextStyles.bodyMedium),
-                            ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return Scaffold(
+          body: Container(
+            decoration: themeProvider.backgroundDecoration,
+            child: SafeArea(
+              child: Consumer<SleepTimerProvider>(
+                builder: (context, timer, _) {
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Row(
+                          children: [
+                            IconButton(icon: const Icon(Icons.arrow_back_rounded, color: Colors.white), onPressed: () => Navigator.pop(context)),
+                            const SizedBox(width: 8),
+                            Text(AppStrings.sleepTimer, style: AppTextStyles.headingMedium),
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              );
-            },
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (timer.isRunning) ...[
+                                Container(
+                                  width: 180, height: 180,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Theme.of(context).primaryColor, width: 4),
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(timer.remainingFormatted, style: AppTextStyles.headingLarge),
+                                        Text(AppStrings.timerRunning, style: AppTextStyles.bodySmall),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                SizedBox(
+                                  width: double.infinity, height: 52,
+                                  child: ElevatedButton(
+                                    onPressed: () => timer.cancelTimer(),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.error,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    ),
+                                    child: Text(AppStrings.cancelTimer, style: AppTextStyles.buttonText),
+                                  ),
+                                ),
+                              ] else ...[
+                                Icon(Icons.bedtime_rounded, size: 64, color: Theme.of(context).primaryColor),
+                                const SizedBox(height: 16),
+                                Text('Set sleep timer', style: AppTextStyles.headingSmall),
+                                const SizedBox(height: 8),
+                                Text('Music will stop after the selected time', style: AppTextStyles.bodySmall),
+                                const SizedBox(height: 32),
+                                Wrap(
+                                  spacing: 12, runSpacing: 12,
+                                  alignment: WrapAlignment.center,
+                                  children: AppConstants.sleepTimerPresets.map((minutes) {
+                                    return SizedBox(
+                                      width: 100, height: 52,
+                                      child: ElevatedButton(
+                                        onPressed: () => timer.startTimer(minutes),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.cardDark,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                        child: Text('$minutes min', style: AppTextStyles.bodyMedium),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                                const SizedBox(height: 16),
+                                OutlinedButton(
+                                  onPressed: () => _showCustomTimerDialog(context, timer),
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  child: Text(AppStrings.customTimer, style: AppTextStyles.bodyMedium),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

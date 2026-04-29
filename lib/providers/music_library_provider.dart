@@ -5,6 +5,7 @@ import '../models/artist_model.dart';
 import '../models/folder_model.dart';
 import '../services/music_scanner_service.dart';
 import 'package:offline_music_player/services/storage_service.dart';
+import '../services/permission_service.dart';
 import '../utils/sort_utils.dart';
 
 class MusicLibraryProvider extends ChangeNotifier {
@@ -69,7 +70,12 @@ class MusicLibraryProvider extends ChangeNotifier {
   Future<void> init(StorageService storage) async {
     _storage = storage;
     _sortType = _storage.sortType;
-    await scanMusic();
+    
+    // Only scan if permission is granted
+    final hasPermission = await PermissionService.hasStoragePermission();
+    if (hasPermission) {
+      await scanMusic();
+    }
   }
 
   Future<void> scanMusic() async {

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_mini_desc">Compact playback controls with song title</string>
+    <string name="widget_now_playing_desc">Now playing card with album art and controls</string>
+    <string name="widget_full_player_desc">Full music player with all controls</string>
+    <string name="widget_quick_play_desc">Quick play/pause button</string>
+    <string name="widget_recent_desc">Recently played song with controls</string>
+</resources>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget 4: Quick Play (2×2) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_dark"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Large Play Button -->
+    <ImageView
+        android:id="@+id/widget_play_pause"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/widget_btn_bg"
+        android:contentDescription="Play/Pause"
+        android:padding="12dp"
+        android:src="@drawable/ic_widget_play"/>
+
+    <!-- Song Title -->
+    <TextView
+        android:id="@+id/widget_song_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:text="Tap to play"
+        android:textColor="#CCFFFFFF"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif"/>
+</LinearLayout>

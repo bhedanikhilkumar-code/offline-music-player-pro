@@ -4,6 +4,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_constants.dart';
+import '../providers/theme_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/music_library_provider.dart';
 import 'package:offline_music_player/services/storage_service.dart';
@@ -14,37 +15,34 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter, end: Alignment.bottomCenter,
-            colors: [AppColors.surfaceDark, AppColors.primaryDark],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // App bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(AppStrings.settings, style: AppTextStyles.headingMedium),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Consumer<SettingsProvider>(
-                  builder: (context, settings, _) {
-                    return ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return Scaffold(
+          body: Container(
+            decoration: themeProvider.backgroundDecoration,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // App bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Row(
                       children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(AppStrings.settings, style: AppTextStyles.headingMedium),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Consumer<SettingsProvider>(
+                      builder: (context, settings, _) {
+                        return ListView(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          children: [
                         // ─── General Section ───
                         _sectionHeader('General', const Color(0xFF00BFFF)),
                         
@@ -273,15 +271,17 @@ class SettingsScreen extends StatelessWidget {
                           showChevron: false,
                         ),
                         const SizedBox(height: 40),
-                      ],
-                    );
-                  },
-                ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

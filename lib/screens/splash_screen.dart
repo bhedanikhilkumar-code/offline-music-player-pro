@@ -39,12 +39,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     final hasPermission = await PermissionService.hasStoragePermission();
 
     if (!mounted) return;
+    if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => hasPermission && storage.permissionGranted
-            ? const HomeScreen()
-            : const PermissionScreen(),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => 
+            hasPermission && storage.permissionGranted ? const HomeScreen() : const PermissionScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 800),
       ),
     );
   }
@@ -100,11 +104,3 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
-class AnimatedBuilder extends AnimatedWidget {
-  final Widget Function(BuildContext context, Widget? child) builder;
-  const AnimatedBuilder({super.key, required Animation<double> animation, required this.builder})
-      : super(listenable: animation);
-
-  @override
-  Widget build(BuildContext context) => builder(context, null);
-}

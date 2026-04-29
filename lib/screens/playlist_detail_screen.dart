@@ -7,6 +7,7 @@ import '../models/playlist_model.dart';
 import '../providers/playlist_provider.dart';
 import '../providers/audio_provider.dart';
 import '../providers/music_library_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
 
@@ -43,12 +44,7 @@ class PlaylistDetailScreen extends StatelessWidget {
 
         return Scaffold(
           body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [AppColors.surfaceDark, AppColors.primaryDark],
-              ),
-            ),
+            decoration: context.watch<ThemeProvider>().backgroundDecoration,
             child: SafeArea(
               child: Column(
                 children: [

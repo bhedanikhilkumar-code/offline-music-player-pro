@@ -8,6 +8,7 @@ import '../screens/settings_screen.dart';
 import '../screens/equalizer_screen.dart';
 import '../screens/sleep_timer_screen.dart';
 import '../screens/theme_screen.dart';
+import '../screens/widgets_screen.dart';
 
 class DrawerMenu extends StatelessWidget {
   const DrawerMenu({super.key});
@@ -68,9 +69,7 @@ class DrawerMenu extends StatelessWidget {
               }),
               _menuItem(context, Icons.widgets_outlined, AppStrings.widgets, () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Widgets feature coming soon')),
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const WidgetsScreen()));
               }),
               const SizedBox(height: 8),
               _menuItem(context, Icons.block_rounded, AppStrings.removeAds, () {

@@ -71,6 +71,11 @@ class AppColors {
     [Color(0xFF2196F3), Color(0xFFE91E63)],
     [Color(0xFF673AB7), Color(0xFFFF9800)],
     [Color(0xFF00BCD4), Color(0xFF9C27B0)],
+    // Unique Themes
+    [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)], // Deep Ocean (Glass)
+    [Color(0xFF00F260), Color(0xFF0575E6)], // Cyber Neon Green-Blue
+    [Color(0xFFFF00CC), Color(0xFF333399)], // Cyber Neon Pink-Blue
+    [Color(0xFF434343), Color(0xFF000000)], // Midnight Glass
   ];
 
   static LinearGradient get playerGradient => const LinearGradient(

@@ -16,6 +16,7 @@ class AudioProvider extends ChangeNotifier {
   int get repeatMode => _playerService.repeatMode;
   bool get isPlaying => _playerService.isPlaying;
   AudioPlayerService get playerService => _playerService;
+  int get androidAudioSessionId => _playerService.androidAudioSessionId;
 
   Stream<PlayerState> get playerStateStream => _playerService.playerStateStream;
   Stream<Duration?> get durationStream => _playerService.durationStream;
@@ -31,13 +32,17 @@ class AudioProvider extends ChangeNotifier {
     final speed = _storage.playbackSpeed;
     await _playerService.setSpeed(speed);
 
-    _playerService.player.playerStateStream.listen((_) => notifyListeners());
+    _playerService.player.playerStateStream.listen((state) {
+      _storage.setIsCurrentlyPlaying(state.playing);
+      notifyListeners();
+    });
     
     // Listen for track changes to update history
     _playerService.currentSongStream.listen((song) {
       if (song != null) {
         _storage.setLastPlayedSongId(song.id);
         _storage.setLastPlayedSongTitle(song.title);
+        _storage.setLastPlayedArtist(song.artist);
         _storage.addToRecentlyPlayed(song.id);
         _storage.incrementPlayCount(song.id);
         notifyListeners();

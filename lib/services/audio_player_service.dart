@@ -17,6 +17,10 @@ class AudioPlayerService {
   final AudioPlayer _player = AudioPlayer();
   AudioPlayer get player => _player;
 
+  /// Android audio session ID for connecting native audio effects
+  int _androidAudioSessionId = 0;
+  int get androidAudioSessionId => _androidAudioSessionId;
+
   final BehaviorSubject<SongModel?> _currentSongSubject = BehaviorSubject<SongModel?>.seeded(null);
   Stream<SongModel?> get currentSongStream => _currentSongSubject.stream;
 
@@ -49,6 +53,13 @@ class AudioPlayerService {
     _player.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
         _handleSongComplete();
+      }
+    });
+
+    // Capture Android audio session ID for native equalizer
+    _player.androidAudioSessionIdStream.listen((sessionId) {
+      if (sessionId != null) {
+        _androidAudioSessionId = sessionId;
       }
     });
   }

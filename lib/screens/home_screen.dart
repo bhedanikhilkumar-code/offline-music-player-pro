@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:on_audio_query/on_audio_query.dart' as on_audio_query hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_strings.dart';
 import '../providers/audio_provider.dart';
 import '../providers/music_library_provider.dart';
 import '../providers/playlist_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/song_model.dart';
 import 'package:offline_music_player/services/storage_service.dart';
 import '../widgets/mini_player.dart';
@@ -56,90 +57,114 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: const DrawerMenu(),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter, end: Alignment.bottomCenter,
-            colors: [AppColors.surfaceDark, AppColors.primaryDark],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAppBar(),
-              _buildTabBar(),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildSongsTab(),
-                    _buildPlaylistsTab(),
-                    _buildFoldersTab(),
-                    _buildAlbumsTab(),
-                    _buildArtistsTab(),
-                  ],
-                ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: const DrawerMenu(),
+          body: Container(
+            decoration: themeProvider.backgroundDecoration,
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildAppBar(),
+                  _buildTabBar(),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildSongsTab(),
+                        _buildPlaylistsTab(),
+                        _buildFoldersTab(),
+                        _buildAlbumsTab(),
+                        _buildArtistsTab(),
+                      ],
+                    ),
+                  ),
+                  const MiniPlayer(),
+                ],
               ),
-              const MiniPlayer(),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _buildAppBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.sort_rounded, color: Colors.white, size: 28), // Hamburger menu variant
+            icon: const Icon(Icons.sort_rounded, color: Colors.white, size: 28),
             onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
+          const SizedBox(width: 16),
+          Text('Player Pro', style: AppTextStyles.headingMedium.copyWith(letterSpacing: 1.2)),
           const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.app_shortcut_rounded, color: Colors.white70),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ThemeScreen())),
-          ),
-          IconButton(
-            icon: const Icon(Icons.search_rounded, color: Colors.white),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
-          ),
+          _buildAppBarAction(Icons.search_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen()))),
+          const SizedBox(width: 12),
+          _buildAppBarAction(Icons.app_shortcut_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ThemeScreen()))),
         ],
       ),
     );
   }
 
+  Widget _buildAppBarAction(IconData icon, VoidCallback onTap) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white, size: 22),
+        onPressed: onTap,
+        padding: const EdgeInsets.all(8),
+        constraints: const BoxConstraints(),
+      ),
+    );
+  }
+
   Widget _buildTabBar() {
-    return TabBar(
-      controller: _tabController,
-      isScrollable: true,
-      indicatorColor: Colors.white,
-      indicatorWeight: 3,
-      indicatorSize: TabBarIndicatorSize.label,
-      labelColor: Colors.white,
-      unselectedLabelColor: Colors.white54,
-      labelStyle: AppTextStyles.headingMedium.copyWith(fontSize: 22, fontWeight: FontWeight.bold),
-      unselectedLabelStyle: AppTextStyles.headingMedium.copyWith(fontSize: 16, fontWeight: FontWeight.normal),
-      tabAlignment: TabAlignment.start,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      dividerColor: Colors.transparent,
-      tabs: const [
-        Tab(text: AppStrings.songs),
-        Tab(text: AppStrings.playlists),
-        Tab(text: AppStrings.folders),
-        Tab(text: AppStrings.albums),
-        Tab(text: AppStrings.artists),
-      ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: AppColors.accentOrange,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.accentOrange.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white54,
+        labelStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 15),
+        unselectedLabelStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.normal, fontSize: 14),
+        tabAlignment: TabAlignment.start,
+        dividerColor: Colors.transparent,
+        tabs: const [
+          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.songs))),
+          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.playlists))),
+          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.folders))),
+          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.albums))),
+          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.artists))),
+        ],
+      ),
     );
   }
 
@@ -171,103 +196,252 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           );
         }
 
-        return Column(
-          children: [
-            // Header with count, sort, list view
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  Text('${songs.length} Songs', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70)),
-                  const Spacer(),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.swap_vert_rounded, color: Colors.white70, size: 22),
-                    color: AppColors.cardDark,
-                    onSelected: (value) => library.setSortType(value),
-                    itemBuilder: (_) => [
-                      _sortMenuItem('Title', 'title', library.sortType),
-                      _sortMenuItem('Artist', 'artist', library.sortType),
-                      _sortMenuItem('Album', 'album', library.sortType),
-                      _sortMenuItem('Duration', 'duration', library.sortType),
-                      _sortMenuItem('Date', 'date', library.sortType),
-                      _sortMenuItem('Size', 'size', library.sortType),
+        final recent = library.recentlyPlayed;
+        final mostPlayed = library.mostPlayed;
+
+        return CustomScrollView(
+          slivers: [
+            // ─── Sort bar ───
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.library_music_rounded, color: Colors.white54, size: 16),
+                          const SizedBox(width: 6),
+                          Text('${songs.length} Songs', style: AppTextStyles.bodySmall.copyWith(color: Colors.white70, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.swap_vert_rounded, color: Colors.white70, size: 22),
+                      color: AppColors.cardDark,
+                      onSelected: (value) => library.setSortType(value),
+                      itemBuilder: (_) => [
+                        _sortMenuItem('Title', 'title', library.sortType),
+                        _sortMenuItem('Artist', 'artist', library.sortType),
+                        _sortMenuItem('Album', 'album', library.sortType),
+                        _sortMenuItem('Duration', 'duration', library.sortType),
+                        _sortMenuItem('Date', 'date', library.sortType),
+                        _sortMenuItem('Size', 'size', library.sortType),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ─── Shuffle & Play buttons ───
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionButton(
+                        icon: Icons.shuffle_rounded,
+                        label: 'Shuffle',
+                        gradient: const [Color(0xFFFF6B35), Color(0xFFFF8F65)],
+                        onTap: () {
+                          final shuffled = List.from(songs)..shuffle();
+                          context.read<AudioProvider>().setQueue(shuffled.cast(), startIndex: 0);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildActionButton(
+                        icon: Icons.play_arrow_rounded,
+                        label: 'Play All',
+                        gradient: [Colors.white.withOpacity(0.1), Colors.white.withOpacity(0.05)],
+                        onTap: () {
+                          if (songs.isNotEmpty) {
+                            context.read<AudioProvider>().playSong(songs.first, playlist: songs, index: 0);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ─── Recently Played (horizontal cards) ───
+            if (recent.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.accentOrange.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.history_rounded, color: AppColors.accentOrange, size: 18),
+                      ),
+                      const SizedBox(width: 10),
+                      Text('Recently Played', style: AppTextStyles.headingSmall.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                      const Spacer(),
+                      Text('${recent.length}', style: AppTextStyles.bodySmall.copyWith(color: Colors.white38)),
                     ],
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.format_list_bulleted_rounded, color: Colors.white70, size: 22),
-                ],
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 165,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: recent.length,
+                    itemBuilder: (context, index) => _buildRecentSongItem(context, recent[index], recent),
+                  ),
+                ),
+              ),
+            ],
+
+            // ─── Most Played (horizontal cards) ───
+            if (mostPlayed.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.trending_up_rounded, color: Colors.blueAccent, size: 18),
+                      ),
+                      const SizedBox(width: 10),
+                      Text('Most Played', style: AppTextStyles.headingSmall.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                      const Spacer(),
+                      Text('${mostPlayed.length}', style: AppTextStyles.bodySmall.copyWith(color: Colors.white38)),
+                    ],
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 165,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: mostPlayed.length,
+                    itemBuilder: (context, index) => _buildRecentSongItem(context, mostPlayed[index], mostPlayed),
+                  ),
+                ),
+              ),
+            ],
+
+            // ─── All Songs Header ───
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.purpleAccent.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.queue_music_rounded, color: Colors.purpleAccent, size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    Text('All Songs', style: AppTextStyles.headingSmall.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                    const Spacer(),
+                    Text('${songs.length}', style: AppTextStyles.bodySmall.copyWith(color: Colors.white38)),
+                  ],
+                ),
               ),
             ),
-            // Shuffle & Play Pill Buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        final shuffled = List.from(songs)..shuffle();
-                        context.read<AudioProvider>().setQueue(shuffled.cast(), startIndex: 0);
-                      },
-                      icon: const Icon(Icons.shuffle_rounded, color: AppColors.accentOrange, size: 20),
-                      label: Text('Shuffle', style: AppTextStyles.buttonText),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.cardDarkLight,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        if (songs.isNotEmpty) {
-                          context.read<AudioProvider>().playSong(songs.first, playlist: songs, index: 0);
-                        }
-                      },
-                      icon: const Icon(Icons.play_arrow_rounded, color: AppColors.accentOrange, size: 20),
-                      label: Text('Play', style: AppTextStyles.buttonText),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.cardDarkLight,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _buildRecentlyPlayed(library),
-            _buildMostPlayed(library),
-            const SizedBox(height: 8),
-            // Song list
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 24),
-                itemCount: songs.length,
-                itemBuilder: (context, index) {
+
+            // ─── All Songs List ───
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
                   final song = songs[index];
-                  return Consumer<AudioProvider>(
-                    builder: (context, audio, _) {
-                      return SongTile(
-                        song: song,
-                        isPlaying: audio.currentSong?.id == song.id,
-                        onTap: () => audio.playSong(song, playlist: songs, index: index),
-                        onOptionsTap: () => SongOptionsSheet.show(context, song),
-                      );
-                    },
+                  return AnimationConfiguration.staggeredList(
+                    position: index,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      verticalOffset: 50.0,
+                      child: FadeInAnimation(
+                        child: Consumer<AudioProvider>(
+                          builder: (context, audio, _) {
+                            return SongTile(
+                              song: song,
+                              isPlaying: audio.currentSong?.id == song.id,
+                              onTap: () => audio.playSong(song, playlist: songs, index: index),
+                              onOptionsTap: () => SongOptionsSheet.show(context, song),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
                   );
                 },
+                childCount: songs.length,
               ),
             ),
+
+            // Bottom padding for MiniPlayer
+            const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required List<Color> gradient,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: gradient),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: gradient.first.withOpacity(0.25),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 22),
+              const SizedBox(width: 8),
+              Text(label, style: AppTextStyles.buttonText.copyWith(fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -294,49 +468,53 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
             ),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildSmartPlaylistTile(
-                    context,
-                    title: 'Recently Played',
-                    icon: Icons.history_rounded,
-                    color: AppColors.accentOrange,
-                    songCount: library.recentlyPlayed.length,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => PlaylistDetailScreen(playlistId: 'recent', customSongs: library.recentlyPlayed, title: 'Recently Played'),
-                    )),
-                  ),
-                  _buildSmartPlaylistTile(
-                    context,
-                    title: 'Most Played',
-                    icon: Icons.trending_up_rounded,
-                    color: Colors.blueAccent,
-                    songCount: library.mostPlayed.length,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => PlaylistDetailScreen(playlistId: 'most_played', customSongs: library.mostPlayed, title: 'Most Played'),
-                    )),
-                  ),
-                  _buildSmartPlaylistTile(
-                    context,
-                    title: 'Favorites',
-                    icon: Icons.favorite_rounded,
-                    color: Colors.pinkAccent,
-                    songCount: library.favorites.length,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => PlaylistDetailScreen(playlistId: 'favorites', customSongs: library.favorites, title: 'Favorites'),
-                    )),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Divider(color: Colors.white10),
-                  ),
-                  if (playlists.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(40),
-                      child: Center(child: Text('No custom playlists yet', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38))),
-                    )
-                  else
-                    ...playlists.map((playlist) => ListTile(
+              child: AnimationLimiter(
+                child: ListView(
+                  children: AnimationConfiguration.toStaggeredList(
+                    duration: const Duration(milliseconds: 375),
+                    childAnimationBuilder: (widget) => SlideAnimation(verticalOffset: 50.0, child: FadeInAnimation(child: widget)),
+                    children: [
+                      _buildSmartPlaylistTile(
+                        context,
+                        title: 'Recently Played',
+                        icon: Icons.history_rounded,
+                        color: AppColors.accentOrange,
+                        songCount: library.recentlyPlayed.length,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => PlaylistDetailScreen(playlistId: 'recent', customSongs: library.recentlyPlayed, title: 'Recently Played'),
+                        )),
+                      ),
+                      _buildSmartPlaylistTile(
+                        context,
+                        title: 'Most Played',
+                        icon: Icons.trending_up_rounded,
+                        color: Colors.blueAccent,
+                        songCount: library.mostPlayed.length,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => PlaylistDetailScreen(playlistId: 'most_played', customSongs: library.mostPlayed, title: 'Most Played'),
+                        )),
+                      ),
+                      _buildSmartPlaylistTile(
+                        context,
+                        title: 'Favorites',
+                        icon: Icons.favorite_rounded,
+                        color: Colors.pinkAccent,
+                        songCount: library.favorites.length,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => PlaylistDetailScreen(playlistId: 'favorites', customSongs: library.favorites, title: 'Favorites'),
+                        )),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(color: Colors.white10),
+                      ),
+                      if (playlists.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(40),
+                          child: Center(child: Text('No custom playlists yet', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38))),
+                        )
+                      else
+                        ...playlists.map((playlist) => ListTile(
                           leading: Container(
                             width: 50, height: 50,
                             decoration: BoxDecoration(
@@ -352,7 +530,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             builder: (_) => PlaylistDetailScreen(playlistId: playlist.id),
                           )),
                         )),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -370,14 +550,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         }
         return ListView.builder(
           itemCount: folders.length,
+          padding: const EdgeInsets.only(bottom: 80),
           itemBuilder: (context, index) {
             final folder = folders[index];
             return ListTile(
               leading: Container(
                 width: 50, height: 50,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: AppColors.cardDarkLight,
+                  color: AppColors.accentAmber.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.folder_rounded, color: AppColors.accentAmber),
               ),
@@ -496,73 +677,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildRecentlyPlayed(MusicLibraryProvider library) {
-    final recent = library.recentlyPlayed;
-    if (recent.isEmpty) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-          child: Row(
-            children: [
-              const Icon(Icons.history_rounded, color: AppColors.accentOrange, size: 20),
-              const SizedBox(width: 8),
-              Text('Recently Played', style: AppTextStyles.headingSmall.copyWith(fontSize: 18)),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 160,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: recent.length,
-            itemBuilder: (context, index) {
-              return _buildRecentSongItem(context, recent[index], recent);
-            },
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildMostPlayed(MusicLibraryProvider library) {
-    final mostPlayed = library.mostPlayed;
-    if (mostPlayed.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-          child: Row(
-            children: [
-              const Icon(Icons.trending_up_rounded, color: Colors.blueAccent, size: 20),
-              const SizedBox(width: 8),
-              Text('Most Played', style: AppTextStyles.headingSmall.copyWith(fontSize: 18)),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 160,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: mostPlayed.length,
-            itemBuilder: (context, index) {
-              return _buildRecentSongItem(context, mostPlayed[index], mostPlayed);
-            },
-          ),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Divider(color: Colors.white10),
-        ),
-      ],
-    );
-  }
 
   Widget _buildRecentSongItem(BuildContext context, SongModel song, List<SongModel> playlist) {
     return GestureDetector(

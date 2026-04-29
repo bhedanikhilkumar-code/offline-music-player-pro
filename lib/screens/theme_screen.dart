@@ -40,6 +40,11 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   // Built-in theme images with placeholder colors for gallery
   final List<Map<String, dynamic>> themeImages = [
     {'label': 'Custom', 'icon': Icons.add_photo_alternate_outlined, 'colors': [const Color(0xFF6C63FF), const Color(0xFF3D5AFE)]},
+    {'label': 'Ocean Glass', 'colors': [Color(0xFF1A1A2E), Color(0xFF0F3460)], 'isUnique': true},
+    {'label': 'Cyber Neon', 'colors': [Color(0xFF00F260), Color(0xFF0575E6)], 'isUnique': true},
+    {'label': 'Neon Pink', 'colors': [Color(0xFFFF00CC), Color(0xFF333399)], 'isUnique': true},
+    {'label': 'Amethyst', 'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'isUnique': true},
+    {'label': 'Midnight', 'colors': [Color(0xFF434343), Color(0xFF000000)], 'isUnique': true},
     {'label': 'Earth', 'colors': [const Color(0xFF0D47A1), const Color(0xFF00BCD4)]},
     {'label': 'Anime', 'colors': [const Color(0xFF7C4DFF), const Color(0xFF448AFF)]},
     {'label': 'Car', 'colors': [const Color(0xFFFF1744), const Color(0xFFFF6D00)]},
@@ -64,73 +69,72 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter, end: Alignment.bottomCenter,
-            colors: [AppColors.surfaceDark, AppColors.primaryDark],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // App bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
-                      onPressed: () => Navigator.pop(context),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return Scaffold(
+          body: Container(
+            decoration: themeProvider.backgroundDecoration,
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // App bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(AppStrings.skinTheme, style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.w700)),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(AppStrings.skinTheme, style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.w700)),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ─── Color Section ───
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                        child: Text('Color', style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
-                      ),
-                      _buildPremiumColorRow(context),
-                      const SizedBox(height: 14),
-                      _buildRegularColorRows(context),
-                      const SizedBox(height: 24),
-
-                      // ─── Image Theme Section ───
-                      TabBar(
-                        controller: _imageTabController,
-                        isScrollable: true,
-                        indicatorColor: Colors.white,
-                        indicatorWeight: 3,
-                        indicatorSize: TabBarIndicatorSize.label,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: Colors.white54,
-                        labelStyle: AppTextStyles.tabLabel.copyWith(fontSize: 13),
-                        tabAlignment: TabAlignment.start,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        dividerColor: Colors.transparent,
-                        tabs: imageCategories.map((cat) => Tab(text: cat)).toList(),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildImageGrid(context),
-                      const SizedBox(height: 32),
-                    ],
                   ),
-                ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ─── Color Section ───
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                            child: Text('Color', style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
+                          ),
+                          _buildPremiumColorRow(context),
+                          const SizedBox(height: 14),
+                          _buildRegularColorRows(context),
+                          const SizedBox(height: 24),
+
+                          // ─── Image Theme Section ───
+                          TabBar(
+                            controller: _imageTabController,
+                            isScrollable: true,
+                            indicatorColor: Colors.white,
+                            indicatorWeight: 3,
+                            indicatorSize: TabBarIndicatorSize.label,
+                            labelColor: Colors.white,
+                            unselectedLabelColor: Colors.white54,
+                            labelStyle: AppTextStyles.tabLabel.copyWith(fontSize: 13),
+                            tabAlignment: TabAlignment.start,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            dividerColor: Colors.transparent,
+                            tabs: imageCategories.map((cat) => Tab(text: cat)).toList(),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildImageGrid(context),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -286,40 +290,56 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                         Text(label, style: AppTextStyles.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w500)),
                       ],
                     )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // Gradient background as placeholder for real images
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                                colors: [colors[0], colors[1].withOpacity(0.8)],
-                              ),
-                            ),
-                            child: Icon(
-                              _getImageIcon(label),
-                              size: 40, color: Colors.white.withOpacity(0.3),
-                            ),
-                          ),
-                          // Subtle bottom vignette
-                          Positioned(
-                            bottom: 0, left: 0, right: 0,
-                            child: Container(
-                              height: 40,
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            // Gradient background as placeholder for real images
+                            Container(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                                  colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+                                  colors: [colors[0], colors[1].withOpacity(0.8)],
+                                ),
+                              ),
+                              child: Icon(
+                                _getImageIcon(label),
+                                size: 40, color: Colors.white.withOpacity(0.3),
+                              ),
+                            ),
+                            if (item['isUnique'] == true)
+                              Positioned(
+                                top: 8, right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accentOrange,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text('UNIQUE', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            // Subtle bottom vignette
+                            Positioned(
+                              bottom: 0, left: 0, right: 0,
+                              child: Container(
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                                    colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            Positioned(
+                              bottom: 8, left: 8,
+                              child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
             ),
           );
         },

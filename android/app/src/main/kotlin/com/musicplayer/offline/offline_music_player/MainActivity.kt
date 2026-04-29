@@ -4,9 +4,15 @@ import android.content.Context
 import io.flutter.embedding.android.FlutterActivity
 import com.ryanheise.audioservice.AudioServicePlugin
 import io.flutter.embedding.engine.FlutterEngine
+import com.musicplayer.equalizer.EqualizerPlugin
 
 class MainActivity: FlutterActivity() {
     override fun provideFlutterEngine(context: Context): FlutterEngine? {
         return AudioServicePlugin.getFlutterEngine(context)
+    }
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        flutterEngine.plugins.add(EqualizerPlugin())
     }
 }

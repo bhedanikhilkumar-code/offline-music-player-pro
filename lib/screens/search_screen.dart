@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_strings.dart';
@@ -49,104 +50,103 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter, end: Alignment.bottomCenter,
-            colors: [AppColors.surfaceDark, AppColors.primaryDark],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Search bar
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.cardDark,
-                          borderRadius: BorderRadius.circular(22),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return Scaffold(
+          body: Container(
+            decoration: themeProvider.backgroundDecoration,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // Search bar
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                        child: TextField(
-                          controller: _searchController,
-                          autofocus: true,
-                          style: AppTextStyles.bodyMedium,
-                          onChanged: _onSearch,
-                          onSubmitted: (q) {
-                            if (q.isNotEmpty) context.read<SearchProvider>().addToRecent(q);
-                          },
-                          decoration: InputDecoration(
-                            hintText: AppStrings.searchInLibrary,
-                            hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white38),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            suffixIcon: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear, color: Colors.white38, size: 20),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      context.read<SearchProvider>().clearSearch();
-                                    },
-                                  )
-                                : null,
+                        Expanded(
+                          child: Container(
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: AppColors.cardDark,
+                              borderRadius: BorderRadius.circular(22),
+                            ),
+                            child: TextField(
+                              controller: _searchController,
+                              autofocus: true,
+                              style: AppTextStyles.bodyMedium,
+                              onChanged: _onSearch,
+                              onSubmitted: (q) {
+                                if (q.isNotEmpty) context.read<SearchProvider>().addToRecent(q);
+                              },
+                              decoration: InputDecoration(
+                                hintText: AppStrings.searchInLibrary,
+                                hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white38),
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                suffixIcon: _searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear, color: Colors.white38, size: 20),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          context.read<SearchProvider>().clearSearch();
+                                        },
+                                      )
+                                    : null,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              // Tabs
-              TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                indicatorColor: Theme.of(context).primaryColor,
-                indicatorWeight: 3,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.white54,
-                labelStyle: AppTextStyles.tabLabel,
-                tabAlignment: TabAlignment.start,
-                tabs: const [
-                  Tab(text: AppStrings.all),
-                  Tab(text: AppStrings.songs),
-                  Tab(text: AppStrings.albums),
-                  Tab(text: AppStrings.artists),
-                  Tab(text: 'Playlist'),
+                  ),
+                  // Tabs
+                  TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    indicatorColor: Theme.of(context).primaryColor,
+                    indicatorWeight: 3,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white54,
+                    labelStyle: AppTextStyles.tabLabel,
+                    tabAlignment: TabAlignment.start,
+                    tabs: const [
+                      Tab(text: AppStrings.all),
+                      Tab(text: AppStrings.songs),
+                      Tab(text: AppStrings.albums),
+                      Tab(text: AppStrings.artists),
+                      Tab(text: 'Playlist'),
+                    ],
+                  ),
+                  // Results
+                  Expanded(
+                    child: Consumer<SearchProvider>(
+                      builder: (context, search, _) {
+                        if (search.query.isEmpty) {
+                          return _buildRecentSearches(search);
+                        }
+                        return TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildAllResults(search),
+                            _buildSongResults(search),
+                            _buildAlbumResults(search),
+                            _buildArtistResults(search),
+                            _buildPlaylistResults(search),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-              // Results
-              Expanded(
-                child: Consumer<SearchProvider>(
-                  builder: (context, search, _) {
-                    if (search.query.isEmpty) {
-                      return _buildRecentSearches(search);
-                    }
-                    return TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildAllResults(search),
-                        _buildSongResults(search),
-                        _buildAlbumResults(search),
-                        _buildArtistResults(search),
-                        _buildPlaylistResults(search),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
