@@ -42,7 +42,7 @@ class _HiddenMusicScreenState extends State<HiddenMusicScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.cardDark,
-        title: const Text('Enter PIN', style: AppTextStyles.headingSmall),
+        title: Text('Enter PIN', style: AppTextStyles.headingSmall),
         content: TextField(
           controller: _pinController,
           keyboardType: TextInputType.number,

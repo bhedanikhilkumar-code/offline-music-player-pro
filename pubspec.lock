@@ -276,18 +276,18 @@ packages:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: f0b8d115a13ecf827013ec9fc883390ccc0e87a96ed5347a3114cac177ef18e8
+      sha256: "6b6f10f0ce3c42f6552d1c70d2c28d764cf22bb487f50f66cca31dcd5194f4d6"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.0"
+    version: "4.0.4"
   http:
     dependency: transitive
     description:
       name: http
-      sha256: a2bbf9d017fcced29139daa8ed2bba4ece450ab222871df93ca9eec6f80c34ba
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "0.13.6"
   http_parser:
     dependency: transitive
     description:
@@ -672,6 +672,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.6.0"
+  ringtone_set:
+    dependency: "direct main"
+    description:
+      name: ringtone_set
+      sha256: d91ca5d655df8e04d1ecc3a14446a3a5944dece9314e55a1cdac171752ffa57b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   rxdart:
     dependency: "direct main"
     description:

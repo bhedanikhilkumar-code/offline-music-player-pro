@@ -70,6 +70,7 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
         album: _albumController.text,
         year: int.tryParse(_yearController.text),
         genre: _genreController.text,
+        pictures: [],
       );
 
       await AudioTags.write(widget.song.path, tags);

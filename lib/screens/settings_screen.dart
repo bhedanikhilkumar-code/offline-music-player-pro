@@ -364,7 +364,7 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.cardDark,
-        title: const Text('Set Privacy PIN', style: AppTextStyles.headingSmall),
+        title: Text('Set Privacy PIN', style: AppTextStyles.headingSmall),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
