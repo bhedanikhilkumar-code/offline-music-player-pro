@@ -1,5 +1,6 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/song_model.dart';
 
@@ -55,6 +56,9 @@ class AudioPlayerService {
       );
 
   Future<void> init() async {
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration.music());
+
     _player.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
         _handleSongComplete();
