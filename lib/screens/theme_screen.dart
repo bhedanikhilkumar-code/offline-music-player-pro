@@ -230,6 +230,18 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
       'imageUrl': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=600&fit=crop',
       'fullUrl': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1080&h=1920&fit=crop',
     },
+    {
+      'label': 'BMW',
+      'category': 'Other',
+      'imageUrl': 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Thar',
+      'category': 'Other',
+      'imageUrl': 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=1080&h=1920&fit=crop',
+    },
 
     // ── Girls ──
     {
