@@ -58,9 +58,7 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
     playbackState.add(PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
-        MediaControl.rewind,
         playerState.playing ? MediaControl.pause : MediaControl.play,
-        MediaControl.fastForward,
         MediaControl.skipToNext,
       ],
       systemActions: const {
@@ -68,7 +66,7 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
         MediaAction.seekForward,
         MediaAction.seekBackward,
       },
-      androidCompactActionIndices: const [0, 2, 4],
+      androidCompactActionIndices: const [0, 1, 2],
       processingState: _mapState(playerState.processingState),
       playing: playerState.playing,
       updatePosition: playbackEvent.updatePosition,
