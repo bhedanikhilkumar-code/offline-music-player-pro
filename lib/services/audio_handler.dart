@@ -45,12 +45,18 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   MediaItem _songToMediaItem(SongModel song) {
+    Uri? artUri;
+    if (song.id > 0) {
+      artUri = Uri.parse('content://media/external/audio/media/${song.id}/albumart');
+    }
+
     return MediaItem(
       id: song.path,
       title: song.displayTitle,
       artist: song.displayArtist,
       album: song.album,
       duration: Duration(milliseconds: song.duration),
+      artUri: artUri,
     );
   }
 

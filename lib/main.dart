@@ -27,7 +27,7 @@ Future<void> main() async {
       androidNotificationChannelName: 'Music Playback',
       androidNotificationChannelDescription:
           'Controls for the music currently playing',
-      androidNotificationIcon: 'mipmap/ic_launcher',
+      androidNotificationIcon: 'drawable/ic_notification',
       notificationColor: Color(0xFFFF6B35),
       androidShowNotificationBadge: true,
       androidNotificationOngoing: false,
