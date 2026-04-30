@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../services/permission_service.dart';
 import 'package:offline_music_player/services/storage_service.dart';
@@ -14,59 +13,69 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+  late AnimationController _waveController;
   late AnimationController _mainController;
-  late AnimationController _rotateController;
-  late AnimationController _pulseController;
+  late AnimationController _particleController;
 
-  late Animation<double> _fadeIn;
-  late Animation<double> _discScale;
-  late Animation<double> _textFade;
-  late Animation<Offset> _textSlide;
-  late Animation<double> _glowPulse;
+  late Animation<double> _logoScale;
+  late Animation<double> _logoFade;
+  late Animation<double> _barsFade;
+  late Animation<double> _titleFade;
+  late Animation<Offset> _titleSlide;
+  late Animation<double> _subtitleFade;
+  late Animation<double> _shimmer;
 
   @override
   void initState() {
     super.initState();
 
-    // Main animation (2s total timeline)
-    _mainController = AnimationController(
+    // Continuous wave animation
+    _waveController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    );
-
-    // Continuous 3D rotation
-    _rotateController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3000),
     )..repeat();
 
-    // Pulsing ring effect
-    _pulseController = AnimationController(
+    // Particle float
+    _particleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 4000),
+    )..repeat();
 
-    // Disc appears: 0% → 40%
-    _fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.0, 0.4, curve: Curves.easeOut)),
+    // Main reveal timeline (2.5s)
+    _mainController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
     );
 
-    _discScale = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
+    // Logo: 0% → 35%
+    _logoFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _mainController, curve: const Interval(0.0, 0.3, curve: Curves.easeOut)),
+    );
+    _logoScale = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(parent: _mainController, curve: const Interval(0.0, 0.4, curve: Curves.easeOutCubic)),
     );
 
-    // Text appears: 50% → 80%
-    _textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.5, 0.8, curve: Curves.easeOut)),
+    // Equalizer bars: 25% → 55%
+    _barsFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _mainController, curve: const Interval(0.25, 0.55, curve: Curves.easeOut)),
     );
 
-    _textSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.5, 0.85, curve: Curves.easeOutCubic)),
+    // Title: 45% → 70%
+    _titleFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _mainController, curve: const Interval(0.45, 0.7, curve: Curves.easeOut)),
+    );
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+      CurvedAnimation(parent: _mainController, curve: const Interval(0.45, 0.75, curve: Curves.easeOutCubic)),
     );
 
-    // Glow pulse
-    _glowPulse = Tween<double>(begin: 0.3, end: 0.7).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    // Subtitle: 60% → 85%
+    _subtitleFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _mainController, curve: const Interval(0.6, 0.85, curve: Curves.easeOut)),
+    );
+
+    // Shimmer across text
+    _shimmer = Tween<double>(begin: -1, end: 2).animate(
+      CurvedAnimation(parent: _mainController, curve: const Interval(0.7, 1.0, curve: Curves.easeInOut)),
     );
 
     _mainController.forward();
@@ -74,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   }
 
   Future<void> _navigateNext() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(milliseconds: 3200));
     if (!mounted) return;
 
     final storage = await StorageService.getInstance();
@@ -96,208 +105,246 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   void dispose() {
+    _waveController.dispose();
     _mainController.dispose();
-    _rotateController.dispose();
-    _pulseController.dispose();
+    _particleController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0D0B1E),
-              Color(0xFF1A1040),
-              Color(0xFF0D0B1E),
-            ],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-        child: Center(
-          child: AnimatedBuilder(
-            animation: Listenable.merge([_mainController, _rotateController, _pulseController]),
-            builder: (context, _) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ─── 3D Disc with Glow Rings ───
-                  Opacity(
-                    opacity: _fadeIn.value,
-                    child: Transform.scale(
-                      scale: _discScale.value,
-                      child: SizedBox(
-                        width: 200,
-                        height: 200,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Outer pulsing ring 3
-                            _buildPulseRing(170, _glowPulse.value * 0.15),
-                            // Outer pulsing ring 2
-                            _buildPulseRing(145, _glowPulse.value * 0.25),
-                            // Outer pulsing ring 1
-                            _buildPulseRing(125, _glowPulse.value * 0.35),
+    final size = MediaQuery.of(context).size;
 
-                            // 3D rotating disc
-                            Transform(
-                              alignment: Alignment.center,
-                              transform: Matrix4.identity()
-                                ..setEntry(3, 2, 0.001) // perspective
-                                ..rotateY(_rotateController.value * 2 * math.pi * 0.15) // subtle Y rotation
-                                ..rotateZ(_rotateController.value * 2 * math.pi * 0.05), // slight Z tilt
-                              child: Container(
-                                width: 110,
-                                height: 110,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: const SweepGradient(
-                                    colors: [
-                                      Color(0xFFFF8C00),
-                                      Color(0xFFFFAB00),
-                                      Color(0xFFFF6B35),
-                                      Color(0xFFFF8C00),
-                                    ],
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppColors.accentOrange.withOpacity(_glowPulse.value),
-                                      blurRadius: 40,
-                                      spreadRadius: 8,
-                                    ),
-                                    BoxShadow(
-                                      color: AppColors.accentAmber.withOpacity(_glowPulse.value * 0.5),
-                                      blurRadius: 60,
-                                      spreadRadius: 15,
-                                    ),
-                                  ],
-                                ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    // Inner vinyl ring
-                                    Container(
-                                      width: 45,
-                                      height: 45,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: const Color(0xFF1A1040),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.2),
-                                          width: 2,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.3),
-                                            blurRadius: 8,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Center dot
-                                    Container(
-                                      width: 12,
-                                      height: 12,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white.withOpacity(0.9),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.white.withOpacity(0.5),
-                                            blurRadius: 6,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Vinyl grooves (concentric rings)
-                                    ...[65, 75, 85, 95].map((size) => Container(
-                                      width: size.toDouble(),
-                                      height: size.toDouble(),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.black.withOpacity(0.08),
-                                          width: 0.5,
-                                        ),
-                                      ),
-                                    )),
-                                    // Music note icon
-                                    Icon(
-                                      Icons.music_note_rounded,
-                                      size: 22,
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+    return Scaffold(
+      body: AnimatedBuilder(
+        animation: Listenable.merge([_mainController, _waveController, _particleController]),
+        builder: (context, _) {
+          return Container(
+            width: size.width,
+            height: size.height,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF0A0A1A),
+                  Color(0xFF12102B),
+                  Color(0xFF0E0C20),
+                  Color(0xFF080818),
+                ],
+                stops: [0.0, 0.35, 0.7, 1.0],
+              ),
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // ─── Floating Particles ───
+                ..._buildParticles(size),
+
+                // ─── Ambient Glow behind logo ───
+                Opacity(
+                  opacity: _logoFade.value * 0.6,
+                  child: Container(
+                    width: 250,
+                    height: 250,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          const Color(0xFFFF6B35).withOpacity(0.15),
+                          const Color(0xFFFF6B35).withOpacity(0.05),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
+                ),
 
-                  const SizedBox(height: 48),
-
-                  // ─── App Title ───
-                  SlideTransition(
-                    position: _textSlide,
-                    child: Opacity(
-                      opacity: _textFade.value,
-                      child: Column(
-                        children: [
-                          ShaderMask(
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Colors.white, Color(0xFFFFAB00)],
-                            ).createShader(bounds),
-                            child: Text(
-                              'Player Pro',
-                              style: AppTextStyles.headingLarge.copyWith(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 2.0,
-                                color: Colors.white,
+                // ─── Main Content ───
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Logo Circle
+                    Opacity(
+                      opacity: _logoFade.value,
+                      child: Transform.scale(
+                        scale: _logoScale.value,
+                        child: Container(
+                          width: 96,
+                          height: 96,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFFFF8C00),
+                                Color(0xFFFF6B35),
+                                Color(0xFFE85D26),
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF6B35).withOpacity(0.35),
+                                blurRadius: 30,
+                                spreadRadius: 4,
                               ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.headphones_rounded,
+                              size: 42,
+                              color: Colors.white.withOpacity(0.95),
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Premium Music Experience',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: Colors.white38,
-                              fontSize: 13,
-                              letterSpacing: 2.5,
-                              fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // ─── Animated Equalizer Bars ───
+                    Opacity(
+                      opacity: _barsFade.value,
+                      child: SizedBox(
+                        height: 40,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: List.generate(7, (i) {
+                            final phase = i * 0.9;
+                            final wave = _waveController.value * 2 * math.pi + phase;
+                            final height = 10 + 22 * ((math.sin(wave) + 1) / 2);
+                            final barColor = Color.lerp(
+                              const Color(0xFFFF8C00),
+                              const Color(0xFFFF4081),
+                              i / 6,
+                            )!;
+                            return Container(
+                              width: 4,
+                              height: height,
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(3),
+                                color: barColor.withOpacity(0.8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: barColor.withOpacity(0.3),
+                                    blurRadius: 6,
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // ─── App Name ───
+                    SlideTransition(
+                      position: _titleSlide,
+                      child: Opacity(
+                        opacity: _titleFade.value,
+                        child: ShaderMask(
+                          shaderCallback: (bounds) {
+                            return LinearGradient(
+                              begin: Alignment(_shimmer.value - 1, 0),
+                              end: Alignment(_shimmer.value, 0),
+                              colors: const [
+                                Colors.white,
+                                Color(0xFFFFD740),
+                                Colors.white,
+                              ],
+                              stops: const [0.0, 0.5, 1.0],
+                            ).createShader(bounds);
+                          },
+                          child: Text(
+                            'Player Pro',
+                            style: AppTextStyles.headingLarge.copyWith(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 3,
+                              color: Colors.white,
                             ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // ─── Tagline ───
+                    Opacity(
+                      opacity: _subtitleFade.value,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 20, height: 1,
+                            color: const Color(0xFFFF8C00).withOpacity(0.4),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'OFFLINE MUSIC EXPERIENCE',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: Colors.white30,
+                              fontSize: 11,
+                              letterSpacing: 3,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            width: 20, height: 1,
+                            color: const Color(0xFFFF8C00).withOpacity(0.4),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildPulseRing(double size, double opacity) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.accentOrange.withOpacity(opacity),
-          width: 1.5,
+  List<Widget> _buildParticles(Size screenSize) {
+    final random = math.Random(42);
+    return List.generate(20, (i) {
+      final startX = random.nextDouble() * screenSize.width;
+      final startY = random.nextDouble() * screenSize.height;
+      final particleSize = 2.0 + random.nextDouble() * 3;
+      final speed = 0.3 + random.nextDouble() * 0.7;
+      final phase = random.nextDouble() * 2 * math.pi;
+
+      final progress = (_particleController.value * speed + phase) % 1.0;
+      final yOffset = -80 * progress;
+      final xOscillation = math.sin(progress * 2 * math.pi) * 15;
+      final opacity = (math.sin(progress * math.pi) * 0.4).clamp(0.0, 0.4);
+
+      return Positioned(
+        left: startX + xOscillation,
+        top: startY + yOffset,
+        child: Container(
+          width: particleSize,
+          height: particleSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color.lerp(
+              const Color(0xFFFF8C00),
+              const Color(0xFF7C4DFF),
+              random.nextDouble(),
+            )!.withOpacity(opacity),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
