@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:audio_service/audio_service.dart';
 import 'providers/theme_provider.dart';
 import 'providers/audio_provider.dart';
 import 'providers/music_library_provider.dart';
@@ -11,9 +10,7 @@ import 'providers/equalizer_provider.dart';
 import 'providers/lyrics_provider.dart';
 import 'providers/sleep_timer_provider.dart';
 import 'services/storage_service.dart';
-import 'services/audio_handler.dart';
 import 'screens/splash_screen.dart';
-import 'main.dart'; // To access audioHandler global
 
 class MusicPlayerApp extends StatefulWidget {
   const MusicPlayerApp({super.key});

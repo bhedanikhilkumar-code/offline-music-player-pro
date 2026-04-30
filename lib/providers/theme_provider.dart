@@ -116,6 +116,8 @@ class ThemeProvider extends ChangeNotifier {
         _gradientColors = parts.map((p) => Color(int.parse(p.trim()))).toList();
       }
     }
+
+    notifyListeners();
   }
 
   Future<void> setPrimaryColor(Color color) async {
