@@ -1,15 +1,10 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:on_audio_query/on_audio_query.dart' hide SongModel;
-import 'package:path_provider/path_provider.dart';
 import '../models/song_model.dart';
 import 'audio_player_service.dart';
 
 class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   final AudioPlayerService _playerService = AudioPlayerService();
-  final OnAudioQuery _audioQuery = OnAudioQuery();
 
   MyAudioHandler() {
     _init();
@@ -30,83 +25,35 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
 
     // Sync playback state to notification controls
     _playerService.player.playerStateStream.listen((state) {
-      try {
-        _updatePlaybackState(state.playing, state.processingState);
-      } catch (e) {
-        // Prevent crash if playback state update fails
-      }
+      _broadcastPlaybackState(state.playing, state.processingState);
     });
 
     // Update notification metadata when song changes
     _playerService.currentSongStream.listen((song) {
       if (song != null) {
-        _setMediaItemForSong(song);
+        _broadcastMediaItem(song);
       }
     });
   }
 
-  /// Set media item IMMEDIATELY with basic info, then update artwork async.
-  /// This ensures the notification shows title/artist even if artwork fails.
-  void _setMediaItemForSong(SongModel song) {
-    // Step 1: Set basic media item RIGHT NOW (sync) — no artwork yet
-    try {
-      mediaItem.add(MediaItem(
-        id: song.path,
-        title: song.displayTitle,
-        artist: song.displayArtist,
-        album: song.album,
-        duration: Duration(milliseconds: song.duration),
-      ));
-    } catch (e) {
-      // Should never fail, but safety first
+  void _broadcastMediaItem(SongModel song) {
+    // Use Android content URI for album art — no file I/O, no extra queries
+    Uri? artUri;
+    if (song.albumId != null && song.albumId! > 0) {
+      artUri = Uri.parse('content://media/external/audio/albumart/${song.albumId}');
     }
 
-    // Step 2: Try to load artwork in background and update notification
-    _loadAndSetArtwork(song);
+    mediaItem.add(MediaItem(
+      id: song.path,
+      title: song.displayTitle,
+      artist: song.displayArtist,
+      album: song.album,
+      duration: Duration(milliseconds: song.duration),
+      artUri: artUri,
+    ));
   }
 
-  Future<void> _loadAndSetArtwork(SongModel song) async {
-    try {
-      final artwork = await _audioQuery.queryArtwork(
-        song.id,
-        ArtworkType.AUDIO,
-        format: ArtworkFormat.JPEG,
-        size: 300,
-      );
-      if (artwork != null && artwork.isNotEmpty) {
-        final artUri = await _saveArtworkToFile(artwork, song.id);
-        if (artUri != null) {
-          // Re-emit mediaItem with artwork URI included
-          mediaItem.add(MediaItem(
-            id: song.path,
-            title: song.displayTitle,
-            artist: song.displayArtist,
-            album: song.album,
-            duration: Duration(milliseconds: song.duration),
-            artUri: artUri,
-          ));
-        }
-      }
-    } catch (_) {
-      // Artwork failed — notification still shows title/artist from Step 1
-    }
-  }
-
-  /// Save artwork bytes to a temporary file and return its URI.
-  Future<Uri?> _saveArtworkToFile(Uint8List bytes, int songId) async {
-    try {
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/album_art_$songId.jpg');
-      if (!file.existsSync()) {
-        await file.writeAsBytes(bytes);
-      }
-      return file.uri;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  void _updatePlaybackState(bool playing, ProcessingState processingState) {
+  void _broadcastPlaybackState(bool playing, ProcessingState processingState) {
     playbackState.add(PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
@@ -119,7 +66,7 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
         MediaAction.seekBackward,
       },
       androidCompactActionIndices: const [0, 1, 2],
-      processingState: _mapProcessingState(processingState),
+      processingState: _mapState(processingState),
       playing: playing,
       updatePosition: _playerService.player.position,
       bufferedPosition: _playerService.player.bufferedPosition,
@@ -127,7 +74,7 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
     ));
   }
 
-  AudioProcessingState _mapProcessingState(ProcessingState state) {
+  AudioProcessingState _mapState(ProcessingState state) {
     switch (state) {
       case ProcessingState.idle:
         return AudioProcessingState.idle;
