@@ -387,7 +387,7 @@ class _PlayerScreenState extends State<PlayerScreen>
 
                   // Playback controls
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [

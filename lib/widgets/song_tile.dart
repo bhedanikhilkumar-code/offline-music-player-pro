@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:on_audio_query/on_audio_query.dart'
@@ -53,43 +54,44 @@ class SongTile extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: const Color(0xFF252344),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    )
-                  ],
+                  color: Colors.white.withOpacity(0.08),
+                  border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: QueryArtworkWidget(
-                    id: song.id,
-                    type: ArtworkType.AUDIO,
-                    artworkHeight: 56,
-                    artworkWidth: 56,
-                    artworkFit: BoxFit.cover,
-                    nullArtworkWidget: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white10,
-                            Colors.white.withOpacity(0.05)
-                          ],
+                  borderRadius: BorderRadius.circular(11),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      QueryArtworkWidget(
+                        id: song.id,
+                        type: ArtworkType.AUDIO,
+                        artworkHeight: 48,
+                        artworkWidth: 48,
+                        artworkFit: BoxFit.cover,
+                        nullArtworkWidget: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                          ),
+                          child: const Icon(Icons.music_note_rounded,
+                              color: Colors.white38, size: 24),
                         ),
                       ),
-                      child: const Icon(Icons.music_note_rounded,
-                          color: Colors.white24, size: 30),
-                    ),
+                      if (isPlaying)
+                        Container(
+                          color: Colors.black.withOpacity(0.7),
+                          child: const Center(
+                            child: _PlayingVisualizer(),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               // Song Info
               Expanded(
                 child: Column(
@@ -100,9 +102,9 @@ class SongTile extends StatelessWidget {
                       song.displayTitle,
                       style: AppTextStyles.songTitle.copyWith(
                         color: isPlaying ? primaryColor : Colors.white,
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight:
-                            isPlaying ? FontWeight.bold : FontWeight.normal,
+                            isPlaying ? FontWeight.bold : FontWeight.w500,
                         shadows: isPlaying
                             ? [Shadow(color: Colors.black45, blurRadius: 4)]
                             : null,
@@ -112,9 +114,9 @@ class SongTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      song.displayArtist,
+                      '${song.displayArtist} - ${(song.album == null || song.album == '<unknown>') ? 'Music' : song.album}',
                       style: AppTextStyles.songSubtitle
-                          .copyWith(color: Colors.white54, fontSize: 13),
+                          .copyWith(color: Colors.white54, fontSize: 12),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -125,12 +127,9 @@ class SongTile extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (isPlaying)
-                    const _PlayingVisualizer()
-                  else
-                    Text(dateStr,
-                        style: AppTextStyles.songSubtitle
-                            .copyWith(color: Colors.white24, fontSize: 11)),
+                  Text(dateStr,
+                      style: AppTextStyles.songSubtitle
+                          .copyWith(color: Colors.white24, fontSize: 11)),
                   const SizedBox(width: 12),
                   IconButton(
                     icon: const Icon(Icons.more_vert_rounded,
@@ -163,7 +162,7 @@ class _PlayingVisualizerState extends State<_PlayingVisualizer>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1000))
+        vsync: this, duration: const Duration(milliseconds: 1200))
       ..repeat();
   }
 
@@ -177,23 +176,21 @@ class _PlayingVisualizerState extends State<_PlayingVisualizer>
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: List.generate(3, (index) {
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            final double height = 4 +
-                (12 *
-                    (0.5 +
-                        0.5 *
-                            (index == 0
-                                ? _controller.value
-                                : (index == 1
-                                    ? (1 - _controller.value)
-                                    : (_controller.value * 0.7)))));
+            // Smooth sine wave animation with phase offset for each bar
+            final double phase = index * (math.pi / 2.5); 
+            final double value = math.sin((_controller.value * 2 * math.pi) + phase);
+            // Map the -1.0 to 1.0 sine wave to a height between 6 and 18
+            final double height = 6 + (12 * ((value + 1) / 2));
+            
             return Container(
-              width: 3,
+              width: 4,
               height: height,
-              margin: const EdgeInsets.symmetric(horizontal: 1),
+              margin: const EdgeInsets.symmetric(horizontal: 1.5),
               decoration: BoxDecoration(
                 color: context.read<ThemeProvider>().primaryColor,
                 borderRadius: BorderRadius.circular(2),

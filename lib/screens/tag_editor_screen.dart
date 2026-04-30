@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:audiotags/audiotags.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../models/song_model.dart';
 import '../providers/music_library_provider.dart';
@@ -23,6 +26,7 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
   late TextEditingController _albumController;
   late TextEditingController _yearController;
   late TextEditingController _genreController;
+  Uint8List? _newArtworkBytes;
   bool _isSaving = false;
 
   @override
@@ -61,16 +65,36 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _newArtworkBytes = bytes;
+      });
+    }
+  }
+
   Future<void> _saveTags() async {
     setState(() => _isSaving = true);
     try {
+      List<Picture> pictures = [];
+      if (_newArtworkBytes != null) {
+        pictures.add(Picture(
+          pictureType: PictureType.coverFront,
+          mimeType: MimeType.jpeg,
+          bytes: _newArtworkBytes!,
+        ));
+      }
+
       final tags = Tag(
         title: _titleController.text,
         trackArtist: _artistController.text,
         album: _albumController.text,
         year: int.tryParse(_yearController.text),
         genre: _genreController.text,
-        pictures: [],
+        pictures: pictures.isNotEmpty ? pictures : [],
       );
 
       await AudioTags.write(widget.song.path, tags);
@@ -148,31 +172,55 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
                   children: [
                     // Artwork Preview
                     Center(
-                      child: Container(
-                        width: 160,
-                        height: 160,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10)),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: on_audio_query.QueryArtworkWidget(
-                            id: widget.song.id,
-                            type: on_audio_query.ArtworkType.AUDIO,
-                            artworkWidth: 160,
-                            artworkHeight: 160,
-                            nullArtworkWidget: Container(
-                              color: AppColors.cardDarkLight,
-                              child: const Icon(Icons.music_note,
-                                  color: Colors.white24, size: 64),
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 160,
+                              height: 160,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10)),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: _newArtworkBytes != null
+                                    ? Image.memory(
+                                        _newArtworkBytes!,
+                                        width: 160,
+                                        height: 160,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : on_audio_query.QueryArtworkWidget(
+                                        id: widget.song.id,
+                                        type: on_audio_query.ArtworkType.AUDIO,
+                                        artworkWidth: 160,
+                                        artworkHeight: 160,
+                                        nullArtworkWidget: Container(
+                                          color: AppColors.cardDarkLight,
+                                          child: const Icon(Icons.music_note,
+                                              color: Colors.white24, size: 64),
+                                        ),
+                                      ),
+                              ),
                             ),
-                          ),
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.edit_rounded, color: Colors.white, size: 24),
+                            ),
+                          ],
                         ),
                       ),
                     ),
