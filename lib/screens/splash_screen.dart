@@ -102,10 +102,15 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       final hasPermission = await PermissionService.hasStoragePermission();
 
       if (!mounted) return;
-      
-      final Widget destination = (hasPermission && storage.permissionGranted)
-          ? const HomeScreen()
-          : const PermissionScreen();
+
+      Widget destination;
+      if (hasPermission && storage.permissionGranted) {
+        // Storage permission already granted — but ensure notification permission too
+        await PermissionService.requestNotificationPermission();
+        destination = const HomeScreen();
+      } else {
+        destination = const PermissionScreen();
+      }
 
       Navigator.pushReplacement(
         context,
