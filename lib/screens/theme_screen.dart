@@ -15,6 +15,25 @@ class ThemeScreen extends StatefulWidget {
 class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStateMixin {
   late TabController _imageTabController;
 
+  // Premium colors (top row with crown badges)
+  static const List<Color> premiumColors = [
+    Color(0xFF4A148C), // Deep purple
+    Color(0xFF6D4C41), // Brown
+    Color(0xFF00695C), // Teal dark
+    Color(0xFF4A0072), // Purple
+  ];
+
+  // Regular colors (rows without crown)
+  static const List<Color> regularColors = [
+    Color(0xFF283593), // Indigo
+    Color(0xFF1565C0), // Blue
+    Color(0xFF00ACC1), // Cyan
+    Color(0xFFD81B60), // Pink
+    Color(0xFFFF8C00), // Orange
+    Color(0xFFE53935), // Red
+    Color(0xFFD500F9), // Magenta
+  ];
+
   // All image categories
   static const List<String> imageCategories = ['All images', 'Nature', 'Pet', 'Cartoon', 'Other'];
 
@@ -247,6 +266,18 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                         ),
                       ),
 
+                      // ─── Color Selection Section ───
+                      const Padding(
+                        padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                        child: Text('Theme Colors', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                      ),
+                      _buildPremiumColorRow(context),
+                      const SizedBox(height: 10),
+                      _buildRegularColorRows(context),
+                      const SizedBox(height: 16),
+                      const Divider(color: Colors.white12, height: 1, indent: 16, endIndent: 16),
+                      const SizedBox(height: 8),
+
                       // Tabs
                       TabBar(
                         controller: _imageTabController,
@@ -263,7 +294,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                         tabs: imageCategories.map((cat) => Tab(text: cat)).toList(),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       Expanded(
                         child: _buildImageGrid(context, themeProvider),
@@ -273,6 +304,100 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                 ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ─── Premium Colors Row (with crown icon) ───
+  Widget _buildPremiumColorRow(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, theme, _) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: premiumColors.asMap().entries.map((entry) {
+              final color = entry.value;
+              final isSelected = theme.primaryColor.value == color.value;
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: GestureDetector(
+                  onTap: () => theme.setPrimaryColor(color),
+                  child: SizedBox(
+                    width: 60, height: 70,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Outer glow ring
+                        Container(
+                          width: 56, height: 56,
+                          margin: const EdgeInsets.only(top: 8),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected ? Colors.white : color.withOpacity(0.4),
+                              width: isSelected ? 2.5 : 2,
+                            ),
+                            boxShadow: isSelected ? [BoxShadow(color: color.withOpacity(0.5), blurRadius: 12)] : null,
+                          ),
+                          child: Container(
+                            margin: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: color,
+                            ),
+                            child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
+                          ),
+                        ),
+                        // Crown badge
+                        Positioned(
+                          top: 0,
+                          child: Icon(
+                            Icons.workspace_premium_rounded,
+                            size: 18,
+                            color: Colors.amber.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  // ─── Regular Color Rows ───
+  Widget _buildRegularColorRows(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, theme, _) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Wrap(
+            spacing: 16, runSpacing: 14,
+            children: regularColors.map((color) {
+              final isSelected = theme.primaryColor.value == color.value;
+              return GestureDetector(
+                onTap: () => theme.setPrimaryColor(color),
+                child: Container(
+                  width: 48, height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color,
+                    border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
+                    boxShadow: isSelected
+                        ? [BoxShadow(color: color.withOpacity(0.6), blurRadius: 14, spreadRadius: 2)]
+                        : [BoxShadow(color: color.withOpacity(0.3), blurRadius: 6)],
+                  ),
+                  child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
+                ),
+              );
+            }).toList(),
           ),
         );
       },
