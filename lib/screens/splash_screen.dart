@@ -84,11 +84,17 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   }
 
   Future<void> _navigateNext() async {
-    // Wait for BOTH: minimum splash display time AND rest of app to initialize
-    await Future.wait([
-      Future.delayed(const Duration(milliseconds: 3000)),
-      if (widget.restFuture != null) widget.restFuture!,
-    ]);
+    try {
+      // Wait for BOTH: minimum splash display time AND rest of app to initialize
+      await Future.wait([
+        Future.delayed(const Duration(milliseconds: 3000)),
+        if (widget.restFuture != null) widget.restFuture!,
+      ]);
+    } catch (e) {
+      debugPrint('Initialization error in restFuture: $e');
+      // Continue anyway, so the app doesn't freeze on splash screen
+    }
+
     if (!mounted) return;
 
     try {

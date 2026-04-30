@@ -17,11 +17,8 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
       _updatePlaybackState(state.playing, state.processingState);
     });
 
-    // ─── Sync seek position ───
-    _playerService.player.positionStream.listen((position) {
-      final current = playbackState.value;
-      playbackState.add(current.copyWith(updatePosition: position));
-    });
+    // Removed positionStream listener because audio_service extrapolates position automatically.
+    // Continuously updating playbackState floods the platform channel and crashes the app!
 
     // ─── Update notification metadata when song changes ───
     _playerService.currentSongStream.listen((song) {
