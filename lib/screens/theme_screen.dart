@@ -101,63 +101,58 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
         return Scaffold(
           body: Container(
             decoration: themeProvider.backgroundDecoration,
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // App bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
-                          onPressed: () => Navigator.pop(context),
+            child: Stack(
+              children: [
+                // Dark overlay for better readability
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.3),
+                  ),
+                ),
+                SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // App bar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(AppStrings.skinTheme, style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.w700, fontSize: 20)),
+                          ],
                         ),
-                        const SizedBox(width: 4),
-                        Text(AppStrings.skinTheme, style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.w700)),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // ─── Color Section ───
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                            child: Text('Color', style: AppTextStyles.headingSmall.copyWith(fontWeight: FontWeight.w600)),
-                          ),
-                          _buildPremiumColorRow(context),
-                          const SizedBox(height: 14),
-                          _buildRegularColorRows(context),
-                          const SizedBox(height: 24),
-
-                          // ─── Image Theme Section ───
-                          TabBar(
-                            controller: _imageTabController,
-                            isScrollable: true,
-                            indicatorColor: Colors.white,
-                            indicatorWeight: 3,
-                            indicatorSize: TabBarIndicatorSize.label,
-                            labelColor: Colors.white,
-                            unselectedLabelColor: Colors.white54,
-                            labelStyle: AppTextStyles.tabLabel.copyWith(fontSize: 13),
-                            tabAlignment: TabAlignment.start,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            dividerColor: Colors.transparent,
-                            tabs: imageCategories.map((cat) => Tab(text: cat)).toList(),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildImageGrid(context),
-                          const SizedBox(height: 32),
-                        ],
                       ),
-                    ),
+                      
+                      // Tabs
+                      TabBar(
+                        controller: _imageTabController,
+                        isScrollable: true,
+                        indicatorColor: Colors.white,
+                        indicatorWeight: 2,
+                        indicatorSize: TabBarIndicatorSize.label,
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.white54,
+                        labelStyle: AppTextStyles.tabLabel.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
+                        tabAlignment: TabAlignment.start,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        dividerColor: Colors.transparent,
+                        tabs: imageCategories.map((cat) => Tab(text: cat)).toList(),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      Expanded(
+                        child: _buildImageGrid(context),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -273,8 +268,6 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           childAspectRatio: 0.65,
@@ -285,27 +278,21 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
         itemBuilder: (context, index) {
           final item = displayedImages[index];
           final hasAsset = item.containsKey('assetPath');
-          final colors = item['colors'] as List<Color>? ?? [Colors.grey.shade900, Colors.black];
           final label = item['label'] as String;
-          final icon = item['icon'] as IconData?;
           final isCustom = label == 'Custom';
+          final isSelected = themeProvider.backgroundImagePath == (hasAsset ? item['assetPath'] : null) && !isCustom;
 
           return GestureDetector(
             onTap: () {
               if (isCustom) {
                 _pickCustomImage(context);
               } else if (hasAsset) {
-                // To support local asset themes properly, ThemeProvider needs update.
-                // For now, if we don't have asset support in provider, fallback to custom image flow or color.
-                context.read<ThemeProvider>().setGradient(colors);
-                context.read<ThemeProvider>().setPrimaryColor(colors[0]);
-                context.read<ThemeProvider>().setBackgroundImage(item['assetPath']); // Need to add to ThemeProvider if not local file
-              } else {
-                context.read<ThemeProvider>().setGradient(colors);
-                context.read<ThemeProvider>().setPrimaryColor(colors[0]);
+                context.read<ThemeProvider>().setBackgroundImage(item['assetPath']);
               }
             },
-            child: Container(
+            child: Stack(
+              children: [
+                Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: hasAsset ? null : LinearGradient(
@@ -392,8 +379,23 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                           ],
                         ),
                       ),
-            ),
-          );
+                    ),
+                  if (isSelected)
+                    Positioned(
+                      bottom: 8, right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                        ),
+                        child: const Icon(Icons.check, color: Colors.white, size: 14),
+                      ),
+                    ),
+                ],
+              ),
+            );
         },
       ),
     );
