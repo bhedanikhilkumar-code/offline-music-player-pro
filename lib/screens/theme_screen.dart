@@ -50,7 +50,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   ];
 
   // All image categories
-  static const List<String> imageCategories = ['All images', 'Nature', 'Pet', 'Cartoon', 'Girls', 'Superhero', 'Other'];
+  static const List<String> imageCategories = ['All images', 'Nature', 'Pet', 'Cartoon', 'Girls', 'Superhero', 'Space', 'Other'];
 
   // Built-in theme images using network URLs for previews
   final List<Map<String, dynamic>> themeImages = [
@@ -241,6 +241,44 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
       'category': 'Other',
       'imageUrl': 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=400&h=600&fit=crop',
       'fullUrl': 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=1080&h=1920&fit=crop',
+    },
+
+    // ── Space ──
+    {
+      'label': 'Nebula',
+      'category': 'Space',
+      'imageUrl': 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Mars Surface',
+      'category': 'Space',
+      'imageUrl': 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Astronaut',
+      'category': 'Space',
+      'imageUrl': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Milky Way',
+      'category': 'Space',
+      'imageUrl': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Saturn Rings',
+      'category': 'Space',
+      'imageUrl': 'https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Space Station',
+      'category': 'Space',
+      'imageUrl': 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=1080&h=1920&fit=crop',
     },
 
     // ── Girls ──
