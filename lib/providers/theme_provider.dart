@@ -18,11 +18,18 @@ class ThemeProvider extends ChangeNotifier {
   BoxDecoration get backgroundDecoration {
     if (_isCustomTheme && _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) {
       final bool isAsset = _backgroundImagePath!.startsWith('assets/');
+      final bool isNetwork = _backgroundImagePath!.startsWith('http://') || _backgroundImagePath!.startsWith('https://');
+      ImageProvider imageProvider;
+      if (isNetwork) {
+        imageProvider = NetworkImage(_backgroundImagePath!);
+      } else if (isAsset) {
+        imageProvider = AssetImage(_backgroundImagePath!);
+      } else {
+        imageProvider = FileImage(File(_backgroundImagePath!));
+      }
       return BoxDecoration(
         image: DecorationImage(
-          image: isAsset 
-              ? AssetImage(_backgroundImagePath!) as ImageProvider
-              : FileImage(File(_backgroundImagePath!)),
+          image: imageProvider,
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
             Colors.black.withOpacity(0.6),
