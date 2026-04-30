@@ -37,28 +37,51 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   // All image categories
   static const List<String> imageCategories = ['All images', 'Nature', 'Pet', 'Cartoon', 'Other'];
 
-  // Built-in theme images with placeholder colors for gallery
+  // Built-in theme images
   final List<Map<String, dynamic>> themeImages = [
-    {'label': 'Custom', 'icon': Icons.add_photo_alternate_outlined, 'colors': [const Color(0xFF6C63FF), const Color(0xFF3D5AFE)]},
-    {'label': 'Ocean Glass', 'colors': [Color(0xFF1A1A2E), Color(0xFF0F3460)], 'isUnique': true},
-    {'label': 'Cyber Neon', 'colors': [Color(0xFF00F260), Color(0xFF0575E6)], 'isUnique': true},
-    {'label': 'Neon Pink', 'colors': [Color(0xFFFF00CC), Color(0xFF333399)], 'isUnique': true},
-    {'label': 'Amethyst', 'colors': [Color(0xFF8E2DE2), Color(0xFF4A00E0)], 'isUnique': true},
-    {'label': 'Midnight', 'colors': [Color(0xFF434343), Color(0xFF000000)], 'isUnique': true},
-    {'label': 'Earth', 'colors': [const Color(0xFF0D47A1), const Color(0xFF00BCD4)]},
-    {'label': 'Anime', 'colors': [const Color(0xFF7C4DFF), const Color(0xFF448AFF)]},
-    {'label': 'Car', 'colors': [const Color(0xFFFF1744), const Color(0xFFFF6D00)]},
-    {'label': 'Galaxy', 'colors': [const Color(0xFF311B92), const Color(0xFFE040FB)]},
-    {'label': 'Mountain', 'colors': [const Color(0xFF01579B), const Color(0xFF4FC3F7)]},
-    {'label': 'Forest', 'colors': [const Color(0xFF1B5E20), const Color(0xFF66BB6A)]},
-    {'label': 'Ocean', 'colors': [const Color(0xFF006064), const Color(0xFF00E5FF)]},
-    {'label': 'Sunset', 'colors': [const Color(0xFFBF360C), const Color(0xFFFF9100)]},
+    {'label': 'Custom', 'category': 'All images', 'icon': Icons.add_photo_alternate_outlined, 'colors': [const Color(0xFF6C63FF), const Color(0xFF3D5AFE)]},
+    
+    // Nature
+    {'label': 'Snowy Mountain', 'category': 'Nature', 'assetPath': 'assets/images/themes/nature_mountain.png', 'isUnique': true},
+    {'label': 'Aurora Lights', 'category': 'Nature', 'assetPath': 'assets/images/themes/nature_aurora.png', 'isUnique': true},
+    {'label': 'Night Mountain', 'category': 'Nature', 'assetPath': 'assets/images/themes/nature_night_mountain.png', 'isUnique': true},
+    {'label': 'Forest Lake', 'category': 'Nature', 'assetPath': 'assets/images/themes/theme_nature.png', 'isUnique': true},
+    {'label': 'Forest', 'category': 'Nature', 'colors': [const Color(0xFF1B5E20), const Color(0xFF66BB6A)]},
+    {'label': 'Ocean', 'category': 'Nature', 'colors': [const Color(0xFF006064), const Color(0xFF00E5FF)]},
+    {'label': 'Sunset', 'category': 'Nature', 'colors': [const Color(0xFFBF360C), const Color(0xFFFF9100)]},
+
+    // Pet
+    {'label': 'Cute Puppy', 'category': 'Pet', 'assetPath': 'assets/images/themes/theme_pet.png', 'isUnique': true},
+    {'label': 'Border Collie', 'category': 'Pet', 'assetPath': 'assets/images/themes/pet_collie.png', 'isUnique': true},
+
+    // Cartoon
+    {'label': 'Anime Girl', 'category': 'Cartoon', 'assetPath': 'assets/images/themes/cartoon_anime_girl.png', 'isUnique': true},
+    {'label': 'Silver Anime', 'category': 'Cartoon', 'assetPath': 'assets/images/themes/cartoon_anime_silver.png', 'isUnique': true},
+    {'label': 'Neon Anime', 'category': 'Cartoon', 'assetPath': 'assets/images/themes/cartoon_anime_girl2.png', 'isUnique': true},
+    {'label': 'Anime City', 'category': 'Cartoon', 'assetPath': 'assets/images/themes/theme_cartoon.png', 'isUnique': true},
+    {'label': 'Windmill', 'category': 'Cartoon', 'assetPath': 'assets/images/themes/cartoon_windmill.png', 'isUnique': true},
+    {'label': 'Night Sky', 'category': 'Cartoon', 'assetPath': 'assets/images/themes/cartoon_nightsky.png', 'isUnique': true},
+    {'label': 'Wave Art', 'category': 'Cartoon', 'assetPath': 'assets/images/themes/cartoon_mountain.png', 'isUnique': true},
+
+    // Other
+    {'label': 'Planet Earth', 'category': 'Other', 'assetPath': 'assets/images/themes/others_earth.png', 'isUnique': true},
+    {'label': 'Supercar', 'category': 'Other', 'assetPath': 'assets/images/themes/others_supercar.png', 'isUnique': true},
+    {'label': 'Galaxy', 'category': 'Other', 'assetPath': 'assets/images/themes/others_galaxy.png', 'isUnique': true},
+    {'label': 'Rain Drops', 'category': 'Other', 'assetPath': 'assets/images/themes/others_raindrops.png', 'isUnique': true},
+    {'label': 'Concert', 'category': 'Other', 'assetPath': 'assets/images/themes/others_concert.png', 'isUnique': true},
+    {'label': 'Vinyl Record', 'category': 'Other', 'assetPath': 'assets/images/themes/others_vinyl.png', 'isUnique': true},
+    {'label': 'Headphones', 'category': 'Other', 'assetPath': 'assets/images/themes/others_headphones.png', 'isUnique': true},
+    {'label': 'Skateboard', 'category': 'Other', 'assetPath': 'assets/images/themes/others_skateboard.png', 'isUnique': true},
+    {'label': 'Neon Flow', 'category': 'Other', 'assetPath': 'assets/images/themes/theme_other.png', 'isUnique': true},
   ];
 
   @override
   void initState() {
     super.initState();
     _imageTabController = TabController(length: imageCategories.length, vsync: this);
+    _imageTabController.addListener(() {
+      setState(() {}); // Rebuild grid when tab changes
+    });
   }
 
   @override
@@ -234,6 +257,15 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
 
   // ─── Image Grid ───
   Widget _buildImageGrid(BuildContext context) {
+    final selectedCategory = imageCategories[_imageTabController.index];
+    
+    // Filter images based on tab
+    final displayedImages = themeImages.where((item) {
+      if (item['label'] == 'Custom') return true; // Always show Custom
+      if (selectedCategory == 'All images') return true;
+      return item['category'] == selectedCategory;
+    }).toList();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
@@ -245,10 +277,11 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
-        itemCount: themeImages.length,
+        itemCount: displayedImages.length,
         itemBuilder: (context, index) {
-          final item = themeImages[index];
-          final colors = item['colors'] as List<Color>;
+          final item = displayedImages[index];
+          final hasAsset = item.containsKey('assetPath');
+          final colors = item['colors'] as List<Color>? ?? [Colors.grey.shade900, Colors.black];
           final label = item['label'] as String;
           final icon = item['icon'] as IconData?;
           final isCustom = label == 'Custom';
@@ -257,6 +290,12 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
             onTap: () {
               if (isCustom) {
                 _pickCustomImage(context);
+              } else if (hasAsset) {
+                // To support local asset themes properly, ThemeProvider needs update.
+                // For now, if we don't have asset support in provider, fallback to custom image flow or color.
+                context.read<ThemeProvider>().setGradient(colors);
+                context.read<ThemeProvider>().setPrimaryColor(colors[0]);
+                context.read<ThemeProvider>().setBackgroundImage(item['assetPath']); // Need to add to ThemeProvider if not local file
               } else {
                 context.read<ThemeProvider>().setGradient(colors);
                 context.read<ThemeProvider>().setPrimaryColor(colors[0]);
@@ -265,7 +304,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(
+                gradient: hasAsset ? null : LinearGradient(
                   begin: Alignment.topLeft, end: Alignment.bottomRight,
                   colors: colors,
                 ),
@@ -295,19 +334,28 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            // Gradient background as placeholder for real images
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                                  colors: [colors[0], colors[1].withOpacity(0.8)],
+                            if (hasAsset)
+                              Image.asset(
+                                item['assetPath'],
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  color: Colors.grey.shade900,
+                                  child: const Icon(Icons.image_not_supported, color: Colors.white54),
+                                ),
+                              )
+                            else
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                                    colors: [colors[0], colors[1].withOpacity(0.8)],
+                                  ),
+                                ),
+                                child: Icon(
+                                  _getImageIcon(label),
+                                  size: 40, color: Colors.white.withOpacity(0.3),
                                 ),
                               ),
-                              child: Icon(
-                                _getImageIcon(label),
-                                size: 40, color: Colors.white.withOpacity(0.3),
-                              ),
-                            ),
                             if (item['isUnique'] == true)
                               Positioned(
                                 top: 8, right: 8,
@@ -328,7 +376,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                                    colors: [Colors.transparent, Colors.black.withOpacity(0.4)],
+                                    colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
                                   ),
                                 ),
                               ),
