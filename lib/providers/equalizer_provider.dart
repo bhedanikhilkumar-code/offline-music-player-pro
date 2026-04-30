@@ -25,6 +25,7 @@ class EqualizerProvider extends ChangeNotifier {
       bandLevels: _storage.eqBandValues,
       bassBoost: _storage.bassBoostLevel,
       virtualizer: _storage.virtualizerLevel,
+      reverbPreset: _storage.reverbPreset,
       enabled: _storage.equalizerEnabled,
     );
     notifyListeners();
@@ -46,6 +47,7 @@ class EqualizerProvider extends ChangeNotifier {
     _eqService.setBandLevels(_model.bandLevels);
     _eqService.setBassBoost(_model.bassBoost);
     _eqService.setVirtualizer(_model.virtualizer);
+    _eqService.setReverb(_model.reverbPreset);
   }
 
   Future<void> setEnabled(bool value) async {
@@ -57,6 +59,7 @@ class EqualizerProvider extends ChangeNotifier {
       _eqService.setBandLevels(_model.bandLevels);
       _eqService.setBassBoost(_model.bassBoost);
       _eqService.setVirtualizer(_model.virtualizer);
+      _eqService.setReverb(_model.reverbPreset);
     }
     notifyListeners();
   }
@@ -91,6 +94,13 @@ class EqualizerProvider extends ChangeNotifier {
     _model = _model.copyWith(virtualizer: level);
     await _storage.setVirtualizerLevel(level);
     _eqService.setVirtualizer(level);
+    notifyListeners();
+  }
+
+  Future<void> setReverb(int presetIndex) async {
+    _model = _model.copyWith(reverbPreset: presetIndex);
+    await _storage.setReverbPreset(presetIndex);
+    _eqService.setReverb(presetIndex);
     notifyListeners();
   }
 }

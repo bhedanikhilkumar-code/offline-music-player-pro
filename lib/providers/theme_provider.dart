@@ -16,8 +16,8 @@ class ThemeProvider extends ChangeNotifier {
   bool get isCustomTheme => _isCustomTheme;
 
   BoxDecoration get backgroundDecoration {
-    if (_isCustomTheme && _backgroundImagePath != null) {
-      final isAsset = _backgroundImagePath!.startsWith('assets/');
+    if (_isCustomTheme && _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) {
+      final bool isAsset = _backgroundImagePath!.startsWith('assets/');
       return BoxDecoration(
         image: DecorationImage(
           image: isAsset 
@@ -125,13 +125,21 @@ class ThemeProvider extends ChangeNotifier {
 
   Future<void> setPrimaryColor(Color color) async {
     _primaryColor = color;
+    _isCustomTheme = false;
+    _backgroundImagePath = null;
     await _storage.setThemeColor(color.value);
+    await _storage.setIsCustomThemeEnabled(false);
+    await _storage.setThemeBackgroundImagePath('');
     notifyListeners();
   }
 
   Future<void> setGradient(List<Color> colors) async {
     _gradientColors = colors;
+    _isCustomTheme = false;
+    _backgroundImagePath = null;
     await _storage.setThemeGradient(colors.map((c) => c.value.toString()).join(','));
+    await _storage.setIsCustomThemeEnabled(false);
+    await _storage.setThemeBackgroundImagePath('');
     notifyListeners();
   }
 

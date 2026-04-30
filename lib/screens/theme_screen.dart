@@ -17,30 +17,21 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   
   // Premium colors (top row with crown badges)
   static const List<Color> premiumColors = [
-    Color(0xFF311B92), // Deep Indigo
-    Color(0xFF3E2723), // Dark Brown
-    Color(0xFF004D40), // Dark Teal
-    Color(0xFF4A148C), // Deep Purple
-    Color(0xFF1A237E), // Dark Navy
-    Color(0xFF880E4F), // Maroon
+    Color(0xFF4A148C), // Deep purple
+    Color(0xFF6D4C41), // Brown
+    Color(0xFF00695C), // Teal dark
+    Color(0xFF4A0072), // Purple
   ];
 
   // Regular colors (rows without crown)
   static const List<Color> regularColors = [
+    Color(0xFF283593), // Indigo
     Color(0xFF1565C0), // Blue
-    Color(0xFF29B6F6), // Light Blue
-    Color(0xFF26C6DA), // Cyan
-    Color(0xFFD81B60), // Magenta
-    Color(0xFFAB47BC), // Light Purple
-    Color(0xFFFF9800), // Orange
-    Color(0xFFF44336), // Red
-    Color(0xFFEC407A), // Pink
-    Color(0xFFFFFFFF), // White
-    Color(0xFF9E9E9E), // Grey
-    Color(0xFF424242), // Dark Grey
-    Color(0xFFCDDC39), // Lime
-    Color(0xFF4CAF50), // Green
-    Color(0xFFFF5722), // Deep Orange
+    Color(0xFF00ACC1), // Cyan
+    Color(0xFFD81B60), // Pink
+    Color(0xFFFF8C00), // Orange
+    Color(0xFFE53935), // Red
+    Color(0xFFD500F9), // Magenta
   ];
 
   // All image categories
@@ -178,8 +169,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   Widget _buildPremiumColorRow(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, theme, _) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -189,10 +179,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
               return Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: GestureDetector(
-                  onTap: () {
-                    theme.clearCustomTheme(); // Ensure background is cleared when switching back to pure color
-                    theme.setPrimaryColor(color);
-                  },
+                  onTap: () => theme.setPrimaryColor(color),
                   child: SizedBox(
                     width: 60, height: 70,
                     child: Stack(
@@ -216,7 +203,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                               shape: BoxShape.circle,
                               color: color,
                             ),
-                            child: isSelected ? Icon(Icons.check, color: color == Colors.white ? Colors.black : Colors.white, size: 20) : null,
+                            child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
                           ),
                         ),
                         // Crown badge
@@ -244,32 +231,25 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   Widget _buildRegularColorRows(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, theme, _) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+          child: Wrap(
+            spacing: 16, runSpacing: 14,
             children: regularColors.map((color) {
               final isSelected = theme.primaryColor.value == color.value;
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: GestureDetector(
-                  onTap: () {
-                    theme.clearCustomTheme();
-                    theme.setPrimaryColor(color);
-                  },
-                  child: Container(
-                    width: 48, height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: color,
-                      border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
-                      boxShadow: isSelected
-                          ? [BoxShadow(color: color.withOpacity(0.6), blurRadius: 14, spreadRadius: 2)]
-                          : [BoxShadow(color: color.withOpacity(0.3), blurRadius: 6)],
-                    ),
-                    child: isSelected ? Icon(Icons.check, color: color == Colors.white ? Colors.black : Colors.white, size: 20) : null,
+              return GestureDetector(
+                onTap: () => theme.setPrimaryColor(color),
+                child: Container(
+                  width: 48, height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color,
+                    border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
+                    boxShadow: isSelected
+                        ? [BoxShadow(color: color.withOpacity(0.6), blurRadius: 14, spreadRadius: 2)]
+                        : [BoxShadow(color: color.withOpacity(0.3), blurRadius: 6)],
                   ),
+                  child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
                 ),
               );
             }).toList(),

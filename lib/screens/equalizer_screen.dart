@@ -203,6 +203,11 @@ class _EqualizerScreenState extends State<EqualizerScreen> {
                           setState(() {
                             _selectedReverb = item;
                           });
+                          // Map string to index (0-6)
+                          final index = _reverbOptions.indexOf(item);
+                          if (index != -1) {
+                            eq.setReverb(index);
+                          }
                         },
                         itemBuilder: (BuildContext context) {
                           return _reverbOptions.map((String choice) {

@@ -2,6 +2,7 @@ package com.musicplayer.equalizer
 
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
+import android.media.audiofx.PresetReverb
 import android.media.audiofx.Virtualizer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -12,6 +13,7 @@ class EqualizerPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var equalizer: Equalizer? = null
     private var bassBoost: BassBoost? = null
     private var virtualizer: Virtualizer? = null
+    private var reverb: PresetReverb? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "com.musicplayer.equalizer")
@@ -38,6 +40,9 @@ class EqualizerPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     virtualizer = Virtualizer(0, sessionId).apply {
                         enabled = false
                     }
+                    reverb = PresetReverb(0, sessionId).apply {
+                        enabled = false
+                    }
                     result.success(true)
                 } catch (e: Exception) {
                     result.error("INIT_ERROR", e.message, null)
@@ -49,6 +54,7 @@ class EqualizerPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     equalizer?.enabled = enabled
                     bassBoost?.enabled = enabled
                     virtualizer?.enabled = enabled
+                    reverb?.enabled = enabled
                     result.success(true)
                 } catch (e: Exception) {
                     result.error("ERROR", e.message, null)
@@ -86,6 +92,15 @@ class EqualizerPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     result.error("ERROR", e.message, null)
                 }
             }
+            "setReverb" -> {
+                val preset = call.argument<Int>("preset") ?: 0
+                try {
+                    reverb?.preset = preset.toShort()
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("ERROR", e.message, null)
+                }
+            }
             "release" -> {
                 release()
                 result.success(true)
@@ -99,9 +114,11 @@ class EqualizerPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             equalizer?.release()
             bassBoost?.release()
             virtualizer?.release()
+            reverb?.release()
         } catch (_: Exception) {}
         equalizer = null
         bassBoost = null
         virtualizer = null
+        reverb = null
     }
 }

@@ -14,6 +14,7 @@ class EqualizerService {
   List<double> _bandLevels = [0, 0, 0, 0, 0];
   double _bassBoost = 0;
   double _virtualizer = 0;
+  int _reverbPreset = 0;
   int _audioSessionId = 0;
 
   bool get enabled => _enabled;
@@ -22,6 +23,7 @@ class EqualizerService {
   List<double> get bandLevels => List.from(_bandLevels);
   double get bassBoost => _bassBoost;
   double get virtualizer => _virtualizer;
+  int get reverbPreset => _reverbPreset;
 
   /// Initialize with the audio session ID from just_audio player
   Future<void> init(int audioSessionId) async {
@@ -87,6 +89,15 @@ class EqualizerService {
       try {
         // level is 0-1000 strength
         _channel.invokeMethod('setVirtualizer', {'strength': level.toInt()});
+      } catch (_) {}
+    }
+  }
+
+  void setReverb(int preset) {
+    _reverbPreset = preset;
+    if (_initialized && Platform.isAndroid && _enabled) {
+      try {
+        _channel.invokeMethod('setReverb', {'preset': preset});
       } catch (_) {}
     }
   }

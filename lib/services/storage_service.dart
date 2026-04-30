@@ -111,12 +111,14 @@ class StorageService {
   }
   double get bassBoostLevel => getDouble('bass_boost') ?? 0.0;
   double get virtualizerLevel => getDouble('virtualizer') ?? 0.0;
+  int get reverbPreset => getInt('reverb_preset') ?? 0;
 
   Future<void> setEqualizerEnabled(bool value) => setBool('eq_enabled', value);
   Future<void> setEqualizerPreset(String value) => setString('eq_preset', value);
   Future<void> setEqBandValues(List<double> values) => setList('eq_bands', values.map((v) => v.toString()).toList());
   Future<void> setBassBoostLevel(double value) => setDouble('bass_boost', value);
   Future<void> setVirtualizerLevel(double value) => setDouble('virtualizer', value);
+  Future<void> setReverbPreset(int value) => setInt('reverb_preset', value);
 
   // Lyrics
   String? getLyrics(int songId) => getString('lyrics_$songId');

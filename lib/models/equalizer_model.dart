@@ -3,6 +3,7 @@ class EqualizerModel {
   final List<double> bandLevels; // 5 bands
   final double bassBoost; // 0 to 1000
   final double virtualizer; // 0 to 1000
+  final int reverbPreset; // 0 to 6 (None, Large Hall, etc)
   final bool enabled;
 
   EqualizerModel({
@@ -10,6 +11,7 @@ class EqualizerModel {
     required this.bandLevels,
     this.bassBoost = 0,
     this.virtualizer = 0,
+    this.reverbPreset = 0,
     this.enabled = false,
   });
 
@@ -18,6 +20,7 @@ class EqualizerModel {
     List<double>? bandLevels,
     double? bassBoost,
     double? virtualizer,
+    int? reverbPreset,
     bool? enabled,
   }) {
     return EqualizerModel(
@@ -25,6 +28,7 @@ class EqualizerModel {
       bandLevels: bandLevels ?? List.from(this.bandLevels),
       bassBoost: bassBoost ?? this.bassBoost,
       virtualizer: virtualizer ?? this.virtualizer,
+      reverbPreset: reverbPreset ?? this.reverbPreset,
       enabled: enabled ?? this.enabled,
     );
   }
@@ -34,6 +38,7 @@ class EqualizerModel {
         bandLevels: [0, 0, 0, 0, 0],
         bassBoost: 0,
         virtualizer: 0,
+        reverbPreset: 0,
         enabled: false,
       );
 }
