@@ -16,8 +16,10 @@ class SleepTimerProvider extends ChangeNotifier {
   DateTime? get endTime => _endTime;
 
   String get remainingFormatted {
-    final m = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
+    final h = _remainingSeconds ~/ 3600;
+    final m = ((_remainingSeconds % 3600) ~/ 60).toString().padLeft(2, '0');
     final s = (_remainingSeconds % 60).toString().padLeft(2, '0');
+    if (h > 0) return '${h.toString().padLeft(2, '0')}:$m:$s';
     return '$m:$s';
   }
 
@@ -29,13 +31,14 @@ class SleepTimerProvider extends ChangeNotifier {
     _onTimerEnd = callback;
   }
 
-  void startTimer(int minutes) {
+  void startTimer(int minutes, {int seconds = 0}) {
     cancelTimer();
-    _endTime = DateTime.now().add(Duration(minutes: minutes));
-    _remainingSeconds = minutes * 60;
+    final totalSeconds = (minutes * 60) + seconds;
+    _endTime = DateTime.now().add(Duration(seconds: totalSeconds));
+    _remainingSeconds = totalSeconds;
     _isRunning = true;
     _storage.setSleepTimerEnabled(true);
-    _storage.setSleepTimerMinutes(minutes);
+    _storage.setSleepTimerMinutes(minutes); // Still storing minutes as preference
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _remainingSeconds--;

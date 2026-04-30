@@ -305,10 +305,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                         builder: (_) => const EqualizerScreen()));
               }),
               _actionIcon(Icons.alarm_rounded, () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const SleepTimerScreen()));
+                SleepTimerScreen.show(context);
               }),
               _actionIcon(Icons.queue_music_rounded, () {
                 // Future: Open Queue
