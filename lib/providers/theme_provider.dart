@@ -17,9 +17,12 @@ class ThemeProvider extends ChangeNotifier {
 
   BoxDecoration get backgroundDecoration {
     if (_isCustomTheme && _backgroundImagePath != null) {
+      final isAsset = _backgroundImagePath!.startsWith('assets/');
       return BoxDecoration(
         image: DecorationImage(
-          image: FileImage(File(_backgroundImagePath!)),
+          image: isAsset 
+              ? AssetImage(_backgroundImagePath!) as ImageProvider
+              : FileImage(File(_backgroundImagePath!)),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
             Colors.black.withOpacity(0.6),
