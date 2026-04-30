@@ -86,21 +86,34 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     await Future.delayed(const Duration(milliseconds: 3200));
     if (!mounted) return;
 
-    final storage = await StorageService.getInstance();
-    final hasPermission = await PermissionService.hasStoragePermission();
+    try {
+      final storage = await StorageService.getInstance();
+      final hasPermission = await PermissionService.hasStoragePermission();
 
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            hasPermission && storage.permissionGranted ? const HomeScreen() : const PermissionScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 800),
-      ),
-    );
+      if (!mounted) return;
+      
+      final Widget destination = (hasPermission && storage.permissionGranted)
+          ? const HomeScreen()
+          : const PermissionScreen();
+
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => destination,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 800),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      // Fallback: navigate to PermissionScreen on error
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const PermissionScreen()),
+      );
+    }
   }
 
   @override

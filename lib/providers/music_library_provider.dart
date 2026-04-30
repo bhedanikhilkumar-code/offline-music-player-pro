@@ -14,10 +14,12 @@ class MusicLibraryProvider extends ChangeNotifier {
   List<ArtistModel> _artists = [];
   List<FolderModel> _folders = [];
   bool _isLoading = false;
+  bool _initialized = false;
   String _sortType = 'title';
   late StorageService _storage;
 
   List<SongModel> get allSongs {
+    if (!_initialized) return [];
     final hidden = _storage.hiddenSongIds;
     final visible = _allSongs.where((s) => !hidden.contains(s.id.toString())).toList();
     return SortUtils.sortSongs(visible, _sortType);
@@ -32,11 +34,13 @@ class MusicLibraryProvider extends ChangeNotifier {
   int get totalSongs => allSongs.length;
 
   List<SongModel> get hiddenSongs {
+    if (!_initialized) return [];
     final hidden = _storage.hiddenSongIds;
     return _allSongs.where((s) => hidden.contains(s.id.toString())).toList();
   }
 
   List<SongModel> get recentlyPlayed {
+    if (!_initialized) return [];
     final ids = _storage.recentlyPlayedIds;
     return ids
         .map((id) => getSongById(int.tryParse(id) ?? -1))
@@ -46,6 +50,7 @@ class MusicLibraryProvider extends ChangeNotifier {
   }
 
   List<SongModel> get mostPlayed {
+    if (!_initialized) return [];
     final counts = _storage.playCounts;
     final sortedIds = counts.keys.toList()
       ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
@@ -59,6 +64,7 @@ class MusicLibraryProvider extends ChangeNotifier {
   }
 
   List<SongModel> get favorites {
+    if (!_initialized) return [];
     final ids = _storage.favoriteIds;
     return ids
         .map((id) => getSongById(int.tryParse(id) ?? -1))
@@ -68,6 +74,7 @@ class MusicLibraryProvider extends ChangeNotifier {
   }
 
   Future<void> init(StorageService storage) async {
+    if (_initialized) return; // Prevent double init
     _storage = storage;
     _sortType = _storage.sortType;
     
@@ -76,6 +83,7 @@ class MusicLibraryProvider extends ChangeNotifier {
     if (hasPermission) {
       await scanMusic();
     }
+    _initialized = true;
   }
 
   Future<void> scanMusic() async {

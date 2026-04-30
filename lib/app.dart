@@ -23,6 +23,7 @@ class MusicPlayerApp extends StatefulWidget {
 }
 
 class _MusicPlayerAppState extends State<MusicPlayerApp> {
+  static final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   late Future<void> _initFuture;
 
   @override
@@ -109,6 +110,7 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
         return Consumer<ThemeProvider>(
           builder: (context, themeProvider, _) {
             return MaterialApp(
+              navigatorKey: _navigatorKey,
               title: 'Music Player',
               debugShowCheckedModeBanner: false,
               theme: themeProvider.themeData,
