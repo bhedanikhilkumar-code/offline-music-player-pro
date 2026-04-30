@@ -12,20 +12,23 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   void _init() {
-    // ─── Sync playback state to notification controls ───
+    // Sync playback state to notification controls
     _playerService.player.playerStateStream.listen((state) {
-      _updatePlaybackState(state.playing, state.processingState);
+      try {
+        _updatePlaybackState(state.playing, state.processingState);
+      } catch (e) {
+        // Prevent crash if playback state update fails
+      }
     });
 
-    // Removed positionStream listener because audio_service extrapolates position automatically.
-    // Continuously updating playbackState floods the platform channel and crashes the app!
-
-    // ─── Update notification metadata when song changes ───
+    // Update notification metadata when song changes
     _playerService.currentSongStream.listen((song) {
-      if (song != null) {
-        _updateMediaItem(song);
-      } else {
-        mediaItem.add(null);
+      try {
+        if (song != null) {
+          _updateMediaItem(song);
+        }
+      } catch (e) {
+        // Prevent crash if media item update fails
       }
     });
   }
@@ -36,17 +39,12 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
         MediaControl.skipToPrevious,
         playing ? MediaControl.pause : MediaControl.play,
         MediaControl.skipToNext,
-        MediaControl.stop,
       ],
       systemActions: const {
         MediaAction.seek,
         MediaAction.seekForward,
         MediaAction.seekBackward,
-        MediaAction.skipToNext,
-        MediaAction.skipToPrevious,
-        MediaAction.playPause,
       },
-      // Show: previous, play/pause, next in compact view
       androidCompactActionIndices: const [0, 1, 2],
       processingState: _mapProcessingState(processingState),
       playing: playing,
@@ -93,29 +91,6 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
     }
   }
 
-  // ─── Public method for AudioProvider to call ───
-  void updatePlayerMetadata(String title, String artist, Duration? duration,
-      {String? albumArtPath, String? album, int? songId}) {
-    Uri? artUri;
-    try {
-      if (albumArtPath != null && albumArtPath.isNotEmpty) {
-        final artFile = File(albumArtPath);
-        if (artFile.existsSync()) {
-          artUri = artFile.uri;
-        }
-      }
-    } catch (_) {}
-
-    mediaItem.add(MediaItem(
-      id: _playerService.currentSong?.path ?? '',
-      title: title,
-      artist: artist,
-      album: album ?? '',
-      duration: duration,
-      artUri: artUri,
-    ));
-  }
-
   @override
   Future<void> play() async => await _playerService.play();
 
@@ -139,12 +114,6 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> stop() async {
-    await _playerService.pause();
-    await super.stop();
-  }
-
-  @override
-  Future<void> onTaskRemoved() async {
     await _playerService.pause();
     await super.stop();
   }

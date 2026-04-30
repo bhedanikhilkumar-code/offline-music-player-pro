@@ -27,11 +27,9 @@ Future<void> main() async {
       androidNotificationChannelId: 'com.bhedanikhilkumar.offline_music_player.channel.audio',
       androidNotificationChannelName: 'Music Playback',
       androidNotificationChannelDescription: 'Controls for the music currently playing',
-      androidNotificationIcon: 'drawable/ic_notification',
       androidShowNotificationBadge: true,
-      androidNotificationOngoing: false,
+      androidNotificationOngoing: true,
       androidStopForegroundOnPause: true,
-      notificationColor: const Color(0xFFFF8C00),
     ),
   );
 
