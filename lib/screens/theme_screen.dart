@@ -355,8 +355,8 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     {
       'label': 'DJ Console',
       'category': 'Other',
-      'imageUrl': 'https://images.unsplash.com/photo-1571397134667-2b505e6b0a58?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1571397134667-2b505e6b0a58?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1563330232-57114bb0823c?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1563330232-57114bb0823c?w=1080&h=1920&fit=crop',
     },
   ];
 
