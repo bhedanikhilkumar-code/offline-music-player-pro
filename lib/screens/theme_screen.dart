@@ -15,23 +15,38 @@ class ThemeScreen extends StatefulWidget {
 class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStateMixin {
   late TabController _imageTabController;
 
-  // Premium colors (top row with crown badges)
-  static const List<Color> premiumColors = [
+  // All theme colors in a single scrollable row
+  static const List<Color> themeColors = [
     Color(0xFF4A148C), // Deep purple
     Color(0xFF6D4C41), // Brown
     Color(0xFF00695C), // Teal dark
     Color(0xFF4A0072), // Purple
-  ];
-
-  // Regular colors (rows without crown)
-  static const List<Color> regularColors = [
     Color(0xFF283593), // Indigo
     Color(0xFF1565C0), // Blue
+    Color(0xFF0097A7), // Cyan dark
     Color(0xFF00ACC1), // Cyan
+    Color(0xFF00BCD4), // Cyan light
     Color(0xFFD81B60), // Pink
+    Color(0xFFE91E63), // Pink light
     Color(0xFFFF8C00), // Orange
+    Color(0xFFFF5722), // Deep orange
     Color(0xFFE53935), // Red
     Color(0xFFD500F9), // Magenta
+    Color(0xFF9C27B0), // Purple medium
+    Color(0xFF2E7D32), // Green
+    Color(0xFF43A047), // Green light
+    Color(0xFF00897B), // Teal
+    Color(0xFF3949AB), // Indigo medium
+    Color(0xFF5C6BC0), // Indigo light
+    Color(0xFF1E88E5), // Blue medium
+    Color(0xFF039BE5), // Light blue
+    Color(0xFFFDD835), // Yellow
+    Color(0xFFFFB300), // Amber
+    Color(0xFF8D6E63), // Brown light
+    Color(0xFF546E7A), // Blue grey
+    Color(0xFF37474F), // Dark grey blue
+    Color(0xFF212121), // Almost black
+    Color(0xFFBDBDBD), // Light grey
   ];
 
   // All image categories
@@ -271,10 +286,8 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                         padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
                         child: Text('Theme Colors', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
                       ),
-                      _buildPremiumColorRow(context),
-                      const SizedBox(height: 10),
-                      _buildRegularColorRows(context),
-                      const SizedBox(height: 16),
+                      _buildColorRow(context),
+                      const SizedBox(height: 14),
                       const Divider(color: Colors.white12, height: 1, indent: 16, endIndent: 16),
                       const SizedBox(height: 8),
 
@@ -310,94 +323,41 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     );
   }
 
-  // ─── Premium Colors Row (with crown icon) ───
-  Widget _buildPremiumColorRow(BuildContext context) {
+  // ─── Horizontally Scrollable Color Row ───
+  Widget _buildColorRow(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, theme, _) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: premiumColors.asMap().entries.map((entry) {
-              final color = entry.value;
+        return SizedBox(
+          height: 52,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: themeColors.length,
+            itemBuilder: (context, index) {
+              final color = themeColors[index];
               final isSelected = theme.primaryColor.value == color.value;
               return Padding(
-                padding: const EdgeInsets.only(right: 16),
+                padding: const EdgeInsets.only(right: 12),
                 child: GestureDetector(
                   onTap: () => theme.setPrimaryColor(color),
-                  child: SizedBox(
-                    width: 60, height: 70,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Outer glow ring
-                        Container(
-                          width: 56, height: 56,
-                          margin: const EdgeInsets.only(top: 8),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isSelected ? Colors.white : color.withOpacity(0.4),
-                              width: isSelected ? 2.5 : 2,
-                            ),
-                            boxShadow: isSelected ? [BoxShadow(color: color.withOpacity(0.5), blurRadius: 12)] : null,
-                          ),
-                          child: Container(
-                            margin: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: color,
-                            ),
-                            child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
-                          ),
-                        ),
-                        // Crown badge
-                        Positioned(
-                          top: 0,
-                          child: Icon(
-                            Icons.workspace_premium_rounded,
-                            size: 18,
-                            color: Colors.amber.shade600,
-                          ),
-                        ),
-                      ],
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 44, height: 44,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color,
+                      border: isSelected ? Border.all(color: Colors.white, width: 2.5) : Border.all(color: color.withOpacity(0.4), width: 1.5),
+                      boxShadow: isSelected
+                          ? [BoxShadow(color: color.withOpacity(0.6), blurRadius: 12, spreadRadius: 2)]
+                          : [BoxShadow(color: color.withOpacity(0.25), blurRadius: 4)],
                     ),
+                    child: isSelected
+                        ? const Icon(Icons.check, color: Colors.white, size: 20)
+                        : null,
                   ),
                 ),
               );
-            }).toList(),
-          ),
-        );
-      },
-    );
-  }
-
-  // ─── Regular Color Rows ───
-  Widget _buildRegularColorRows(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, theme, _) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Wrap(
-            spacing: 16, runSpacing: 14,
-            children: regularColors.map((color) {
-              final isSelected = theme.primaryColor.value == color.value;
-              return GestureDetector(
-                onTap: () => theme.setPrimaryColor(color),
-                child: Container(
-                  width: 48, height: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: color,
-                    border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
-                    boxShadow: isSelected
-                        ? [BoxShadow(color: color.withOpacity(0.6), blurRadius: 14, spreadRadius: 2)]
-                        : [BoxShadow(color: color.withOpacity(0.3), blurRadius: 6)],
-                  ),
-                  child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
-                ),
-              );
-            }).toList(),
+            },
           ),
         );
       },
