@@ -24,29 +24,53 @@ class MusicPlayerApp extends StatefulWidget {
 
 class _MusicPlayerAppState extends State<MusicPlayerApp> {
   static final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  late Future<void> _initFuture;
+
+  // Phase 1: Only theme (instant — from SharedPreferences)
+  late Future<void> _themeFuture;
+  // Phase 2: Everything else (runs in background)
+  Future<void>? _restFuture;
 
   @override
   void initState() {
     super.initState();
-    _initFuture = _initializeApp();
+    _themeFuture = _initTheme();
   }
 
-  Future<void> _initializeApp() async {
-    // 1. Initialize Storage
+  /// Phase 1 — load ONLY theme. Super fast (just SharedPreferences reads).
+  Future<void> _initTheme() async {
     final storage = await StorageService.getInstance();
-
-    // 2. Initialize Providers
     if (!mounted) return;
     await context.read<ThemeProvider>().init(storage);
-    await context.read<MusicLibraryProvider>().init(storage); // Missing initialization added
-    await context.read<AudioProvider>().init(storage);
-    await context.read<PlaylistProvider>().init(storage);
-    await context.read<SettingsProvider>().init(storage);
-    await context.read<SearchProvider>().init(storage);
-    await context.read<EqualizerProvider>().init(storage);
-    await context.read<LyricsProvider>().init(storage);
-    await context.read<SleepTimerProvider>().init(storage);
+
+    // Immediately kick off Phase 2 in background (don't await)
+    _restFuture = _initRestOfApp(storage);
+  }
+
+  /// Phase 2 — everything else. Runs while SplashScreen is showing.
+  Future<void> _initRestOfApp(StorageService storage) async {
+    if (!mounted) return;
+
+    // Run heavy providers concurrently where possible
+    await Future.wait([
+      context.read<SettingsProvider>().init(storage),
+      context.read<SearchProvider>().init(storage),
+      context.read<EqualizerProvider>().init(storage),
+      context.read<LyricsProvider>().init(storage),
+      context.read<SleepTimerProvider>().init(storage),
+    ]);
+
+    if (!mounted) return;
+
+    // Audio + Playlist can run concurrently
+    await Future.wait([
+      context.read<AudioProvider>().init(storage),
+      context.read<PlaylistProvider>().init(storage),
+    ]);
+
+    if (!mounted) return;
+
+    // MusicLibrary scans files — do last
+    await context.read<MusicLibraryProvider>().init(storage);
 
     // Connect sleep timer to audio
     if (!mounted) return;
@@ -58,32 +82,14 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
-      future: _initFuture,
+      future: _themeFuture,
       builder: (context, snapshot) {
+        // While theme is loading (< 50ms typically), show plain dark screen
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // While loading, just show a simple dark screen. 
-          // This ensures we get past the Android white splash screen.
-          return MaterialApp(
+          return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
-              backgroundColor: const Color(0xFF0D0B1E), // Primary Dark
-              body: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 100, height: 100,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF1E1B35), // Card Dark
-                      ),
-                      child: const Icon(Icons.music_note_rounded, size: 50, color: Color(0xFFFF8C00)),
-                    ),
-                    const SizedBox(height: 24),
-                    const CircularProgressIndicator(color: Color(0xFFFF8C00)),
-                  ],
-                ),
-              ),
+              backgroundColor: Color(0xFF0D0B1E),
             ),
           );
         }
@@ -107,6 +113,7 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
           );
         }
 
+        // Theme is ready — show full app with user's saved theme immediately
         return Consumer<ThemeProvider>(
           builder: (context, themeProvider, _) {
             return MaterialApp(
@@ -114,7 +121,7 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
               title: 'Music Player',
               debugShowCheckedModeBanner: false,
               theme: themeProvider.themeData,
-              home: const SplashScreen(),
+              home: SplashScreen(restFuture: _restFuture),
             );
           },
         );

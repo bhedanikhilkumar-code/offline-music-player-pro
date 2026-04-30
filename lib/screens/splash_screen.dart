@@ -7,7 +7,8 @@ import 'permission_screen.dart';
 import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final Future<void>? restFuture;
+  const SplashScreen({super.key, this.restFuture});
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -83,7 +84,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   }
 
   Future<void> _navigateNext() async {
-    await Future.delayed(const Duration(milliseconds: 3200));
+    // Wait for BOTH: minimum splash display time AND rest of app to initialize
+    await Future.wait([
+      Future.delayed(const Duration(milliseconds: 3000)),
+      if (widget.restFuture != null) widget.restFuture!,
+    ]);
     if (!mounted) return;
 
     try {
