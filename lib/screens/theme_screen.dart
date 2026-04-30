@@ -221,8 +221,8 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     {
       'label': 'Rain Drops',
       'category': 'Other',
-      'imageUrl': 'https://images.unsplash.com/photo-1515694346937-94d85e39d29c?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1515694346937-94d85e39d29c?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1428592953211-077101b2021b?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1428592953211-077101b2021b?w=1080&h=1920&fit=crop',
     },
     {
       'label': 'Neon Flow',
