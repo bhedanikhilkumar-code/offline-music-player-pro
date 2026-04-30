@@ -11,53 +11,64 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   void _init() {
-    // Emit initial idle state so Android media session activates
-    playbackState.add(PlaybackState(
-      controls: [
-        MediaControl.skipToPrevious,
-        MediaControl.play,
-        MediaControl.skipToNext,
-      ],
-      androidCompactActionIndices: const [0, 1, 2],
-      processingState: AudioProcessingState.idle,
-      playing: false,
-    ));
+    _broadcastPlaybackState();
 
-    // Sync playback state to notification controls
-    _playerService.player.playerStateStream.listen((state) {
-      _broadcastPlaybackState(state.playing, state.processingState);
+    _playerService.player.playerStateStream.listen((_) {
+      _broadcastPlaybackState();
     });
 
-    // Update notification metadata when song changes
+    _playerService.player.playbackEventStream.listen((_) {
+      _broadcastPlaybackState();
+    });
+
     _playerService.currentSongStream.listen((song) {
+      _broadcastQueue();
       if (song != null) {
         _broadcastMediaItem(song);
       }
+      _broadcastPlaybackState();
     });
   }
 
   void _broadcastMediaItem(SongModel song) {
-    // Use Android content URI for album art — no file I/O, no extra queries
+    mediaItem.add(_songToMediaItem(song));
+  }
+
+  void _broadcastQueue() {
+    queue.add(
+      _playerService.queue
+          .map(_songToMediaItem)
+          .toList(growable: false),
+    );
+  }
+
+  MediaItem _songToMediaItem(SongModel song) {
     Uri? artUri;
     if (song.albumId != null && song.albumId! > 0) {
       artUri = Uri.parse('content://media/external/audio/albumart/${song.albumId}');
     }
 
-    mediaItem.add(MediaItem(
+    return MediaItem(
       id: song.path,
       title: song.displayTitle,
       artist: song.displayArtist,
       album: song.album,
       duration: Duration(milliseconds: song.duration),
       artUri: artUri,
-    ));
+    );
   }
 
-  void _broadcastPlaybackState(bool playing, ProcessingState processingState) {
+  void _broadcastPlaybackState() {
+    final player = _playerService.player;
+    final playerState = player.playerState;
+    final playbackEvent = player.playbackEvent;
+
     playbackState.add(PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
-        playing ? MediaControl.pause : MediaControl.play,
+        MediaControl.rewind,
+        playerState.playing ? MediaControl.pause : MediaControl.play,
+        MediaControl.fastForward,
         MediaControl.skipToNext,
       ],
       systemActions: const {
@@ -65,12 +76,15 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
         MediaAction.seekForward,
         MediaAction.seekBackward,
       },
-      androidCompactActionIndices: const [0, 1, 2],
-      processingState: _mapState(processingState),
-      playing: playing,
-      updatePosition: _playerService.player.position,
-      bufferedPosition: _playerService.player.bufferedPosition,
-      speed: _playerService.player.speed,
+      androidCompactActionIndices: const [0, 2, 4],
+      processingState: _mapState(playerState.processingState),
+      playing: playerState.playing,
+      updatePosition: playbackEvent.updatePosition,
+      bufferedPosition: playbackEvent.bufferedPosition,
+      speed: player.speed,
+      updateTime: playbackEvent.updateTime,
+      queueIndex:
+          _playerService.currentIndex >= 0 ? _playerService.currentIndex : null,
     ));
   }
 
@@ -96,19 +110,36 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   Future<void> pause() async => await _playerService.pause();
 
   @override
-  Future<void> seek(Duration position) async => await _playerService.seek(position);
+  Future<void> seek(Duration position) async {
+    await _playerService.seek(position);
+    _broadcastPlaybackState();
+  }
 
   @override
-  Future<void> skipToNext() async => await _playerService.playNext();
+  Future<void> skipToNext() async {
+    await _playerService.playNext();
+    _broadcastQueue();
+    _broadcastPlaybackState();
+  }
 
   @override
-  Future<void> skipToPrevious() async => await _playerService.playPrevious();
+  Future<void> skipToPrevious() async {
+    await _playerService.playPrevious();
+    _broadcastQueue();
+    _broadcastPlaybackState();
+  }
 
   @override
-  Future<void> fastForward() async => await _playerService.seekForward();
+  Future<void> fastForward() async {
+    await _playerService.seekForward();
+    _broadcastPlaybackState();
+  }
 
   @override
-  Future<void> rewind() async => await _playerService.seekBackward();
+  Future<void> rewind() async {
+    await _playerService.seekBackward();
+    _broadcastPlaybackState();
+  }
 
   @override
   Future<void> stop() async {
