@@ -16,6 +16,22 @@ class EqualizerScreen extends StatefulWidget {
 
 class _EqualizerScreenState extends State<EqualizerScreen> {
   final Color _amberColor = const Color(0xFFFFA500); // Standard amber/orange from screenshot
+  
+  bool _is10Bands = false;
+  String _selectedReverb = 'Medium Hall';
+  final List<String> _reverbOptions = [
+    'None',
+    'Small Room',
+    'Medium Room',
+    'Large Room',
+    'Medium Hall',
+    'Large Hall',
+    'Plate'
+  ];
+  
+  // Local state for 10 bands
+  final List<String> _10BandLabels = ['31Hz', '62Hz', '125Hz', '250Hz', '500Hz', '1kHz', '2kHz', '4kHz', '8kHz', '16kHz'];
+  final List<double> _10BandValues = List.filled(10, 0.0);
 
   @override
   void initState() {
@@ -120,9 +136,9 @@ class _EqualizerScreenState extends State<EqualizerScreen> {
                         Expanded(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: List.generate(5, (index) {
-                              return _buildEqBand(context, eq, index, primaryColor);
-                            }),
+                            children: _is10Bands
+                                ? List.generate(10, (index) => _build10EqBand(context, index, primaryColor, isEnabled))
+                                : List.generate(5, (index) => _build5EqBand(context, eq, index, primaryColor)),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -137,23 +153,29 @@ class _EqualizerScreenState extends State<EqualizerScreen> {
                           child: Row(
                             children: [
                               Expanded(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    borderRadius: BorderRadius.circular(22),
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _is10Bands = false),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: !_is10Bands && isEnabled ? _amberColor : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(22),
+                                    ),
+                                    child: Text('5 Bands', style: TextStyle(color: !_is10Bands && isEnabled ? Colors.black : Colors.white70, fontWeight: FontWeight.bold)),
                                   ),
-                                  child: const Text('5 Bands', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               Expanded(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: isEnabled ? _amberColor : Colors.white24,
-                                    borderRadius: BorderRadius.circular(22),
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _is10Bands = true),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: _is10Bands && isEnabled ? _amberColor : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(22),
+                                    ),
+                                    child: Text('10 Bands', style: TextStyle(color: _is10Bands && isEnabled ? Colors.black : Colors.white70, fontWeight: FontWeight.bold)),
                                   ),
-                                  child: Text('10 Bands', style: TextStyle(color: isEnabled ? Colors.black : Colors.white38, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -173,12 +195,36 @@ class _EqualizerScreenState extends State<EqualizerScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Reverb', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500)),
-                      Row(
-                        children: const [
-                          Text('Medium Hall', style: TextStyle(color: Colors.white, fontSize: 16)),
-                          SizedBox(width: 4),
-                          Icon(Icons.arrow_drop_down_rounded, color: Colors.white),
-                        ],
+                      PopupMenuButton<String>(
+                        initialValue: _selectedReverb,
+                        color: const Color(0xFF262626),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        onSelected: (String item) {
+                          setState(() {
+                            _selectedReverb = item;
+                          });
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return _reverbOptions.map((String choice) {
+                            return PopupMenuItem<String>(
+                              value: choice,
+                              child: Text(
+                                choice,
+                                style: TextStyle(
+                                  color: _selectedReverb == choice ? Colors.white : Colors.white60,
+                                  fontWeight: _selectedReverb == choice ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                            );
+                          }).toList();
+                        },
+                        child: Row(
+                          children: [
+                            Text(_selectedReverb, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_drop_down_rounded, color: Colors.white),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -227,14 +273,14 @@ class _EqualizerScreenState extends State<EqualizerScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected && isEnabled ? _amberColor : const Color(0xFF262626),
+          color: isSelected && isEnabled && !_is10Bands ? _amberColor : const Color(0xFF262626),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           preset,
           style: TextStyle(
-            color: isSelected && isEnabled ? Colors.black : Colors.white70,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected && isEnabled && !_is10Bands ? Colors.black : Colors.white70,
+            fontWeight: isSelected && !_is10Bands ? FontWeight.bold : FontWeight.w500,
             fontSize: 14,
           ),
         ),
@@ -242,30 +288,26 @@ class _EqualizerScreenState extends State<EqualizerScreen> {
     );
   }
 
-  Widget _buildEqBand(BuildContext context, EqualizerProvider eq, int index, Color primaryColor) {
+  Widget _build5EqBand(BuildContext context, EqualizerProvider eq, int index, Color primaryColor) {
     final level = eq.bandLevels[index];
     final isPositive = level >= 0;
-    // Assume max level is 15
     return SizedBox(
       width: 40,
       child: Column(
         children: [
-          // dB value label
           Text(
             '${isPositive ? "+" : ""}${(level / 10).toStringAsFixed(1)}',
             style: TextStyle(
-              color: isPositive ? primaryColor : Colors.white54,
+              color: isPositive && eq.enabled ? primaryColor : Colors.white54,
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
           ),
           const SizedBox(height: 12),
-          // Vertical slider
           Expanded(
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Track line
                 Container(
                   width: 4,
                   decoration: BoxDecoration(
@@ -296,14 +338,68 @@ class _EqualizerScreenState extends State<EqualizerScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Frequency label
           Text(
             AppConstants.eqBandLabels[index],
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.white54,
-              fontWeight: FontWeight.w500,
+            style: const TextStyle(fontSize: 12, color: Colors.white54, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _build10EqBand(BuildContext context, int index, Color primaryColor, bool isEnabled) {
+    final level = _10BandValues[index];
+    final isPositive = level >= 0;
+    return SizedBox(
+      width: 25, // Thinner for 10 bands
+      child: Column(
+        children: [
+          Text(
+            '${isPositive ? "+" : ""}${(level / 10).toStringAsFixed(1)}',
+            style: TextStyle(
+              color: isPositive && isEnabled ? primaryColor : Colors.white54,
+              fontWeight: FontWeight.bold,
+              fontSize: 9,
             ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                RotatedBox(
+                  quarterTurns: 3,
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 4,
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7, elevation: 0),
+                      activeTrackColor: primaryColor,
+                      inactiveTrackColor: Colors.transparent,
+                      thumbColor: primaryColor,
+                      overlayColor: primaryColor.withOpacity(0.1),
+                      trackShape: const RoundedRectSliderTrackShape(),
+                    ),
+                    child: Slider(
+                      value: level,
+                      min: -15, max: 15,
+                      onChanged: isEnabled ? (v) => setState(() => _10BandValues[index] = v) : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _10BandLabels[index],
+            style: const TextStyle(fontSize: 9, color: Colors.white54, fontWeight: FontWeight.w500),
           ),
         ],
       ),
