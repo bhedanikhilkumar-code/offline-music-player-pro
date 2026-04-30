@@ -376,23 +376,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final song = songs[index];
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: FadeInAnimation(
-                        child: Consumer<AudioProvider>(
-                          builder: (context, audio, _) {
-                            return SongTile(
-                              song: song,
-                              isPlaying: audio.currentSong?.id == song.id,
-                              onTap: () => audio.playSong(song, playlist: songs, index: index),
-                              onOptionsTap: () => SongOptionsSheet.show(context, song),
-                            );
-                          },
-                        ),
-                      ),
+                  return _OneShotListAnimation(
+                    index: index,
+                    child: Consumer<AudioProvider>(
+                      builder: (context, audio, _) {
+                        return SongTile(
+                          song: song,
+                          isPlaying: audio.currentSong?.id == song.id,
+                          onTap: () => audio.playSong(song, playlist: songs, index: index),
+                          onOptionsTap: () => SongOptionsSheet.show(context, song),
+                        );
+                      },
                     ),
                   );
                 },
@@ -791,6 +785,95 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A one-shot list item animation that plays only once per item.
+/// On reverse scroll, items appear instantly without re-animating.
+class _OneShotListAnimation extends StatefulWidget {
+  final int index;
+  final Widget child;
+
+  const _OneShotListAnimation({
+    required this.index,
+    required this.child,
+  });
+
+  @override
+  State<_OneShotListAnimation> createState() => _OneShotListAnimationState();
+}
+
+class _OneShotListAnimationState extends State<_OneShotListAnimation>
+    with SingleTickerProviderStateMixin {
+  static final Set<int> _animatedIndices = {};
+  late final bool _shouldAnimate;
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _shouldAnimate = !_animatedIndices.contains(widget.index);
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+
+    final curve = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(curve);
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(curve);
+    _scaleAnimation = Tween<double>(begin: 0.97, end: 1.0).animate(curve);
+
+    if (_shouldAnimate) {
+      // Stagger delay based on index (max 8 items stagger, then instant)
+      final staggerDelay = (widget.index % 8) * 50;
+      Future.delayed(Duration(milliseconds: staggerDelay), () {
+        if (mounted) {
+          _controller.forward();
+          _animatedIndices.add(widget.index);
+        }
+      });
+    } else {
+      _controller.value = 1.0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_shouldAnimate) return widget.child;
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return FractionalTranslation(
+          translation: _slideAnimation.value,
+          child: Opacity(
+            opacity: _fadeAnimation.value,
+            child: Transform.scale(
+              scale: _scaleAnimation.value,
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: widget.child,
     );
   }
 }
