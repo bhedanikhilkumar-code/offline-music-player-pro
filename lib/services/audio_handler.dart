@@ -36,25 +36,17 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
 
   void _broadcastQueue() {
     queue.add(
-      _playerService.queue
-          .map(_songToMediaItem)
-          .toList(growable: false),
+      _playerService.queue.map(_songToMediaItem).toList(growable: false),
     );
   }
 
   MediaItem _songToMediaItem(SongModel song) {
-    Uri? artUri;
-    if (song.albumId != null && song.albumId! > 0) {
-      artUri = Uri.parse('content://media/external/audio/albumart/${song.albumId}');
-    }
-
     return MediaItem(
       id: song.path,
       title: song.displayTitle,
       artist: song.displayArtist,
       album: song.album,
       duration: Duration(milliseconds: song.duration),
-      artUri: artUri,
     );
   }
 
