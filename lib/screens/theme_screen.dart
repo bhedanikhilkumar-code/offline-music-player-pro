@@ -147,7 +147,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                       const SizedBox(height: 16),
                       
                       Expanded(
-                        child: _buildImageGrid(context),
+                        child: _buildImageGrid(context, themeProvider),
                       ),
                     ],
                   ),
@@ -255,7 +255,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   }
 
   // ─── Image Grid ───
-  Widget _buildImageGrid(BuildContext context) {
+  Widget _buildImageGrid(BuildContext context, ThemeProvider themeProvider) {
     final selectedCategory = imageCategories[_imageTabController.index];
     
     // Filter images based on tab
@@ -280,6 +280,8 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
           final hasAsset = item.containsKey('assetPath');
           final label = item['label'] as String;
           final isCustom = label == 'Custom';
+          final colors = item['colors'] as List<Color>? ?? [Colors.blueGrey, Colors.black87];
+          final icon = item['icon'] as IconData? ?? Icons.image_rounded;
           final isSelected = themeProvider.backgroundImagePath == (hasAsset ? item['assetPath'] : null) && !isCustom;
 
           return GestureDetector(
