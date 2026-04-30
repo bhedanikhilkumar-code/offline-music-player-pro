@@ -107,8 +107,8 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     {
       'label': 'Waterfall',
       'category': 'Nature',
-      'imageUrl': 'https://images.unsplash.com/photo-1432405972618-c6b0cfba5428?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1432405972618-c6b0cfba5428?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1494472155656-f34e81b17ddc?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1494472155656-f34e81b17ddc?w=1080&h=1920&fit=crop',
     },
 
     // ── Pet ──
