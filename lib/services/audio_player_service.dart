@@ -236,6 +236,18 @@ class AudioPlayerService {
     _currentSongSubject.add(currentSong);
   }
 
+  Future<void> addToQueue(SongModel song, {bool insertNext = false}) async {
+    if (_queue.isEmpty) {
+      await setQueue([song], startIndex: 0);
+      return;
+    }
+    if (insertNext) {
+      _queue.insert(_currentIndex + 1, song);
+    } else {
+      _queue.add(song);
+    }
+  }
+
   Future<void> dispose() async {
     await _currentSongSubject.close();
     await _player.dispose();

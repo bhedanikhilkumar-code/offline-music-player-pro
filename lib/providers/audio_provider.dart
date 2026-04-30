@@ -135,6 +135,11 @@ class AudioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> addToQueue(SongModel song, {bool insertNext = false}) async {
+    await _playerService.addToQueue(song, insertNext: insertNext);
+    notifyListeners();
+  }
+
   double get speed => _playerService.player.speed;
   double get volume => _playerService.player.volume;
 }

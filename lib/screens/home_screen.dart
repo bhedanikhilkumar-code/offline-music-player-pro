@@ -674,12 +674,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           return Center(child: Text('No albums found', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)));
         }
         return GridView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.85,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            childAspectRatio: 0.8,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
           itemCount: albums.length,
           itemBuilder: (context, index) {
@@ -690,37 +690,63 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               )),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: AppColors.cardDark,
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white.withOpacity(0.03),
+                  border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                        child: Container(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                        child: SizedBox(
                           width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.themeColors[index % AppColors.themeColors.length].withOpacity(0.3),
-                                AppColors.cardDark,
-                              ],
+                          child: on_audio_query.QueryArtworkWidget(
+                            id: album.id,
+                            type: on_audio_query.ArtworkType.ALBUM,
+                            artworkFit: BoxFit.cover,
+                            nullArtworkWidget: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    AppColors.themeColors[index % AppColors.themeColors.length].withOpacity(0.3),
+                                    Colors.black26,
+                                  ],
+                                ),
+                              ),
+                              child: const Icon(Icons.album_rounded, size: 64, color: Colors.white24),
                             ),
                           ),
-                          child: const Icon(Icons.album_rounded, size: 48, color: Colors.white38),
                         ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(album.displayName, style: AppTextStyles.songTitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                          Text('${album.displayArtist} | ${album.songCount} songs',
-                            style: AppTextStyles.songSubtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(album.displayName, style: AppTextStyles.songTitle.copyWith(fontSize: 15), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text('${album.displayArtist}',
+                                  style: AppTextStyles.songSubtitle.copyWith(fontSize: 12, color: Colors.white54), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              ),
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text('${album.songCount}', style: TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
