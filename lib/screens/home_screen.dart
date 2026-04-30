@@ -440,93 +440,190 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildPlaylistsTab() {
-    final library = context.watch<MusicLibraryProvider>();
-    return Consumer<PlaylistProvider>(
-      builder: (context, playlistProvider, _) {
+    return Consumer2<PlaylistProvider, MusicLibraryProvider>(
+      builder: (context, playlistProvider, library, _) {
         final playlists = playlistProvider.playlists;
+
         return Column(
           children: [
+            // ─── Create Playlist Button ───
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity, height: 48,
-                child: OutlinedButton.icon(
-                  onPressed: () => _showCreatePlaylistDialog(context),
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(AppStrings.createPlaylist, style: AppTextStyles.bodyMedium),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showCreatePlaylistDialog(context),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.35)),
+                      borderRadius: BorderRadius.circular(14),
+                      color: Theme.of(context).primaryColor.withOpacity(0.05),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_rounded, color: Theme.of(context).primaryColor, size: 22),
+                        const SizedBox(width: 8),
+                        Text(AppStrings.createPlaylist,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+
             Expanded(
-              child: AnimationLimiter(
-                child: ListView(
-                  children: AnimationConfiguration.toStaggeredList(
-                    duration: const Duration(milliseconds: 375),
-                    childAnimationBuilder: (widget) => SlideAnimation(verticalOffset: 50.0, child: FadeInAnimation(child: widget)),
-                    children: [
-                      _buildSmartPlaylistTile(
-                        context,
-                        title: 'Recently Played',
-                        icon: Icons.history_rounded,
-                        color: AppColors.accentOrange,
-                        songCount: library.recentlyPlayed.length,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(
-                          builder: (_) => PlaylistDetailScreen(playlistId: 'recent', customSongs: library.recentlyPlayed, title: 'Recently Played'),
-                        )),
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 80),
+                children: [
+                  // ─── Smart Playlists Section Header ───
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 16, 8),
+                    child: Text('SMART PLAYLISTS',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.white24,
+                        fontSize: 11,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w700,
                       ),
-                      _buildSmartPlaylistTile(
-                        context,
-                        title: 'Most Played',
-                        icon: Icons.trending_up_rounded,
-                        color: Colors.blueAccent,
-                        songCount: library.mostPlayed.length,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(
-                          builder: (_) => PlaylistDetailScreen(playlistId: 'most_played', customSongs: library.mostPlayed, title: 'Most Played'),
-                        )),
-                      ),
-                      _buildSmartPlaylistTile(
-                        context,
-                        title: 'Favorites',
-                        icon: Icons.favorite_rounded,
-                        color: Colors.pinkAccent,
-                        songCount: library.favorites.length,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(
-                          builder: (_) => PlaylistDetailScreen(playlistId: 'favorites', customSongs: library.favorites, title: 'Favorites'),
-                        )),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Divider(color: Colors.white10),
-                      ),
-                      if (playlists.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(40),
-                          child: Center(child: Text('No custom playlists yet', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38))),
-                        )
-                      else
-                        ...playlists.map((playlist) => ListTile(
-                          leading: Container(
-                            width: 50, height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: AppColors.cardDarkLight,
-                            ),
-                            child: Icon(Icons.queue_music_rounded, color: Theme.of(context).primaryColor),
+                    ),
+                  ),
+
+                  _buildSmartPlaylistTile(context,
+                    title: 'Recently Played',
+                    icon: Icons.history_rounded,
+                    color: AppColors.accentOrange,
+                    songCount: library.recentlyPlayed.length,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => PlaylistDetailScreen(playlistId: 'recent', customSongs: library.recentlyPlayed, title: 'Recently Played'),
+                    )),
+                  ),
+                  _buildSmartPlaylistTile(context,
+                    title: 'Most Played',
+                    icon: Icons.trending_up_rounded,
+                    color: Colors.blueAccent,
+                    songCount: library.mostPlayed.length,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => PlaylistDetailScreen(playlistId: 'most_played', customSongs: library.mostPlayed, title: 'Most Played'),
+                    )),
+                  ),
+                  _buildSmartPlaylistTile(context,
+                    title: 'Favorites',
+                    icon: Icons.favorite_rounded,
+                    color: Colors.pinkAccent,
+                    songCount: library.favorites.length,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => PlaylistDetailScreen(playlistId: 'favorites', customSongs: library.favorites, title: 'Favorites'),
+                    )),
+                  ),
+
+                  // ─── Custom Playlists Section ───
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 16, 8),
+                    child: Row(
+                      children: [
+                        Text('MY PLAYLISTS',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: Colors.white24,
+                            fontSize: 11,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.w700,
                           ),
-                          title: Text(playlist.name, style: AppTextStyles.songTitle),
-                          subtitle: Text('${playlist.songCount} songs', style: AppTextStyles.songSubtitle),
-                          trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text('${playlists.length}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  if (playlists.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 40),
+                      child: Column(
+                        children: [
+                          Icon(Icons.library_music_rounded, size: 48, color: Colors.white12),
+                          const SizedBox(height: 12),
+                          Text('No playlists yet',
+                            style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)),
+                          const SizedBox(height: 4),
+                          Text('Tap + above to create one',
+                            style: AppTextStyles.bodySmall.copyWith(color: Colors.white24)),
+                        ],
+                      ),
+                    )
+                  else
+                    ...playlists.map((playlist) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                        child: InkWell(
                           onTap: () => Navigator.push(context, MaterialPageRoute(
                             builder: (_) => PlaylistDetailScreen(playlistId: playlist.id),
                           )),
-                        )),
-                    ],
-                  ),
-                ),
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: Colors.white.withOpacity(0.04),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 48, height: 48,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Theme.of(context).primaryColor.withOpacity(0.3),
+                                        Theme.of(context).primaryColor.withOpacity(0.1),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Icon(Icons.queue_music_rounded, color: Theme.of(context).primaryColor, size: 24),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(playlist.name, style: AppTextStyles.songTitle, overflow: TextOverflow.ellipsis),
+                                      const SizedBox(height: 2),
+                                      Text('${playlist.songCount} songs',
+                                        style: AppTextStyles.songSubtitle.copyWith(color: Colors.white38)),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(Icons.chevron_right_rounded, color: Colors.white24, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )),
+                ],
               ),
             ),
           ],

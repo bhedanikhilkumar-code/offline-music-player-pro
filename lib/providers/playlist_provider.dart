@@ -6,13 +6,16 @@ import 'package:offline_music_player/services/storage_service.dart';
 class PlaylistProvider extends ChangeNotifier {
   List<PlaylistModel> _playlists = [];
   late StorageService _storage;
+  bool _initialized = false;
   final _uuid = const Uuid();
 
   List<PlaylistModel> get playlists => _playlists;
 
   Future<void> init(StorageService storage) async {
+    if (_initialized) return;
     _storage = storage;
     _loadPlaylists();
+    _initialized = true;
   }
 
   void _loadPlaylists() {
