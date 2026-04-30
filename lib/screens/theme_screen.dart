@@ -65,6 +65,10 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
 
     // Other
     {'label': 'Planet Earth', 'category': 'Other', 'assetPath': 'assets/images/themes/others_earth.png', 'isUnique': true},
+    {'label': 'City Sunset', 'category': 'Other', 'assetPath': 'assets/images/themes/others_city_sunset.png', 'isUnique': true},
+    {'label': 'Tech Abstract', 'category': 'Other', 'assetPath': 'assets/images/themes/others_tech.png', 'isUnique': true},
+    {'label': 'Skyscrapers', 'category': 'Other', 'assetPath': 'assets/images/themes/others_skyscrapers.png', 'isUnique': true},
+    {'label': 'Luxury Office', 'category': 'Other', 'assetPath': 'assets/images/themes/others_office.png', 'isUnique': true},
     {'label': 'Supercar', 'category': 'Other', 'assetPath': 'assets/images/themes/others_supercar.png', 'isUnique': true},
     {'label': 'Galaxy', 'category': 'Other', 'assetPath': 'assets/images/themes/others_galaxy.png', 'isUnique': true},
     {'label': 'Rain Drops', 'category': 'Other', 'assetPath': 'assets/images/themes/others_raindrops.png', 'isUnique': true},
