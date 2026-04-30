@@ -235,14 +235,14 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     {
       'label': 'Japanese Girl',
       'category': 'Girls',
-      'imageUrl': 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1080&h=1920&fit=crop',
     },
     {
       'label': 'Kimono Beauty',
       'category': 'Girls',
-      'imageUrl': 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=1080&h=1920&fit=crop',
     },
     {
       'label': 'Tokyo Girl',
@@ -259,8 +259,8 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     {
       'label': 'Pink Aesthetic',
       'category': 'Girls',
-      'imageUrl': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1080&h=1920&fit=crop',
     },
     {
       'label': 'Neon Girl',
@@ -271,16 +271,46 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
     {
       'label': 'Sakura Girl',
       'category': 'Girls',
-      'imageUrl': 'https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Red Dress',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Beach Girl',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1504703395950-b89145a5425b?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1504703395950-b89145a5425b?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Portrait Beauty',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Golden Hour',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Street Style',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=1080&h=1920&fit=crop',
     },
 
     // ── Superhero ──
     {
       'label': 'Iron Suit',
       'category': 'Superhero',
-      'imageUrl': 'https://images.unsplash.com/photo-1635863138275-d9b33299680b?w=400&h=600&fit=crop',
-      'fullUrl': 'https://images.unsplash.com/photo-1635863138275-d9b33299680b?w=1080&h=1920&fit=crop',
+      'imageUrl': 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=1080&h=1920&fit=crop',
     },
     {
       'label': 'Dark Knight',
