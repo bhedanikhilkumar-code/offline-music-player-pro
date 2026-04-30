@@ -27,12 +27,11 @@ Future<void> main() async {
       androidNotificationChannelName: 'Music Playback',
       androidNotificationChannelDescription:
           'Controls for the music currently playing',
-      androidNotificationIcon: 'drawable/ic_notification',
+      androidNotificationIcon: 'mipmap/ic_launcher',
       notificationColor: Color(0xFFFF6B35),
       androidShowNotificationBadge: true,
       androidNotificationOngoing: false,
-      androidStopForegroundOnPause:
-          true, // Adjusted for better background play handling
+      androidStopForegroundOnPause: false, // Must be false on Android 12+ to allow resuming from background widgets/notification
     ),
   );
 
