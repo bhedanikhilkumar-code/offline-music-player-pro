@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+import '../models/song_model.dart';
 import 'audio_player_service.dart';
 
 class MyAudioHandler extends BaseAudioHandler with SeekHandler {
@@ -10,40 +12,73 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   void _init() {
+    // ─── Sync playback state to notification controls ───
     _playerService.player.playerStateStream.listen((state) {
-      final playing = state.playing;
-      final processingState = _mapProcessingState(state.processingState);
-      playbackState.add(PlaybackState(
-        controls: [
-          MediaControl.skipToPrevious,
-          playing ? MediaControl.pause : MediaControl.play,
-          MediaControl.skipToNext,
-        ],
-        systemActions: const {
-          MediaAction.seek,
-          MediaAction.seekForward,
-          MediaAction.seekBackward,
-        },
-        androidCompactActionIndices: const [0, 1, 2],
-        processingState: processingState,
-        playing: playing,
-        updatePosition: _playerService.player.position,
-        bufferedPosition: _playerService.player.bufferedPosition,
-        speed: _playerService.player.speed,
-      ));
+      _updatePlaybackState(state.playing, state.processingState);
     });
 
+    // ─── Sync seek position ───
     _playerService.player.positionStream.listen((position) {
-      playbackState.add(playbackState.value.copyWith(
-        updatePosition: position,
-      ));
+      final current = playbackState.value;
+      playbackState.add(current.copyWith(updatePosition: position));
     });
 
+    // ─── Update notification metadata when song changes ───
     _playerService.currentSongStream.listen((song) {
       if (song != null) {
-        updatePlayerMetadata(song.title, song.artist, Duration(milliseconds: song.duration));
+        _updateMediaItem(song);
+      } else {
+        mediaItem.add(null);
       }
     });
+  }
+
+  void _updatePlaybackState(bool playing, ProcessingState processingState) {
+    playbackState.add(PlaybackState(
+      controls: [
+        MediaControl.skipToPrevious,
+        playing ? MediaControl.pause : MediaControl.play,
+        MediaControl.skipToNext,
+        MediaControl.stop,
+      ],
+      systemActions: const {
+        MediaAction.seek,
+        MediaAction.seekForward,
+        MediaAction.seekBackward,
+        MediaAction.skipToNext,
+        MediaAction.skipToPrevious,
+        MediaAction.playPause,
+      },
+      // Show: previous, play/pause, next in compact view
+      androidCompactActionIndices: const [0, 1, 2],
+      processingState: _mapProcessingState(processingState),
+      playing: playing,
+      updatePosition: _playerService.player.position,
+      bufferedPosition: _playerService.player.bufferedPosition,
+      speed: _playerService.player.speed,
+    ));
+  }
+
+  void _updateMediaItem(SongModel song) {
+    Uri? artUri;
+    try {
+      final artPath = song.albumArtPath;
+      if (artPath != null && artPath.isNotEmpty) {
+        final artFile = File(artPath);
+        if (artFile.existsSync()) {
+          artUri = artFile.uri;
+        }
+      }
+    } catch (_) {}
+
+    mediaItem.add(MediaItem(
+      id: song.path,
+      title: song.displayTitle,
+      artist: song.displayArtist,
+      album: song.album,
+      duration: Duration(milliseconds: song.duration),
+      artUri: artUri,
+    ));
   }
 
   AudioProcessingState _mapProcessingState(ProcessingState state) {
@@ -61,12 +96,26 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
     }
   }
 
-  void updatePlayerMetadata(String title, String artist, Duration? duration) {
+  // ─── Public method for AudioProvider to call ───
+  void updatePlayerMetadata(String title, String artist, Duration? duration,
+      {String? albumArtPath, String? album, int? songId}) {
+    Uri? artUri;
+    try {
+      if (albumArtPath != null && albumArtPath.isNotEmpty) {
+        final artFile = File(albumArtPath);
+        if (artFile.existsSync()) {
+          artUri = artFile.uri;
+        }
+      }
+    } catch (_) {}
+
     mediaItem.add(MediaItem(
       id: _playerService.currentSong?.path ?? '',
       title: title,
       artist: artist,
+      album: album ?? '',
       duration: duration,
+      artUri: artUri,
     ));
   }
 
@@ -86,7 +135,19 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
   Future<void> skipToPrevious() async => await _playerService.playPrevious();
 
   @override
+  Future<void> fastForward() async => await _playerService.seekForward();
+
+  @override
+  Future<void> rewind() async => await _playerService.seekBackward();
+
+  @override
   Future<void> stop() async {
+    await _playerService.pause();
+    await super.stop();
+  }
+
+  @override
+  Future<void> onTaskRemoved() async {
     await _playerService.pause();
     await super.stop();
   }
