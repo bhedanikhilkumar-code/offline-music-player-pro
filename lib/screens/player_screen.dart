@@ -210,56 +210,53 @@ class _PlayerScreenState extends State<PlayerScreen>
 
     return Column(
       children: [
-        // Album art with Hero and Rotation
+        // Album art with rotation
         Expanded(
           flex: 4,
           child: Center(
-            child: Hero(
-              tag: 'mini_album_art_${song.id}',
-              child: AnimatedBuilder(
-                animation: _rotationController,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: _rotationController.value * 2 * 3.14159,
-                    child: Container(
-                      width: 280,
-                      height: 280,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: _accentColor.withOpacity(0.3),
-                            blurRadius: 40,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: QueryArtworkWidget(
-                          id: song.id,
-                          type: ArtworkType.AUDIO,
-                          artworkHeight: 280,
-                          artworkWidth: 280,
-                          artworkFit: BoxFit.cover,
-                          nullArtworkWidget: Container(
-                            width: 280,
-                            height: 280,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [_accentColor, _dominantColor],
-                              ),
+            child: AnimatedBuilder(
+              animation: _rotationController,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _rotationController.value * 2 * 3.14159,
+                  child: Container(
+                    width: 280,
+                    height: 280,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: _accentColor.withOpacity(0.3),
+                          blurRadius: 40,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: QueryArtworkWidget(
+                        id: song.id,
+                        type: ArtworkType.AUDIO,
+                        artworkHeight: 280,
+                        artworkWidth: 280,
+                        artworkFit: BoxFit.cover,
+                        nullArtworkWidget: Container(
+                          width: 280,
+                          height: 280,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [_accentColor, _dominantColor],
                             ),
-                            child: const Icon(Icons.music_note_rounded,
-                                size: 100, color: Colors.white70),
                           ),
+                          child: const Icon(Icons.music_note_rounded,
+                              size: 100, color: Colors.white70),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
         ),

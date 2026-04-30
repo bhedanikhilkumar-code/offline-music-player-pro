@@ -29,11 +29,7 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
       _broadcastPlaybackState();
     });
 
-    _playerService.player.processingStateStream.listen((state) {
-      if (state == ProcessingState.completed) {
-        _playerService.player
-            .stop(); // Ensure player stops when playback completes
-      }
+    _playerService.player.processingStateStream.listen((_) {
       _broadcastPlaybackState();
     });
   }

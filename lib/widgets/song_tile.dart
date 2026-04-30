@@ -52,43 +52,39 @@ class SongTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Artwork with Hero
-              Hero(
-                tag: 'song_art_${song.id}',
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: const Color(0xFF252344),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: QueryArtworkWidget(
-                      id: song.id,
-                      type: ArtworkType.AUDIO,
-                      artworkHeight: 56,
-                      artworkWidth: 56,
-                      artworkFit: BoxFit.cover,
-                      nullArtworkWidget: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white10,
-                              Colors.white.withOpacity(0.05)
-                            ],
-                          ),
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFF252344),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: QueryArtworkWidget(
+                    id: song.id,
+                    type: ArtworkType.AUDIO,
+                    artworkHeight: 56,
+                    artworkWidth: 56,
+                    artworkFit: BoxFit.cover,
+                    nullArtworkWidget: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white10,
+                            Colors.white.withOpacity(0.05)
+                          ],
                         ),
-                        child: const Icon(Icons.music_note_rounded,
-                            color: Colors.white24, size: 30),
                       ),
+                      child: const Icon(Icons.music_note_rounded,
+                          color: Colors.white24, size: 30),
                     ),
                   ),
                 ),

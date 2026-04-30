@@ -56,44 +56,40 @@ class MiniPlayer extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                   child: Row(
                     children: [
-                      // Album art with glow
-                      Hero(
-                        tag: 'mini_album_art_${song.id}',
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: primaryColor.withOpacity(0.2),
-                                blurRadius: 10,
-                                spreadRadius: 1,
-                              )
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: QueryArtworkWidget(
-                              id: song.id,
-                              type: ArtworkType.AUDIO,
-                              artworkHeight: 48,
-                              artworkWidth: 48,
-                              artworkFit: BoxFit.cover,
-                              nullArtworkWidget: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      primaryColor,
-                                      primaryColor.withOpacity(0.6)
-                                    ],
-                                  ),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryColor.withOpacity(0.2),
+                              blurRadius: 10,
+                              spreadRadius: 1,
+                            )
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: QueryArtworkWidget(
+                            id: song.id,
+                            type: ArtworkType.AUDIO,
+                            artworkHeight: 48,
+                            artworkWidth: 48,
+                            artworkFit: BoxFit.cover,
+                            nullArtworkWidget: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    primaryColor,
+                                    primaryColor.withOpacity(0.6)
+                                  ],
                                 ),
-                                child: const Icon(Icons.music_note_rounded,
-                                    color: Colors.white, size: 28),
                               ),
+                              child: const Icon(Icons.music_note_rounded,
+                                  color: Colors.white, size: 28),
                             ),
                           ),
                         ),

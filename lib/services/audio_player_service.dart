@@ -131,6 +131,10 @@ class AudioPlayerService {
 
   Future<void> play() async => await _player.play();
   Future<void> pause() async => await _player.pause();
+  Future<void> stop() async {
+    await _player.stop();
+    _currentSongSubject.add(null);
+  }
 
   Future<void> togglePlayPause() async {
     if (_player.playing) {
