@@ -50,7 +50,7 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
   ];
 
   // All image categories
-  static const List<String> imageCategories = ['All images', 'Nature', 'Pet', 'Cartoon', 'Other'];
+  static const List<String> imageCategories = ['All images', 'Nature', 'Pet', 'Cartoon', 'Girls', 'Superhero', 'Other'];
 
   // Built-in theme images using network URLs for previews
   final List<Map<String, dynamic>> themeImages = [
@@ -229,6 +229,134 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
       'category': 'Other',
       'imageUrl': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=600&fit=crop',
       'fullUrl': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1080&h=1920&fit=crop',
+    },
+
+    // ── Girls ──
+    {
+      'label': 'Japanese Girl',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Kimono Beauty',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Tokyo Girl',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Fashion Model',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Pink Aesthetic',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Neon Girl',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1526510747491-58f928ec870f?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1526510747491-58f928ec870f?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Sakura Girl',
+      'category': 'Girls',
+      'imageUrl': 'https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?w=1080&h=1920&fit=crop',
+    },
+
+    // ── Superhero ──
+    {
+      'label': 'Iron Suit',
+      'category': 'Superhero',
+      'imageUrl': 'https://images.unsplash.com/photo-1635863138275-d9b33299680b?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1635863138275-d9b33299680b?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Dark Knight',
+      'category': 'Superhero',
+      'imageUrl': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Spider Hero',
+      'category': 'Superhero',
+      'imageUrl': 'https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Star Warrior',
+      'category': 'Superhero',
+      'imageUrl': 'https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Shield Hero',
+      'category': 'Superhero',
+      'imageUrl': 'https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Cyber Warrior',
+      'category': 'Superhero',
+      'imageUrl': 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=1080&h=1920&fit=crop',
+    },
+
+    // ── More Cartoon / Anime ──
+    {
+      'label': 'Anime Warrior',
+      'category': 'Cartoon',
+      'imageUrl': 'https://images.unsplash.com/photo-1613376023733-0a73315d9b06?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1613376023733-0a73315d9b06?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Manga Art',
+      'category': 'Cartoon',
+      'imageUrl': 'https://images.unsplash.com/photo-1560972550-aba3456b5564?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1560972550-aba3456b5564?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Cosplay',
+      'category': 'Cartoon',
+      'imageUrl': 'https://images.unsplash.com/photo-1601814933824-fd0b574dd592?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1601814933824-fd0b574dd592?w=1080&h=1920&fit=crop',
+    },
+
+    // ── More Other ──
+    {
+      'label': 'Sports Car',
+      'category': 'Other',
+      'imageUrl': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Motorbike',
+      'category': 'Other',
+      'imageUrl': 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'Gaming Setup',
+      'category': 'Other',
+      'imageUrl': 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=1080&h=1920&fit=crop',
+    },
+    {
+      'label': 'DJ Console',
+      'category': 'Other',
+      'imageUrl': 'https://images.unsplash.com/photo-1571397134667-2b505e6b0a58?w=400&h=600&fit=crop',
+      'fullUrl': 'https://images.unsplash.com/photo-1571397134667-2b505e6b0a58?w=1080&h=1920&fit=crop',
     },
   ];
 
