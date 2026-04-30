@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:on_audio_query/on_audio_query.dart' hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
+import 'package:on_audio_query/on_audio_query.dart'
+    hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
 import '../providers/theme_provider.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
-import '../models/song_model.dart';
 import '../providers/audio_provider.dart';
 import '../services/audio_player_service.dart';
 import '../widgets/glass_container.dart';
@@ -24,7 +23,8 @@ class MiniPlayer extends StatelessWidget {
         if (song == null) return const SizedBox.shrink();
 
         return GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlayerScreen())),
+          onTap: () => Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const PlayerScreen())),
           child: GlassContainer(
             borderRadius: 0,
             blur: 15,
@@ -38,14 +38,17 @@ class MiniPlayer extends StatelessWidget {
                   stream: audio.positionDataStream,
                   builder: (context, snapshot) {
                     final data = snapshot.data;
-                    final progress = data != null && data.duration.inMilliseconds > 0
-                        ? data.position.inMilliseconds / data.duration.inMilliseconds
-                        : 0.0;
+                    final progress =
+                        data != null && data.duration.inMilliseconds > 0
+                            ? data.position.inMilliseconds /
+                                data.duration.inMilliseconds
+                            : 0.0;
                     return LinearProgressIndicator(
                       value: progress.clamp(0.0, 1.0),
                       minHeight: 2,
                       backgroundColor: Colors.white.withOpacity(0.05),
-                      valueColor: AlwaysStoppedAnimation(primaryColor.withOpacity(0.8)),
+                      valueColor:
+                          AlwaysStoppedAnimation(primaryColor.withOpacity(0.8)),
                     );
                   },
                 ),
@@ -55,9 +58,10 @@ class MiniPlayer extends StatelessWidget {
                     children: [
                       // Album art with glow
                       Hero(
-                        tag: 'album_art',
+                        tag: 'mini_album_art_${song.id}',
                         child: Container(
-                          width: 48, height: 48,
+                          width: 48,
+                          height: 48,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
@@ -73,16 +77,22 @@ class MiniPlayer extends StatelessWidget {
                             child: QueryArtworkWidget(
                               id: song.id,
                               type: ArtworkType.AUDIO,
-                              artworkHeight: 48, artworkWidth: 48,
+                              artworkHeight: 48,
+                              artworkWidth: 48,
                               artworkFit: BoxFit.cover,
                               nullArtworkWidget: Container(
-                                width: 48, height: 48,
+                                width: 48,
+                                height: 48,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [primaryColor, primaryColor.withOpacity(0.6)],
+                                    colors: [
+                                      primaryColor,
+                                      primaryColor.withOpacity(0.6)
+                                    ],
                                   ),
                                 ),
-                                child: const Icon(Icons.music_note_rounded, color: Colors.white, size: 28),
+                                child: const Icon(Icons.music_note_rounded,
+                                    color: Colors.white, size: 28),
                               ),
                             ),
                           ),
@@ -97,14 +107,18 @@ class MiniPlayer extends StatelessWidget {
                           children: [
                             Text(
                               song.displayTitle,
-                              style: AppTextStyles.miniPlayerTitle.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
-                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.miniPlayerTitle.copyWith(
+                                  fontSize: 15, fontWeight: FontWeight.w600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 2),
                             Text(
                               song.displayArtist,
-                              style: AppTextStyles.miniPlayerArtist.copyWith(fontSize: 12, color: Colors.white60),
-                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.miniPlayerArtist.copyWith(
+                                  fontSize: 12, color: Colors.white60),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -117,7 +131,9 @@ class MiniPlayer extends StatelessWidget {
                           return IconButton(
                             onPressed: () => audio.togglePlayPause(),
                             icon: Icon(
-                              playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_filled_rounded,
+                              playing
+                                  ? Icons.pause_circle_filled_rounded
+                                  : Icons.play_circle_filled_rounded,
                               color: Colors.white,
                               size: 40,
                             ),
@@ -128,7 +144,8 @@ class MiniPlayer extends StatelessWidget {
                       const SizedBox(width: 4),
                       // Next Button
                       IconButton(
-                        icon: const Icon(Icons.skip_next_rounded, size: 30, color: Colors.white70),
+                        icon: const Icon(Icons.skip_next_rounded,
+                            size: 30, color: Colors.white70),
                         onPressed: () => audio.playNext(),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),

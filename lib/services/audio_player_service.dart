@@ -1,4 +1,5 @@
 import 'package:just_audio/just_audio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/song_model.dart';
 
@@ -21,7 +22,8 @@ class AudioPlayerService {
   int _androidAudioSessionId = 0;
   int get androidAudioSessionId => _androidAudioSessionId;
 
-  final BehaviorSubject<SongModel?> _currentSongSubject = BehaviorSubject<SongModel?>.seeded(null);
+  final BehaviorSubject<SongModel?> _currentSongSubject =
+      BehaviorSubject<SongModel?>.seeded(null);
   Stream<SongModel?> get currentSongStream => _currentSongSubject.stream;
 
   List<SongModel> _queue = [];
@@ -31,7 +33,10 @@ class AudioPlayerService {
 
   List<SongModel> get queue => _queue;
   int get currentIndex => _currentIndex;
-  SongModel? get currentSong => _currentIndex >= 0 && _currentIndex < _queue.length ? _queue[_currentIndex] : null;
+  SongModel? get currentSong =>
+      _currentIndex >= 0 && _currentIndex < _queue.length
+          ? _queue[_currentIndex]
+          : null;
   bool get shuffleMode => _shuffleMode;
   int get repeatMode => _repeatMode;
   bool get isPlaying => _player.playing;
@@ -64,7 +69,8 @@ class AudioPlayerService {
     });
   }
 
-  Future<void> playSong(SongModel song, {List<SongModel>? playlist, int? index}) async {
+  Future<void> playSong(SongModel song,
+      {List<SongModel>? playlist, int? index}) async {
     if (playlist != null) {
       _queue = List.from(playlist);
       _currentIndex = index ?? playlist.indexOf(song);
@@ -77,20 +83,46 @@ class AudioPlayerService {
     await _playCurrentSong();
   }
 
-  Future<void> _playCurrentSong() async {
+  Future<void> _playCurrentSong({int failedAttempts = 0}) async {
     if (_currentIndex < 0 || _currentIndex >= _queue.length) {
       _currentSongSubject.add(null);
       return;
     }
     final song = _queue[_currentIndex];
-    _currentSongSubject.add(song);
     try {
-      await _player.setAudioSource(AudioSource.file(song.path));
+      await _player.setAudioSource(_audioSourceFor(song));
+      _currentSongSubject.add(song);
       await _player.play();
     } catch (e) {
-      // Skip to next on error
-      await playNext();
+      debugPrint('Playback failed for ${song.path}: $e');
+      if (failedAttempts < _queue.length - 1 && _advanceAfterPlaybackError()) {
+        await _playCurrentSong(failedAttempts: failedAttempts + 1);
+      } else {
+        _currentSongSubject.add(null);
+        await _player.stop();
+      }
     }
+  }
+
+  AudioSource _audioSourceFor(SongModel song) {
+    final contentUri = song.uri?.trim();
+    if (contentUri != null && contentUri.isNotEmpty) {
+      return AudioSource.uri(Uri.parse(contentUri));
+    }
+    return AudioSource.file(song.path);
+  }
+
+  bool _advanceAfterPlaybackError() {
+    if (_queue.length <= 1) return false;
+    if (_currentIndex < _queue.length - 1) {
+      _currentIndex++;
+      return true;
+    }
+    if (_repeatMode == 1) {
+      _currentIndex = 0;
+      return true;
+    }
+    return false;
   }
 
   Future<void> play() async => await _player.play();

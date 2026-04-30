@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:on_audio_query/on_audio_query.dart' hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
+import 'package:on_audio_query/on_audio_query.dart'
+    hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
 import 'package:intl/intl.dart';
 import '../providers/theme_provider.dart';
 import '../constants/app_text_styles.dart';
@@ -26,9 +27,12 @@ class SongTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = context.read<ThemeProvider>();
     final primaryColor = themeProvider.primaryColor;
-    
+
     // Format date added as MM-dd
-    final dateAdded = DateTime.fromMillisecondsSinceEpoch((song.dateAdded > 0 ? song.dateAdded : DateTime.now().millisecondsSinceEpoch ~/ 1000) * 1000);
+    final dateAdded = DateTime.fromMillisecondsSinceEpoch((song.dateAdded > 0
+            ? song.dateAdded
+            : DateTime.now().millisecondsSinceEpoch ~/ 1000) *
+        1000);
     final dateStr = DateFormat('MM-dd').format(dateAdded);
 
     return Material(
@@ -40,16 +44,20 @@ class SongTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: isPlaying ? Colors.white.withOpacity(0.05) : Colors.transparent,
-            border: isPlaying ? Border.all(color: Colors.white12, width: 0.5) : null,
+            color:
+                isPlaying ? Colors.white.withOpacity(0.05) : Colors.transparent,
+            border: isPlaying
+                ? Border.all(color: Colors.white12, width: 0.5)
+                : null,
           ),
           child: Row(
             children: [
               // Artwork with Hero
               Hero(
-                tag: isPlaying ? 'album_art' : 'song_art_${song.id}',
+                tag: 'song_art_${song.id}',
                 child: Container(
-                  width: 56, height: 56,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: const Color(0xFF252344),
@@ -66,15 +74,20 @@ class SongTile extends StatelessWidget {
                     child: QueryArtworkWidget(
                       id: song.id,
                       type: ArtworkType.AUDIO,
-                      artworkHeight: 56, artworkWidth: 56,
+                      artworkHeight: 56,
+                      artworkWidth: 56,
                       artworkFit: BoxFit.cover,
                       nullArtworkWidget: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.white10, Colors.white.withOpacity(0.05)],
+                            colors: [
+                              Colors.white10,
+                              Colors.white.withOpacity(0.05)
+                            ],
                           ),
                         ),
-                        child: const Icon(Icons.music_note_rounded, color: Colors.white24, size: 30),
+                        child: const Icon(Icons.music_note_rounded,
+                            color: Colors.white24, size: 30),
                       ),
                     ),
                   ),
@@ -92,8 +105,11 @@ class SongTile extends StatelessWidget {
                       style: AppTextStyles.songTitle.copyWith(
                         color: isPlaying ? primaryColor : Colors.white,
                         fontSize: 16,
-                        fontWeight: isPlaying ? FontWeight.bold : FontWeight.normal,
-                        shadows: isPlaying ? [Shadow(color: Colors.black45, blurRadius: 4)] : null,
+                        fontWeight:
+                            isPlaying ? FontWeight.bold : FontWeight.normal,
+                        shadows: isPlaying
+                            ? [Shadow(color: Colors.black45, blurRadius: 4)]
+                            : null,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -101,7 +117,8 @@ class SongTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       song.displayArtist,
-                      style: AppTextStyles.songSubtitle.copyWith(color: Colors.white54, fontSize: 13),
+                      style: AppTextStyles.songSubtitle
+                          .copyWith(color: Colors.white54, fontSize: 13),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -115,10 +132,13 @@ class SongTile extends StatelessWidget {
                   if (isPlaying)
                     const _PlayingVisualizer()
                   else
-                    Text(dateStr, style: AppTextStyles.songSubtitle.copyWith(color: Colors.white24, fontSize: 11)),
+                    Text(dateStr,
+                        style: AppTextStyles.songSubtitle
+                            .copyWith(color: Colors.white24, fontSize: 11)),
                   const SizedBox(width: 12),
                   IconButton(
-                    icon: const Icon(Icons.more_vert_rounded, color: Colors.white38, size: 22),
+                    icon: const Icon(Icons.more_vert_rounded,
+                        color: Colors.white38, size: 22),
                     onPressed: onOptionsTap,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -139,13 +159,16 @@ class _PlayingVisualizer extends StatefulWidget {
   State<_PlayingVisualizer> createState() => _PlayingVisualizerState();
 }
 
-class _PlayingVisualizerState extends State<_PlayingVisualizer> with SingleTickerProviderStateMixin {
+class _PlayingVisualizerState extends State<_PlayingVisualizer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000))..repeat();
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1000))
+      ..repeat();
   }
 
   @override
@@ -162,7 +185,15 @@ class _PlayingVisualizerState extends State<_PlayingVisualizer> with SingleTicke
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            final double height = 4 + (12 * (0.5 + 0.5 * (index == 0 ? _controller.value : (index == 1 ? (1 - _controller.value) : (_controller.value * 0.7)))));
+            final double height = 4 +
+                (12 *
+                    (0.5 +
+                        0.5 *
+                            (index == 0
+                                ? _controller.value
+                                : (index == 1
+                                    ? (1 - _controller.value)
+                                    : (_controller.value * 0.7)))));
             return Container(
               width: 3,
               height: height,

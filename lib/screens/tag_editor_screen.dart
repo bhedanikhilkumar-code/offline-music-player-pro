@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audiotags/audiotags.dart';
 import 'package:provider/provider.dart';
@@ -7,8 +6,8 @@ import '../providers/music_library_provider.dart';
 import '../providers/theme_provider.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
-import '../constants/app_strings.dart';
-import 'package:on_audio_query/on_audio_query.dart' as on_audio_query hide SongModel;
+import 'package:on_audio_query/on_audio_query.dart' as on_audio_query
+    hide SongModel;
 
 class TagEditorScreen extends StatefulWidget {
   final SongModel song;
@@ -75,7 +74,7 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
       );
 
       await AudioTags.write(widget.song.path, tags);
-      
+
       if (mounted) {
         final updatedSong = SongModel(
           id: widget.song.id,
@@ -84,14 +83,15 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
           album: _albumController.text,
           duration: widget.song.duration,
           path: widget.song.path,
+          uri: widget.song.uri,
           dateAdded: widget.song.dateAdded,
           size: widget.song.size,
           albumArtPath: widget.song.albumArtPath,
           albumId: widget.song.albumId,
         );
-        
+
         context.read<MusicLibraryProvider>().updateSong(updatedSong);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Tags updated successfully!')),
@@ -123,12 +123,18 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
               if (_isSaving)
                 const Padding(
                   padding: EdgeInsets.all(16),
-                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2)),
                 )
               else
                 TextButton(
                   onPressed: _saveTags,
-                  child: Text('SAVE', style: TextStyle(color: themeProvider.primaryColor, fontWeight: FontWeight.bold)),
+                  child: Text('SAVE',
+                      style: TextStyle(
+                          color: themeProvider.primaryColor,
+                          fontWeight: FontWeight.bold)),
                 ),
             ],
           ),
@@ -143,21 +149,28 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
                     // Artwork Preview
                     Center(
                       child: Container(
-                        width: 160, height: 160,
+                        width: 160,
+                        height: 160,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20, offset: const Offset(0, 10)),
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10)),
                           ],
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: on_audio_query.QueryArtworkWidget(
-                            id: widget.song.id, type: on_audio_query.ArtworkType.AUDIO,
-                            artworkWidth: 160, artworkHeight: 160,
+                            id: widget.song.id,
+                            type: on_audio_query.ArtworkType.AUDIO,
+                            artworkWidth: 160,
+                            artworkHeight: 160,
                             nullArtworkWidget: Container(
                               color: AppColors.cardDarkLight,
-                              child: const Icon(Icons.music_note, color: Colors.white24, size: 64),
+                              child: const Icon(Icons.music_note,
+                                  color: Colors.white24, size: 64),
                             ),
                           ),
                         ),
@@ -172,15 +185,19 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        Expanded(child: _buildTextField('Year', _yearController, keyboardType: TextInputType.number)),
+                        Expanded(
+                            child: _buildTextField('Year', _yearController,
+                                keyboardType: TextInputType.number)),
                         const SizedBox(width: 20),
-                        Expanded(child: _buildTextField('Genre', _genreController)),
+                        Expanded(
+                            child: _buildTextField('Genre', _genreController)),
                       ],
                     ),
                     const SizedBox(height: 40),
                     Text(
                       'Note: Saving tags modifies the music file directly. Some players might take time to reflect changes.',
-                      style: AppTextStyles.bodySmall.copyWith(color: Colors.white38),
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: Colors.white38),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -193,19 +210,23 @@ class _TagEditorScreenState extends State<TagEditorScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {TextInputType? keyboardType}) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {TextInputType? keyboardType}) {
     final primaryColor = context.read<ThemeProvider>().primaryColor;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.bodySmall.copyWith(color: primaryColor)),
+        Text(label,
+            style: AppTextStyles.bodySmall.copyWith(color: primaryColor)),
         TextField(
           controller: controller,
           keyboardType: keyboardType,
           style: AppTextStyles.bodyMedium,
           decoration: InputDecoration(
-            enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white10)),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: primaryColor)),
+            enabledBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white10)),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: primaryColor)),
           ),
         ),
       ],

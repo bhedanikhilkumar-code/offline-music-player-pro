@@ -5,6 +5,7 @@ class SongModel {
   final String album;
   final int duration; // in milliseconds
   final String path;
+  final String? uri;
   final int dateAdded;
   final int size;
   final String? albumArtPath;
@@ -17,6 +18,7 @@ class SongModel {
     required this.album,
     required this.duration,
     required this.path,
+    this.uri,
     required this.dateAdded,
     required this.size,
     this.albumArtPath,
@@ -73,6 +75,7 @@ class SongModel {
         'album': album,
         'duration': duration,
         'path': path,
+        'uri': uri,
         'dateAdded': dateAdded,
         'size': size,
         'albumArtPath': albumArtPath,
@@ -86,6 +89,7 @@ class SongModel {
         album: json['album'] ?? 'Unknown Album',
         duration: json['duration'] ?? 0,
         path: json['path'] ?? '',
+        uri: json['uri'],
         dateAdded: json['dateAdded'] ?? 0,
         size: json['size'] ?? 0,
         albumArtPath: json['albumArtPath'],
