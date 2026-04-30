@@ -21,17 +21,30 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderStateMixin {
   final _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   late TabController _tabController;
+  bool _showSuggestions = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    _searchController.addListener(() {
+      setState(() {
+        _showSuggestions = _searchController.text.isNotEmpty && _searchFocusNode.hasFocus;
+      });
+    });
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _showSuggestions = _searchController.text.isNotEmpty && _searchFocusNode.hasFocus;
+      });
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -46,6 +59,16 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       artists: library.artists,
       playlists: playlists.playlists,
     );
+  }
+
+  void _submitSearch(String query) {
+    if (query.isNotEmpty) {
+      context.read<SearchProvider>().addToRecent(query);
+    }
+    _searchFocusNode.unfocus();
+    setState(() {
+      _showSuggestions = false;
+    });
   }
 
   @override
@@ -76,12 +99,11 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             ),
                             child: TextField(
                               controller: _searchController,
+                              focusNode: _searchFocusNode,
                               autofocus: true,
                               style: AppTextStyles.bodyMedium,
                               onChanged: _onSearch,
-                              onSubmitted: (q) {
-                                if (q.isNotEmpty) context.read<SearchProvider>().addToRecent(q);
-                              },
+                              onSubmitted: _submitSearch,
                               decoration: InputDecoration(
                                 hintText: AppStrings.searchInLibrary,
                                 hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white38),
@@ -93,6 +115,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                         onPressed: () {
                                           _searchController.clear();
                                           context.read<SearchProvider>().clearSearch();
+                                          _searchFocusNode.requestFocus();
                                         },
                                       )
                                     : null,
@@ -121,10 +144,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                       Tab(text: 'Playlist'),
                     ],
                   ),
-                  // Results
+                  // Results / Suggestions
                   Expanded(
                     child: Consumer<SearchProvider>(
                       builder: (context, search, _) {
+                        // Show suggestions overlay when typing
+                        if (_showSuggestions && search.hasResults) {
+                          return _buildSuggestions(search);
+                        }
                         if (search.query.isEmpty) {
                           return _buildRecentSearches(search);
                         }
@@ -150,6 +177,223 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
+  // ─── Search Suggestions ───
+  Widget _buildSuggestions(SearchProvider search) {
+    return Container(
+      color: Colors.black.withOpacity(0.5),
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        children: [
+          // Song suggestions
+          if (search.songResults.isNotEmpty) ...[
+            _suggestionSectionLabel('Songs', Icons.music_note_rounded),
+            ...search.songResults.take(4).map((song) => _buildSongSuggestion(song)),
+          ],
+          // Album suggestions
+          if (search.albumResults.isNotEmpty) ...[
+            _suggestionSectionLabel('Albums', Icons.album_rounded),
+            ...search.albumResults.take(3).map((album) => _buildAlbumSuggestion(album)),
+          ],
+          // Artist suggestions
+          if (search.artistResults.isNotEmpty) ...[
+            _suggestionSectionLabel('Artists', Icons.person_rounded),
+            ...search.artistResults.take(3).map((artist) => _buildArtistSuggestion(artist)),
+          ],
+          // Playlist suggestions
+          if (search.playlistResults.isNotEmpty) ...[
+            _suggestionSectionLabel('Playlists', Icons.queue_music_rounded),
+            ...search.playlistResults.take(3).map((playlist) => _buildPlaylistSuggestion(playlist)),
+          ],
+          // "View all results" button
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: TextButton.icon(
+              onPressed: () {
+                _submitSearch(_searchController.text);
+              },
+              icon: const Icon(Icons.search_rounded, size: 18),
+              label: Text('View all results for "${_searchController.text}"'),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).primaryColor,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _suggestionSectionLabel(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, top: 12, bottom: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: Colors.white38),
+          const SizedBox(width: 6),
+          Text(
+            title.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white38,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSongSuggestion(dynamic song) {
+    final query = _searchController.text.toLowerCase();
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+      leading: Container(
+        width: 40, height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: AppColors.cardDarkLight,
+        ),
+        child: const Icon(Icons.music_note_rounded, color: Colors.white38, size: 20),
+      ),
+      title: _highlightedText(song.title, query),
+      subtitle: Text(
+        '${song.artist} • ${song.album}',
+        style: const TextStyle(color: Colors.white38, fontSize: 12),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Icon(Icons.north_west_rounded, color: Colors.white24, size: 16),
+      onTap: () {
+        final audio = context.read<AudioProvider>();
+        final search = context.read<SearchProvider>();
+        audio.playSong(song, playlist: search.songResults);
+        _submitSearch(_searchController.text);
+      },
+    );
+  }
+
+  Widget _buildAlbumSuggestion(dynamic album) {
+    final query = _searchController.text.toLowerCase();
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+      leading: Container(
+        width: 40, height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: AppColors.cardDarkLight,
+        ),
+        child: const Icon(Icons.album_rounded, color: Colors.white38, size: 20),
+      ),
+      title: _highlightedText(album.displayName, query),
+      subtitle: Text(
+        '${album.displayArtist} • ${album.songCount} songs',
+        style: const TextStyle(color: Colors.white38, fontSize: 12),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Icon(Icons.north_west_rounded, color: Colors.white24, size: 16),
+      onTap: () {
+        _submitSearch(_searchController.text);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => AlbumDetailScreen(album: album)));
+      },
+    );
+  }
+
+  Widget _buildArtistSuggestion(dynamic artist) {
+    final query = _searchController.text.toLowerCase();
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+      leading: CircleAvatar(
+        radius: 20,
+        backgroundColor: AppColors.cardDarkLight,
+        child: Text(
+          artist.displayName.isNotEmpty ? artist.displayName[0].toUpperCase() : '?',
+          style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.bold),
+        ),
+      ),
+      title: _highlightedText(artist.displayName, query),
+      subtitle: Text(
+        '${artist.songCount} songs',
+        style: const TextStyle(color: Colors.white38, fontSize: 12),
+      ),
+      trailing: Icon(Icons.north_west_rounded, color: Colors.white24, size: 16),
+      onTap: () {
+        _submitSearch(_searchController.text);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => ArtistDetailScreen(artist: artist)));
+      },
+    );
+  }
+
+  Widget _buildPlaylistSuggestion(dynamic playlist) {
+    final query = _searchController.text.toLowerCase();
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+      leading: Container(
+        width: 40, height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: AppColors.cardDarkLight,
+        ),
+        child: const Icon(Icons.queue_music_rounded, color: Colors.white38, size: 20),
+      ),
+      title: _highlightedText(playlist.name, query),
+      subtitle: Text(
+        '${playlist.songCount} songs',
+        style: const TextStyle(color: Colors.white38, fontSize: 12),
+      ),
+      trailing: Icon(Icons.north_west_rounded, color: Colors.white24, size: 16),
+      onTap: () {
+        _submitSearch(_searchController.text);
+      },
+    );
+  }
+
+  // Highlights matching text in suggestions
+  Widget _highlightedText(String text, String query) {
+    if (query.isEmpty) {
+      return Text(text, style: AppTextStyles.songTitle, maxLines: 1, overflow: TextOverflow.ellipsis);
+    }
+    final lowerText = text.toLowerCase();
+    final matchIndex = lowerText.indexOf(query);
+    if (matchIndex < 0) {
+      return Text(text, style: AppTextStyles.songTitle, maxLines: 1, overflow: TextOverflow.ellipsis);
+    }
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: [
+          if (matchIndex > 0)
+            TextSpan(
+              text: text.substring(0, matchIndex),
+              style: AppTextStyles.songTitle,
+            ),
+          TextSpan(
+            text: text.substring(matchIndex, matchIndex + query.length),
+            style: AppTextStyles.songTitle.copyWith(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          if (matchIndex + query.length < text.length)
+            TextSpan(
+              text: text.substring(matchIndex + query.length),
+              style: AppTextStyles.songTitle,
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRecentSearches(SearchProvider search) {
     if (search.recentSearches.isEmpty) {
       return Center(child: Text('Start typing to search', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)));
@@ -163,9 +407,12 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         ...search.recentSearches.map((q) => ListTile(
           leading: const Icon(Icons.history, color: Colors.white38),
           title: Text(q, style: AppTextStyles.bodyMedium),
+          trailing: const Icon(Icons.north_west_rounded, color: Colors.white24, size: 16),
           onTap: () {
             _searchController.text = q;
+            _searchController.selection = TextSelection.fromPosition(TextPosition(offset: q.length));
             _onSearch(q);
+            _submitSearch(q);
           },
         )),
       ],
