@@ -53,11 +53,13 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         // If non-virtual playlist was deleted, close screen
         if (!_isVirtual && playlist == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) Navigator.pop(context);
+            if (mounted && Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
           });
-          return Scaffold(
-            backgroundColor: AppColors.primaryDark,
-            body: const Center(child: CircularProgressIndicator()),
+          return const Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -328,7 +330,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             onPressed: () {
               Navigator.pop(dialogContext);
               provider.deletePlaylist(playlist.id);
-              Navigator.pop(context); // Close detail screen
             },
             child: Text('Delete', style: TextStyle(color: AppColors.error)),
           ),

@@ -24,11 +24,12 @@ Future<void> main() async {
   audioHandler = await AudioService.init(
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.bhedanikhilkumar.offline_music_player.channel.audio',
+      androidNotificationChannelId: 'com.bhedanikhilkumar.musicplayer.playback',
       androidNotificationChannelName: 'Music Playback',
       androidNotificationChannelDescription: 'Controls for the music currently playing',
+      androidNotificationIcon: 'drawable/ic_notification',
       androidShowNotificationBadge: true,
-      androidNotificationOngoing: true,
+      androidNotificationOngoing: false,
       androidStopForegroundOnPause: true,
     ),
   );
