@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/song_model.dart';
 import '../services/audio_player_service.dart';
+import '../services/permission_service.dart';
 import 'package:offline_music_player/services/storage_service.dart';
 
 class AudioProvider extends ChangeNotifier {
@@ -21,7 +22,8 @@ class AudioProvider extends ChangeNotifier {
   Stream<PlayerState> get playerStateStream => _playerService.playerStateStream;
   Stream<Duration?> get durationStream => _playerService.durationStream;
   Stream<Duration> get positionStream => _playerService.positionStream;
-  Stream<PositionData> get positionDataStream => _playerService.positionDataStream;
+  Stream<PositionData> get positionDataStream =>
+      _playerService.positionDataStream;
 
   Future<void> init(StorageService storage) async {
     if (_initialized) return;
@@ -31,12 +33,13 @@ class AudioProvider extends ChangeNotifier {
     // Restore playback state
     final speed = _storage.playbackSpeed;
     await _playerService.setSpeed(speed);
+    await PermissionService.requestNotificationPermission();
 
     _playerService.player.playerStateStream.listen((state) {
       _storage.setIsCurrentlyPlaying(state.playing);
       notifyListeners();
     });
-    
+
     // Listen for track changes to update history
     _playerService.currentSongStream.listen((song) {
       if (song != null) {
@@ -52,12 +55,15 @@ class AudioProvider extends ChangeNotifier {
     _initialized = true;
   }
 
-  Future<void> playSong(SongModel song, {List<SongModel>? playlist, int? index}) async {
+  Future<void> playSong(SongModel song,
+      {List<SongModel>? playlist, int? index}) async {
+    await PermissionService.requestNotificationPermission();
     await _playerService.playSong(song, playlist: playlist, index: index);
     notifyListeners();
   }
 
   Future<void> play() async {
+    await PermissionService.requestNotificationPermission();
     await _playerService.play();
     notifyListeners();
   }
@@ -65,13 +71,14 @@ class AudioProvider extends ChangeNotifier {
   Future<void> pause() async {
     await _playerService.pause();
     if (currentSong != null) {
-      _storage.setLastPlayedPosition(
-          _playerService.player.position.inMilliseconds);
+      _storage
+          .setLastPlayedPosition(_playerService.player.position.inMilliseconds);
     }
     notifyListeners();
   }
 
   Future<void> togglePlayPause() async {
+    await PermissionService.requestNotificationPermission();
     await _playerService.togglePlayPause();
     notifyListeners();
   }
@@ -118,6 +125,7 @@ class AudioProvider extends ChangeNotifier {
   }
 
   Future<void> setQueue(List<SongModel> songs, {int startIndex = 0}) async {
+    await PermissionService.requestNotificationPermission();
     await _playerService.setQueue(songs, startIndex: startIndex);
     notifyListeners();
   }

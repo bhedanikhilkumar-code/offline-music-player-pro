@@ -25,12 +25,14 @@ Future<void> main() async {
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.bhedanikhilkumar.musicplayer.playback',
       androidNotificationChannelName: 'Music Playback',
-      androidNotificationChannelDescription: 'Controls for the music currently playing',
+      androidNotificationChannelDescription:
+          'Controls for the music currently playing',
       androidNotificationIcon: 'drawable/ic_notification',
       notificationColor: Color(0xFFFF6B35),
       androidShowNotificationBadge: true,
       androidNotificationOngoing: false,
-      androidStopForegroundOnPause: false,
+      androidStopForegroundOnPause:
+          true, // Adjusted for better background play handling
     ),
   );
 

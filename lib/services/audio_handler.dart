@@ -28,6 +28,14 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
       }
       _broadcastPlaybackState();
     });
+
+    _playerService.player.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        _playerService.player
+            .stop(); // Ensure player stops when playback completes
+      }
+      _broadcastPlaybackState();
+    });
   }
 
   void _broadcastMediaItem(SongModel song) {
@@ -133,7 +141,11 @@ class MyAudioHandler extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> stop() async {
-    await _playerService.pause();
-    await super.stop();
+    await _playerService.stop();
+    playbackState.add(PlaybackState(
+      controls: [],
+      processingState: AudioProcessingState.idle,
+      playing: false,
+    ));
   }
 }
