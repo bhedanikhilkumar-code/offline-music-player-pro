@@ -27,7 +27,7 @@ class _PermissionScreenState extends State<PermissionScreen> {
       await storage.setPermissionGranted(true);
       await storage.setFirstLaunch(false);
       if (!mounted) return;
-      await context.read<MusicLibraryProvider>().init(storage);
+      await context.read<MusicLibraryProvider>().init(storage, forceRescan: true);
       if (!mounted) return;
       Navigator.pushReplacement(
         context,

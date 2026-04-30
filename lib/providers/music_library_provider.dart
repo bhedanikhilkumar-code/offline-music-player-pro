@@ -73,17 +73,21 @@ class MusicLibraryProvider extends ChangeNotifier {
         .toList();
   }
 
-  Future<void> init(StorageService storage) async {
-    if (_initialized) return; // Prevent double init
+  Future<void> init(StorageService storage, {bool forceRescan = false}) async {
     _storage = storage;
     _sortType = _storage.sortType;
+
+    // If already initialized and no force rescan, skip
+    if (_initialized && !forceRescan) return;
     
     // Only scan if permission is granted
     final hasPermission = await PermissionService.hasStoragePermission();
     if (hasPermission) {
       await scanMusic();
+      _initialized = true;
     }
-    _initialized = true;
+    // NOTE: If permission is NOT granted, we do NOT set _initialized = true
+    // so that init() can be called again after permission is granted.
   }
 
   Future<void> scanMusic() async {
