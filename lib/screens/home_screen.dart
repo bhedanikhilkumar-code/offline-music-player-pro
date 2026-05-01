@@ -31,8 +31,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
   late AnimationController _tabAnimController;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -381,26 +380,30 @@ class _HomeScreenState extends State<HomeScreen>
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: AppColors.accentOrange.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.history_rounded,
-                            color: AppColors.accentOrange, size: 18),
-                      ),
-                      const SizedBox(width: 10),
-                      Text('Recently Played',
-                          style: AppTextStyles.headingSmall.copyWith(
-                              fontSize: 17, fontWeight: FontWeight.w700)),
-                      const Spacer(),
-                      Text('${recent.length}',
-                          style: AppTextStyles.bodySmall
-                              .copyWith(color: Colors.white38)),
-                    ],
+                  child: Consumer<ThemeProvider>(
+                    builder: (context, theme, _) {
+                      return Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: theme.primaryColor.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(Icons.history_rounded,
+                                color: theme.primaryColor, size: 18),
+                          ),
+                          const SizedBox(width: 10),
+                          Text('Recently Played',
+                              style: AppTextStyles.headingSmall.copyWith(
+                                  fontSize: 17, fontWeight: FontWeight.w700)),
+                          const Spacer(),
+                          Text('${recent.length}',
+                              style: AppTextStyles.bodySmall
+                                  .copyWith(color: Colors.white38)),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -518,9 +521,6 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         );
       },
-    );
-  }
-
     );
   }
 
@@ -779,29 +779,74 @@ class _HomeScreenState extends State<HomeScreen>
         }
         return ListView.builder(
           itemCount: folders.length,
-          padding: const EdgeInsets.only(bottom: 80),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
           itemBuilder: (context, index) {
             final folder = folders[index];
-            return ListTile(
-              leading: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.accentAmber.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+                child: InkWell(
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FolderDetailScreen(folder: folder),
+                      )),
+                  borderRadius: BorderRadius.circular(14),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.04),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                              color: Colors.white.withOpacity(0.08), width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: AppColors.accentAmber.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color:
+                                        AppColors.accentAmber.withOpacity(0.2),
+                                    width: 1),
+                              ),
+                              child: const Icon(Icons.folder_rounded,
+                                  color: AppColors.accentAmber, size: 26),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(folder.name,
+                                      style: AppTextStyles.songTitle,
+                                      overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 2),
+                                  Text('${folder.songCount} songs',
+                                      style: AppTextStyles.songSubtitle
+                                          .copyWith(color: Colors.white38)),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right_rounded,
+                                color: Colors.white24, size: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                child: const Icon(Icons.folder_rounded,
-                    color: AppColors.accentAmber),
               ),
-              title: Text(folder.name, style: AppTextStyles.songTitle),
-              subtitle: Text('${folder.songCount} songs',
-                  style: AppTextStyles.songSubtitle),
-              trailing: const Icon(Icons.chevron_right, color: Colors.white38),
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => FolderDetailScreen(folder: folder),
-                  )),
             );
           },
         );
@@ -937,31 +982,83 @@ class _HomeScreenState extends State<HomeScreen>
         }
         return ListView.builder(
           itemCount: artists.length,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
           itemBuilder: (context, index) {
             final artist = artists[index];
-            return ListTile(
-              leading: CircleAvatar(
-                backgroundColor: AppColors
-                    .themeColors[index % AppColors.themeColors.length]
-                    .withOpacity(0.3),
-                child: Text(
-                  artist.displayName[0].toUpperCase(),
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors
-                        .themeColors[index % AppColors.themeColors.length],
+            final themeColor =
+                AppColors.themeColors[index % AppColors.themeColors.length];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+                child: InkWell(
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ArtistDetailScreen(artist: artist),
+                      )),
+                  borderRadius: BorderRadius.circular(14),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.04),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                              color: Colors.white.withOpacity(0.08), width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: themeColor.withOpacity(0.15),
+                                border: Border.all(
+                                    color: themeColor.withOpacity(0.3),
+                                    width: 1.5),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  artist.displayName[0].toUpperCase(),
+                                  style: AppTextStyles.bodyLarge.copyWith(
+                                    color: themeColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(artist.displayName,
+                                      style: AppTextStyles.songTitle,
+                                      overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                      '${artist.songCount} songs • ${artist.albumCount} albums',
+                                      style: AppTextStyles.songSubtitle
+                                          .copyWith(color: Colors.white38)),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right_rounded,
+                                color: Colors.white24, size: 20),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
-              title: Text(artist.displayName, style: AppTextStyles.songTitle),
-              subtitle: Text(
-                  '${artist.songCount} songs • ${artist.albumCount} albums',
-                  style: AppTextStyles.songSubtitle),
-              trailing: const Icon(Icons.chevron_right, color: Colors.white38),
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ArtistDetailScreen(artist: artist),
-                  )),
             );
           },
         );
