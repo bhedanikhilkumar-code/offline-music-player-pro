@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../models/album_model.dart';
 import '../providers/audio_provider.dart';

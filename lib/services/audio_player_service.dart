@@ -134,10 +134,17 @@ class AudioPlayerService {
       await _player.setAudioSource(_audioSourceFor(song));
       if (requestId != _playRequestId) return;
       _currentSongSubject.add(song);
-      await _player.play();
+
+      try {
+        await _player.play();
+      } catch (playError) {
+        debugPrint('Player.play() failed: $playError');
+        rethrow;
+      }
     } catch (e) {
       if (requestId != _playRequestId) return;
-      debugPrint('Playback failed for ${song.path}: $e');
+      debugPrint('Playback initiation failed for ${song.path}: $e');
+      
       if (failedAttempts < _queue.length - 1 && _advanceAfterPlaybackError()) {
         await _playCurrentSongLocked(
           failedAttempts: failedAttempts + 1,

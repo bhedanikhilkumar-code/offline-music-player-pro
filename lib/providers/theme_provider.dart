@@ -192,7 +192,6 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setBackgroundImage(String path) async {
     _backgroundImagePath = path;
     _isCustomTheme = true;
-    _gradientColors = null;
     await _storage.setThemeBackgroundImagePath(path);
     await _storage.setIsCustomThemeEnabled(true);
     await _storage.setThemeGradient('');
@@ -200,11 +199,6 @@ class ThemeProvider extends ChangeNotifier {
     // If it's a network URL, cache it for offline use in background
     if (path.startsWith('http://') || path.startsWith('https://')) {
       ThemeCacheService.instance.cacheImage(path).then((cachedPath) {
-        if (cachedPath != null) {
-          // Update stored path to local cached file for offline resilience
-          _backgroundImagePath = cachedPath;
-          _storage.setThemeBackgroundImagePath(cachedPath);
-        }
         notifyListeners();
       });
     }

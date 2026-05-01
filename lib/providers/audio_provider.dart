@@ -33,7 +33,6 @@ class AudioProvider extends ChangeNotifier {
     // Restore playback state
     final speed = _storage.playbackSpeed;
     await _playerService.setSpeed(speed);
-    await PermissionService.requestNotificationPermission();
 
     _playerService.player.playerStateStream.listen((state) {
       _storage.setIsCurrentlyPlaying(state.playing);

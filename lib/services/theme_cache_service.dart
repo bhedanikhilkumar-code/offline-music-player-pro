@@ -34,7 +34,7 @@ class ThemeCacheService {
       final files = _cacheDir.listSync();
       for (final file in files) {
         if (file is File && file.path.endsWith('.meta')) {
-          final url = await file.readAsString();
+          final url = (await file.readAsString()).trim();
           final imgPath = file.path.replaceAll('.meta', '');
           if (File(imgPath).existsSync()) {
             _urlToLocalPath[url] = imgPath;

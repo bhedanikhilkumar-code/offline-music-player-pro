@@ -23,7 +23,7 @@ Future<void> main() async {
   try {
     audioHandler = await AudioService.init(
       builder: () => MyAudioHandler(),
-      config: const AudioServiceConfig(
+      config: AudioServiceConfig(
         androidNotificationChannelId:
             'com.bhedanikhilkumar.musicplayer.playback',
         androidNotificationChannelName: 'Music Playback',
@@ -33,7 +33,7 @@ Future<void> main() async {
         notificationColor: Color(0xFFFF6B35),
         androidShowNotificationBadge: true,
         androidNotificationOngoing: true,
-        androidStopForegroundOnPause: true,
+        androidStopForegroundOnPause: false,
       ),
     );
   } catch (e) {
