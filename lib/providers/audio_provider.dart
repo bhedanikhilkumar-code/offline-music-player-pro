@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/song_model.dart';
 import '../services/audio_player_service.dart';
-import '../services/permission_service.dart';
+
 import 'package:offline_music_player/services/storage_service.dart';
+import 'dart:async';
 
 class AudioProvider extends ChangeNotifier {
   final AudioPlayerService _playerService = AudioPlayerService();
   late StorageService _storage;
   bool _initialized = false;
+
 
   SongModel? get currentSong => _playerService.currentSong;
   List<SongModel> get queue => _playerService.queue;
@@ -59,6 +61,8 @@ class AudioProvider extends ChangeNotifier {
     await _playerService.playSong(song, playlist: playlist, index: index);
     notifyListeners();
   }
+
+
 
   Future<void> play() async {
     await _playerService.play();

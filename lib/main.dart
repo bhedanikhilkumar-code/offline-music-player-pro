@@ -14,31 +14,30 @@ import 'providers/lyrics_provider.dart';
 import 'providers/sleep_timer_provider.dart';
 import 'app.dart';
 
-late AudioHandler audioHandler;
+/// Global reference so any part of the app can call audioHandler.play() etc.
+/// Nullable to safely handle init failure.
+AudioHandler? audioHandler;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize AudioHandler with error handling
+  // Initialize AudioHandler with error handling.
   try {
     audioHandler = await AudioService.init(
       builder: () => MyAudioHandler(),
-      config: AudioServiceConfig(
+      config: const AudioServiceConfig(
         androidNotificationChannelId:
             'com.bhedanikhilkumar.musicplayer.playback',
         androidNotificationChannelName: 'Music Playback',
         androidNotificationChannelDescription:
             'Controls for the music currently playing',
         androidNotificationIcon: 'drawable/ic_notification',
-        notificationColor: Color(0xFFFF6B35),
-        androidShowNotificationBadge: true,
         androidNotificationOngoing: true,
-        androidStopForegroundOnPause: false,
+        androidStopForegroundOnPause: true,
       ),
     );
   } catch (e) {
     debugPrint('AudioService init failed: $e');
-    // Continue without audio service - app can still function
   }
 
   // Set system UI

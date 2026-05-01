@@ -60,9 +60,9 @@ class AudioPlayerService {
   bool _songCompleted = false;
 
   Future<void> init() async {
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.music());
-
+    // AudioSession configuration is handled by MyAudioHandler to ensure
+    // it's in sync with the foreground service lifecycle.
+    
     _player.processingStateStream.listen((state) {
       if (state == ProcessingState.completed && !_songCompleted) {
         _songCompleted = true;

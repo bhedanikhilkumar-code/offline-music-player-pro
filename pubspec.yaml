@@ -14,8 +14,8 @@ dependencies:
   shared_preferences: ^2.2.3
   permission_handler: ^11.3.1
   on_audio_query: ^2.9.0
-  just_audio: ^0.9.38
-  audio_service: ^0.18.13
+  just_audio: ^0.9.37
+  audio_service: ^0.18.15
   audio_session: ^0.1.21
   file_picker: 6.1.1
   image_picker: 1.0.8

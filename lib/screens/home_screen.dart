@@ -12,7 +12,8 @@ import '../providers/music_library_provider.dart';
 import '../providers/playlist_provider.dart';
 import '../providers/theme_provider.dart';
 import '../models/song_model.dart';
-import 'package:offline_music_player/services/storage_service.dart';
+
+import '../services/permission_service.dart';
 import '../widgets/mini_player.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
@@ -61,12 +62,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  // Static guard so notification permission is requested only once across
+  // all Activity recreations.
+  static bool _notificationPermissionRequested = false;
+
   Future<void> _initLibrary() async {
     if (_initialized) return;
-    final storage = await StorageService.getInstance();
-    if (!mounted) return;
-    await context.read<MusicLibraryProvider>().init(storage);
     _initialized = true;
+
+    // Request notification permission once, safely after UI loads.
+    if (!_notificationPermissionRequested) {
+      _notificationPermissionRequested = true;
+      Future.delayed(const Duration(seconds: 1), () {
+        PermissionService.requestNotificationPermission();
+      });
+    }
   }
 
   @override

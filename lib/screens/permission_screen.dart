@@ -20,7 +20,9 @@ class _PermissionScreenState extends State<PermissionScreen> {
   Future<void> _requestPermission() async {
     setState(() => _requesting = true);
     final granted = await PermissionService.requestStoragePermission();
-    await PermissionService.requestNotificationPermission();
+    // NOTE: Notification permission is NOT requested here intentionally.
+    // Requesting it during storage permission flow disrupts Android Activity
+    // lifecycle and causes auto-back crash. It is requested lazily on first playback.
 
     if (granted) {
       if (!mounted) return;
