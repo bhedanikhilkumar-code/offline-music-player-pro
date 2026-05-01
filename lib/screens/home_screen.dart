@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import '../widgets/mini_player.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
 import '../widgets/drawer_menu.dart';
+import '../widgets/glass_action_button.dart';
 import 'search_screen.dart';
 import 'theme_screen.dart';
 import 'playlist_detail_screen.dart';
@@ -30,8 +32,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
+  late AnimationController _tabAnimController;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _initialized = false;
   DateTime? _lastBackPress;
@@ -40,7 +43,23 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    _tabAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _tabAnimController.value = 1.0;
+    _tabController.animation?.addListener(_onTabAnimation);
     _initLibrary();
+  }
+
+  void _onTabAnimation() {
+    final anim = _tabController.animation;
+    if (anim == null) return;
+    // When animation starts (value changes from 1.0), reset and replay
+    if (anim.value == anim.value.roundToDouble()) {
+      // Tab settled — play the content fade-in
+      _tabAnimController.forward(from: 0.0);
+    }
   }
 
   Future<void> _initLibrary() async {
@@ -54,7 +73,9 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     _OneShotListAnimationState.resetAnimations();
+    _tabController.animation?.removeListener(_onTabAnimation);
     _tabController.dispose();
+    _tabAnimController.dispose();
     super.dispose();
   }
 
@@ -91,17 +112,32 @@ class _HomeScreenState extends State<HomeScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildAppBar(),
-                    _buildTabBar(),
+                    _buildTabBar(themeProvider),
                     Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildSongsTab(),
-                          _buildPlaylistsTab(),
-                          _buildFoldersTab(),
-                          _buildAlbumsTab(),
-                          _buildArtistsTab(),
-                        ],
+                      child: AnimatedBuilder(
+                        animation: _tabAnimController,
+                        builder: (context, child) {
+                          final animValue = Curves.easeOutCubic.transform(
+                            _tabAnimController.value,
+                          );
+                          return Opacity(
+                            opacity: animValue,
+                            child: Transform.translate(
+                              offset: Offset(0, 20 * (1 - animValue)),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildSongsTab(),
+                            _buildPlaylistsTab(),
+                            _buildFoldersTab(),
+                            _buildAlbumsTab(),
+                            _buildArtistsTab(),
+                          ],
+                        ),
                       ),
                     ),
                     const MiniPlayer(),
@@ -307,10 +343,10 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Row(
                   children: [
                     Expanded(
-                      child: _buildActionButton(
+                      child: GlassActionButton(
                         icon: Icons.shuffle_rounded,
                         label: 'Shuffle',
-                        gradient: const [Color(0xFFFF6B35), Color(0xFFFF8F65)],
+                        color: AppColors.accentOrange,
                         onTap: () {
                           final shuffled = List.from(songs)..shuffle();
                           context
@@ -321,13 +357,9 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _buildActionButton(
+                      child: GlassActionButton(
                         icon: Icons.play_arrow_rounded,
                         label: 'Play All',
-                        gradient: [
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.05)
-                        ],
                         onTap: () {
                           if (songs.isNotEmpty) {
                             context.read<AudioProvider>().playSong(songs.first,
@@ -486,42 +518,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required List<Color> gradient,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: gradient),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: gradient.first.withOpacity(0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 22),
-              const SizedBox(width: 8),
-              Text(label,
-                  style: AppTextStyles.buttonText
-                      .copyWith(fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ),
-      ),
     );
   }
 

@@ -8,6 +8,7 @@ import '../providers/music_library_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
+import '../widgets/glass_icon_button.dart';
 
 class AlbumDetailScreen extends StatelessWidget {
   final AlbumModel album;
@@ -57,18 +58,23 @@ class AlbumDetailScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.shuffle_rounded, color: Colors.white70),
-                          onPressed: songs.isNotEmpty ? () {
+                        GlassIconButton(
+                          icon: Icons.shuffle_rounded,
+                          size: 44,
+                          iconSize: 22,
+                          onTap: songs.isNotEmpty ? () {
                             final shuffled = List.from(songs)..shuffle();
                             context.read<AudioProvider>().setQueue(shuffled.cast(), startIndex: 0);
-                          } : null,
+                          } : () {},
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.play_arrow_rounded, size: 28, color: Colors.white70),
-                          onPressed: songs.isNotEmpty ? () {
+                        const SizedBox(width: 8),
+                        GlassIconButton(
+                          icon: Icons.play_arrow_rounded,
+                          size: 44,
+                          iconSize: 26,
+                          onTap: songs.isNotEmpty ? () {
                             context.read<AudioProvider>().playSong(songs.first, playlist: songs, index: 0);
-                          } : null,
+                          } : () {},
                         ),
                       ],
                     ),

@@ -17,6 +17,7 @@ import '../widgets/song_options_sheet.dart';
 import 'lyrics_screen.dart';
 import 'equalizer_screen.dart';
 import 'sleep_timer_screen.dart';
+import '../widgets/glass_icon_button.dart';
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
@@ -394,11 +395,11 @@ class _PlayerScreenState extends State<PlayerScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: Icon(Icons.shuffle_rounded,
-                    size: 26,
-                    color: audio.shuffleMode ? _accentColor : Colors.white54),
-                onPressed: () => audio.toggleShuffle(),
+              GlassIconButton(
+                icon: Icons.shuffle_rounded,
+                onTap: () => audio.toggleShuffle(),
+                isActive: audio.shuffleMode,
+                activeColor: _accentColor,
               ),
               IconButton(
                 icon: const Icon(Icons.skip_previous_rounded,
@@ -435,17 +436,13 @@ class _PlayerScreenState extends State<PlayerScreen>
                     size: 40, color: Colors.white),
                 onPressed: () => audio.playNext(),
               ),
-              IconButton(
-                icon: Icon(
-                  audio.repeatMode == AppConstants.repeatOne
-                      ? Icons.repeat_one_rounded
-                      : Icons.repeat_rounded,
-                  size: 26,
-                  color: audio.repeatMode != AppConstants.repeatOff
-                      ? _accentColor
-                      : Colors.white54,
-                ),
-                onPressed: () => audio.toggleRepeat(),
+              GlassIconButton(
+                icon: audio.repeatMode == AppConstants.repeatOne
+                    ? Icons.repeat_one_rounded
+                    : Icons.repeat_rounded,
+                onTap: () => audio.toggleRepeat(),
+                isActive: audio.repeatMode != AppConstants.repeatOff,
+                activeColor: _accentColor,
               ),
             ],
           ),

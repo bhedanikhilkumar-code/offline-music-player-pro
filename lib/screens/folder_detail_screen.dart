@@ -7,6 +7,7 @@ import '../models/folder_model.dart';
 import '../providers/audio_provider.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
+import '../widgets/glass_icon_button.dart';
 
 class FolderDetailScreen extends StatelessWidget {
   final FolderModel folder;
@@ -39,13 +40,24 @@ class FolderDetailScreen extends StatelessWidget {
                       children: [
                         Text('${songs.length} songs', style: AppTextStyles.bodySmall),
                         const Spacer(),
-                        IconButton(icon: const Icon(Icons.shuffle_rounded, color: Colors.white70, size: 22), onPressed: () {
-                          final shuffled = List.from(songs)..shuffle();
-                          context.read<AudioProvider>().setQueue(shuffled.cast(), startIndex: 0);
-                        }),
-                        IconButton(icon: const Icon(Icons.play_arrow_rounded, color: Colors.white70, size: 26), onPressed: () {
-                          if (songs.isNotEmpty) context.read<AudioProvider>().playSong(songs.first, playlist: songs, index: 0);
-                        }),
+                        GlassIconButton(
+                          icon: Icons.shuffle_rounded,
+                          size: 40,
+                          iconSize: 20,
+                          onTap: () {
+                            final shuffled = List.from(songs)..shuffle();
+                            context.read<AudioProvider>().setQueue(shuffled.cast(), startIndex: 0);
+                          },
+                        ),
+                        const SizedBox(width: 10),
+                        GlassIconButton(
+                          icon: Icons.play_arrow_rounded,
+                          size: 40,
+                          iconSize: 24,
+                          onTap: () {
+                            if (songs.isNotEmpty) context.read<AudioProvider>().playSong(songs.first, playlist: songs, index: 0);
+                          },
+                        ),
                       ],
                     ),
                   ),

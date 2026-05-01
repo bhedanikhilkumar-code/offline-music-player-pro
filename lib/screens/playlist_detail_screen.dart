@@ -10,6 +10,7 @@ import '../providers/music_library_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
+import '../widgets/glass_action_button.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final String playlistId;
@@ -221,7 +222,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
       child: Row(
         children: [
           Expanded(
-            child: _ActionButton(
+            child: GlassActionButton(
               icon: Icons.shuffle_rounded,
               label: 'Shuffle',
               color: primaryColor,
@@ -233,12 +234,10 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: _ActionButton(
+            child: GlassActionButton(
               icon: Icons.play_arrow_rounded,
               label: 'Play All',
-              color: Colors.white.withOpacity(0.08),
               onTap: () => context.read<AudioProvider>().playSong(songs.first, playlist: songs, index: 0),
-              textColor: Colors.white70,
             ),
           ),
         ],
@@ -334,48 +333,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             child: Text('Delete', style: TextStyle(color: AppColors.error)),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-  final Color? textColor;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-    this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: textColor ?? Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text(label, style: AppTextStyles.bodyMedium.copyWith(color: textColor ?? Colors.white, fontWeight: FontWeight.w600)),
-            ],
-          ),
-        ),
       ),
     );
   }

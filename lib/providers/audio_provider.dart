@@ -57,13 +57,11 @@ class AudioProvider extends ChangeNotifier {
 
   Future<void> playSong(SongModel song,
       {List<SongModel>? playlist, int? index}) async {
-    await PermissionService.requestNotificationPermission();
     await _playerService.playSong(song, playlist: playlist, index: index);
     notifyListeners();
   }
 
   Future<void> play() async {
-    await PermissionService.requestNotificationPermission();
     await _playerService.play();
     notifyListeners();
   }
@@ -78,7 +76,6 @@ class AudioProvider extends ChangeNotifier {
   }
 
   Future<void> togglePlayPause() async {
-    await PermissionService.requestNotificationPermission();
     await _playerService.togglePlayPause();
     notifyListeners();
   }
@@ -125,7 +122,6 @@ class AudioProvider extends ChangeNotifier {
   }
 
   Future<void> setQueue(List<SongModel> songs, {int startIndex = 0}) async {
-    await PermissionService.requestNotificationPermission();
     await _playerService.setQueue(songs, startIndex: startIndex);
     notifyListeners();
   }
