@@ -195,7 +195,8 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(ThemeProvider themeProvider) {
+    final primaryColor = themeProvider.primaryColor;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(4),
@@ -208,10 +209,10 @@ class _HomeScreenState extends State<HomeScreen>
         isScrollable: true,
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: AppColors.accentOrange,
+          color: primaryColor,
           boxShadow: [
             BoxShadow(
-              color: AppColors.accentOrange.withOpacity(0.3),
+              color: primaryColor.withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
