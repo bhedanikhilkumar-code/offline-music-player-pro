@@ -87,7 +87,7 @@ class StorageService {
   }
 
   // Theme Preferences
-  int get themeColor => getInt('theme_color') ?? 0xFF6C63FF;
+  int get themeColor => getInt('theme_color') ?? 0xFFFF8C00;
   bool get isCustomThemeEnabled => getBool('is_custom_theme_enabled') ?? false;
   String? get themeBackgroundImagePath => getString('theme_bg_image_path');
   String? get themeGradient => getString('theme_gradient');

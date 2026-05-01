@@ -32,6 +32,7 @@ class MusicScannerService {
               ))
           .toList();
     } catch (e) {
+      debugPrint('Error scanning songs: $e');
       return [];
     }
   }
@@ -51,6 +52,7 @@ class MusicScannerService {
               ))
           .toList();
     } catch (e) {
+      debugPrint('Error scanning albums: $e');
       return [];
     }
   }
@@ -70,6 +72,7 @@ class MusicScannerService {
               ))
           .toList();
     } catch (e) {
+      debugPrint('Error scanning artists: $e');
       return [];
     }
   }

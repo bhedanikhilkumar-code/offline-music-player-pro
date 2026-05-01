@@ -32,7 +32,24 @@ class ThemeProvider extends ChangeNotifier {
         if (cachedPath != null) {
           imageProvider = FileImage(File(cachedPath));
         } else {
-          imageProvider = NetworkImage(_backgroundImagePath!);
+          // Network image not cached — fall back to default gradient
+          // instead of NetworkImage which will fail when offline
+          if (_gradientColors != null && _gradientColors!.length >= 2) {
+            return BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: _gradientColors!,
+              ),
+            );
+          }
+          return const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.surfaceDark, AppColors.primaryDark],
+            ),
+          );
         }
       } else if (isAsset) {
         imageProvider = AssetImage(_backgroundImagePath!);
@@ -152,9 +169,11 @@ class ThemeProvider extends ChangeNotifier {
     _primaryColor = color;
     _isCustomTheme = false;
     _backgroundImagePath = null;
+    _gradientColors = null;
     await _storage.setThemeColor(color.value);
     await _storage.setIsCustomThemeEnabled(false);
     await _storage.setThemeBackgroundImagePath('');
+    await _storage.setThemeGradient('');
     notifyListeners();
   }
 
@@ -173,13 +192,19 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setBackgroundImage(String path) async {
     _backgroundImagePath = path;
     _isCustomTheme = true;
+    _gradientColors = null;
     await _storage.setThemeBackgroundImagePath(path);
     await _storage.setIsCustomThemeEnabled(true);
+    await _storage.setThemeGradient('');
 
     // If it's a network URL, cache it for offline use in background
     if (path.startsWith('http://') || path.startsWith('https://')) {
-      ThemeCacheService.instance.cacheImage(path).then((_) {
-        // Notify to switch to cached version
+      ThemeCacheService.instance.cacheImage(path).then((cachedPath) {
+        if (cachedPath != null) {
+          // Update stored path to local cached file for offline resilience
+          _backgroundImagePath = cachedPath;
+          _storage.setThemeBackgroundImagePath(cachedPath);
+        }
         notifyListeners();
       });
     }

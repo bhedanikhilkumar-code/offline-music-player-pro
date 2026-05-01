@@ -70,8 +70,8 @@ class AudioProvider extends ChangeNotifier {
 
   Future<void> pause() async {
     await _playerService.pause();
-    if (_initialized && currentSong != null && _storage != null) {
-      await _storage!
+    if (_initialized && currentSong != null) {
+      await _storage
           .setLastPlayedPosition(_playerService.player.position.inMilliseconds);
     }
     notifyListeners();

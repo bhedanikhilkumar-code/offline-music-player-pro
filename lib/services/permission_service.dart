@@ -4,18 +4,24 @@ import 'package:permission_handler/permission_handler.dart';
 class PermissionService {
   /// Request all required permissions for the music player
   static Future<bool> requestStoragePermission() async {
-    // Android 13+ uses granular media permissions
     if (Platform.isAndroid) {
-      // Try READ_MEDIA_AUDIO first (Android 13+)
+      // Android 13+ (API 33+) uses granular media permissions
+      // Try audio permission first for Android 13+
       final audioStatus = await Permission.audio.request();
-      if (audioStatus.isGranted) return true;
+      if (audioStatus.isGranted) {
+        return true;
+      }
 
-      // Fallback to storage permission (Android < 13)
+      // For Android 10-12 (API 29-32), we need storage permission
+      // For Android 9 and below, also use storage permission
       final storageStatus = await Permission.storage.request();
-      if (storageStatus.isGranted) return true;
+      if (storageStatus.isGranted) {
+        return true;
+      }
 
-      // If both denied, check if we can request again
-      if (audioStatus.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
+      // If permanently denied, return false so app can show settings option
+      if (audioStatus.isPermanentlyDenied ||
+          storageStatus.isPermanentlyDenied) {
         return false;
       }
 

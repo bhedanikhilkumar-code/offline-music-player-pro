@@ -153,10 +153,22 @@ class AudioPlayerService {
 
   AudioSource _audioSourceFor(SongModel song) {
     final contentUri = song.uri?.trim();
+    // Prefer content URI over file path as it's more reliable on Android
     if (contentUri != null && contentUri.isNotEmpty) {
-      return AudioSource.uri(Uri.parse(contentUri));
+      try {
+        return AudioSource.uri(Uri.parse(contentUri));
+      } catch (e) {
+        debugPrint('Failed to create URI audio source: $e');
+        // Fall through to file path
+      }
     }
-    return AudioSource.file(song.path);
+    // Fallback to file path
+    try {
+      return AudioSource.file(song.path);
+    } catch (e) {
+      debugPrint('Failed to create file audio source: $e');
+      rethrow;
+    }
   }
 
   bool _advanceAfterPlaybackError() {

@@ -30,14 +30,10 @@ class SongTile extends StatelessWidget {
     final primaryColor = themeProvider.primaryColor;
 
     // Format date added as MM-dd
-    // Note: dateAdded from Android OnAudioQuery is in seconds, not milliseconds
-    final timestampMs = (song.dateAdded > 0
-        ? song.dateAdded
-        : DateTime.now().millisecondsSinceEpoch ~/ 1000);
-    // If timestamp is too small, it's likely in seconds (Android API), convert to milliseconds
-    final dateAdded = DateTime.fromMillisecondsSinceEpoch(
-      timestampMs > 1000000000 ? timestampMs : timestampMs * 1000,
-    );
+    // on_audio_query returns dateAdded in seconds since epoch
+    final dateAddedSeconds = song.dateAdded > 0 ? song.dateAdded : 0;
+    final dateAdded =
+        DateTime.fromMillisecondsSinceEpoch(dateAddedSeconds * 1000);
     final dateStr = DateFormat('MM-dd').format(dateAdded);
 
     return Material(

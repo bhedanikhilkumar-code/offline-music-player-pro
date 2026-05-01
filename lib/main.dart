@@ -19,21 +19,27 @@ late AudioHandler audioHandler;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize AudioHandler
-  audioHandler = await AudioService.init(
-    builder: () => MyAudioHandler(),
-    config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.bhedanikhilkumar.musicplayer.playback',
-      androidNotificationChannelName: 'Music Playback',
-      androidNotificationChannelDescription:
-          'Controls for the music currently playing',
-      androidNotificationIcon: 'drawable/ic_notification',
-      notificationColor: Color(0xFFFF6B35),
-      androidShowNotificationBadge: true,
-      androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
-    ),
-  );
+  // Initialize AudioHandler with error handling
+  try {
+    audioHandler = await AudioService.init(
+      builder: () => MyAudioHandler(),
+      config: const AudioServiceConfig(
+        androidNotificationChannelId:
+            'com.bhedanikhilkumar.musicplayer.playback',
+        androidNotificationChannelName: 'Music Playback',
+        androidNotificationChannelDescription:
+            'Controls for the music currently playing',
+        androidNotificationIcon: 'drawable/ic_notification',
+        notificationColor: Color(0xFFFF6B35),
+        androidShowNotificationBadge: true,
+        androidNotificationOngoing: true,
+        androidStopForegroundOnPause: true,
+      ),
+    );
+  } catch (e) {
+    debugPrint('AudioService init failed: $e');
+    // Continue without audio service - app can still function
+  }
 
   // Set system UI
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

@@ -81,18 +81,21 @@ class MusicLibraryProvider extends ChangeNotifier {
     // If already initialized and no force rescan, skip
     if (_initialized && !forceRescan) return;
 
-    // Only scan if permission is granted
+    // Always try to scan - if permission is not granted, scanMusic will return empty
     final hasPermission = await PermissionService.hasStoragePermission();
-    if (hasPermission) {
+    if (hasPermission || forceRescan) {
       await scanMusic();
-      _initialized = true;
-      notifyListeners();
-    } else {
-      // Permission not granted - stay uninitialized so init() can retry
-      // This allows reinit when permission is granted later
-      debugPrint(
-          'MusicLibraryProvider: Storage permission not granted. Cannot initialize.');
     }
+    // Mark as initialized even if permission wasn't granted
+    // This prevents repeated init attempts that could freeze the UI
+    _initialized = true;
+  }
+
+  /// Call this after permission is granted to load music
+  Future<void> loadAfterPermissionGranted() async {
+    if (_storage == null) return;
+    await scanMusic();
+    notifyListeners();
   }
 
   Future<void> scanMusic() async {

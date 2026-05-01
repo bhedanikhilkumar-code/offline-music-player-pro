@@ -120,10 +120,16 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
 
       Widget destination;
-      if (hasPermission && storage.permissionGranted) {
+      // If storage permission is granted, go to HomeScreen
+      // The storage.permissionGranted flag ensures we don't ask every time
+      if (hasPermission) {
         // Storage permission already granted — but ensure notification permission too
         await PermissionService.requestNotificationPermission();
         if (!mounted) return;
+        // Save permission state for future launches
+        if (!storage.permissionGranted) {
+          await storage.setPermissionGranted(true);
+        }
         destination = const HomeScreen();
       } else {
         destination = const PermissionScreen();

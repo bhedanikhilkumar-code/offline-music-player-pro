@@ -31,6 +31,7 @@ class _PlayerScreenState extends State<PlayerScreen>
   Color _accentColor = AppColors.accentOrange;
   Color _dominantColor = AppColors.surfaceDark;
   int? _lastSongId;
+  bool _isPaletteUpdating = false;
 
   @override
   void initState() {
@@ -93,9 +94,18 @@ class _PlayerScreenState extends State<PlayerScreen>
           }
 
           // Defer palette update to after the current build frame
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _updatePalette(song.id);
-          });
+          if (!_isPaletteUpdating && _lastSongId != song.id) {
+            _isPaletteUpdating = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                _updatePalette(song.id).then((_) {
+                  if (mounted) {
+                    setState(() => _isPaletteUpdating = false);
+                  }
+                });
+              }
+            });
+          }
 
           if (audio.isPlaying) {
             if (!_rotationController.isAnimating) _rotationController.repeat();
