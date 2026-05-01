@@ -30,10 +30,14 @@ class SongTile extends StatelessWidget {
     final primaryColor = themeProvider.primaryColor;
 
     // Format date added as MM-dd
-    final dateAdded = DateTime.fromMillisecondsSinceEpoch((song.dateAdded > 0
-            ? song.dateAdded
-            : DateTime.now().millisecondsSinceEpoch ~/ 1000) *
-        1000);
+    // Note: dateAdded from Android OnAudioQuery is in seconds, not milliseconds
+    final timestampMs = (song.dateAdded > 0
+        ? song.dateAdded
+        : DateTime.now().millisecondsSinceEpoch ~/ 1000);
+    // If timestamp is too small, it's likely in seconds (Android API), convert to milliseconds
+    final dateAdded = DateTime.fromMillisecondsSinceEpoch(
+      timestampMs > 1000000000 ? timestampMs : timestampMs * 1000,
+    );
     final dateStr = DateFormat('MM-dd').format(dateAdded);
 
     return Material(
@@ -59,7 +63,8 @@ class SongTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   color: Colors.white.withOpacity(0.08),
-                  border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.05), width: 1),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(11),
@@ -182,11 +187,12 @@ class _PlayingVisualizerState extends State<_PlayingVisualizer>
           animation: _controller,
           builder: (context, child) {
             // Smooth sine wave animation with phase offset for each bar
-            final double phase = index * (math.pi / 2.5); 
-            final double value = math.sin((_controller.value * 2 * math.pi) + phase);
+            final double phase = index * (math.pi / 2.5);
+            final double value =
+                math.sin((_controller.value * 2 * math.pi) + phase);
             // Map the -1.0 to 1.0 sine wave to a height between 6 and 18
             final double height = 6 + (12 * ((value + 1) / 2));
-            
+
             return Container(
               width: 4,
               height: height,

@@ -38,7 +38,8 @@ class SongModel {
   String get displayTitle {
     if (title.isEmpty || title == '<unknown>') {
       // Extract filename without extension
-      final fileName = path.split('/').last;
+      final fileName = path.isEmpty ? '' : path.split('/').last;
+      if (fileName.isEmpty) return 'Unknown';
       final dotIndex = fileName.lastIndexOf('.');
       return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
     }

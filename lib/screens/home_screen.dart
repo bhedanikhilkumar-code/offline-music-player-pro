@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:on_audio_query/on_audio_query.dart' as on_audio_query hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:on_audio_query/on_audio_query.dart' as on_audio_query
+    hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_strings.dart';
@@ -17,7 +17,6 @@ import '../widgets/song_tile.dart';
 import '../widgets/song_options_sheet.dart';
 import '../widgets/drawer_menu.dart';
 import 'search_screen.dart';
-import 'settings_screen.dart';
 import 'theme_screen.dart';
 import 'playlist_detail_screen.dart';
 import 'album_detail_screen.dart';
@@ -30,7 +29,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _initialized = false;
@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   void dispose() {
+    _OneShotListAnimationState.resetAnimations();
     _tabController.dispose();
     super.dispose();
   }
@@ -64,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       onPopInvoked: (didPop) {
         if (didPop) return;
         final now = DateTime.now();
-        if (_lastBackPress != null && now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
+        if (_lastBackPress != null &&
+            now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
           SystemNavigator.pop();
           return;
         }
@@ -125,11 +127,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             constraints: const BoxConstraints(),
           ),
           const SizedBox(width: 16),
-          Text('Player Pro', style: AppTextStyles.headingMedium.copyWith(letterSpacing: 1.2)),
+          Text('Player Pro',
+              style: AppTextStyles.headingMedium.copyWith(letterSpacing: 1.2)),
           const Spacer(),
-          _buildAppBarAction(Icons.search_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen()))),
+          _buildAppBarAction(
+              Icons.search_rounded,
+              () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const SearchScreen()))),
           const SizedBox(width: 12),
-          _buildAppBarAction(Icons.app_shortcut_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ThemeScreen()))),
+          _buildAppBarAction(
+              Icons.app_shortcut_rounded,
+              () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const ThemeScreen()))),
         ],
       ),
     );
@@ -174,16 +183,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ),
         labelColor: Colors.white,
         unselectedLabelColor: Colors.white54,
-        labelStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 15),
-        unselectedLabelStyle: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.normal, fontSize: 14),
+        labelStyle: AppTextStyles.bodyMedium
+            .copyWith(fontWeight: FontWeight.bold, fontSize: 15),
+        unselectedLabelStyle: AppTextStyles.bodyMedium
+            .copyWith(fontWeight: FontWeight.normal, fontSize: 14),
         tabAlignment: TabAlignment.start,
         dividerColor: Colors.transparent,
         tabs: const [
-          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.songs))),
-          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.playlists))),
-          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.folders))),
-          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.albums))),
-          Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text(AppStrings.artists))),
+          Tab(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(AppStrings.songs))),
+          Tab(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(AppStrings.playlists))),
+          Tab(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(AppStrings.folders))),
+          Tab(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(AppStrings.albums))),
+          Tab(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(AppStrings.artists))),
         ],
       ),
     );
@@ -193,12 +219,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Consumer<MusicLibraryProvider>(
       builder: (context, library, _) {
         if (library.isLoading) {
-          return const Center(child: Column(
+          return const Center(
+              child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
-              Text('Scanning music...', style: TextStyle(color: Colors.white54)),
+              Text('Scanning music...',
+                  style: TextStyle(color: Colors.white54)),
             ],
           ));
         }
@@ -209,9 +237,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.music_off_rounded, size: 64, color: Colors.white24),
+                const Icon(Icons.music_off_rounded,
+                    size: 64, color: Colors.white24),
                 const SizedBox(height: 16),
-                Text(AppStrings.noSongsFound, style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)),
+                Text(AppStrings.noSongsFound,
+                    style: AppTextStyles.bodyMedium
+                        .copyWith(color: Colors.white38)),
               ],
             ),
           );
@@ -229,7 +260,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.06),
                         borderRadius: BorderRadius.circular(20),
@@ -237,15 +269,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.library_music_rounded, color: Colors.white54, size: 16),
+                          const Icon(Icons.library_music_rounded,
+                              color: Colors.white54, size: 16),
                           const SizedBox(width: 6),
-                          Text('${songs.length} Songs', style: AppTextStyles.bodySmall.copyWith(color: Colors.white70, fontWeight: FontWeight.w600)),
+                          Text('${songs.length} Songs',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w600)),
                         ],
                       ),
                     ),
                     const Spacer(),
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.swap_vert_rounded, color: Colors.white70, size: 22),
+                      icon: const Icon(Icons.swap_vert_rounded,
+                          color: Colors.white70, size: 22),
                       color: AppColors.cardDark,
                       onSelected: (value) => library.setSortType(value),
                       itemBuilder: (_) => [
@@ -265,7 +302,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             // ─── Shuffle & Play buttons ───
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
                     Expanded(
@@ -275,7 +313,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         gradient: const [Color(0xFFFF6B35), Color(0xFFFF8F65)],
                         onTap: () {
                           final shuffled = List.from(songs)..shuffle();
-                          context.read<AudioProvider>().setQueue(shuffled.cast(), startIndex: 0);
+                          context
+                              .read<AudioProvider>()
+                              .setQueue(shuffled.cast(), startIndex: 0);
                         },
                       ),
                     ),
@@ -284,10 +324,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: _buildActionButton(
                         icon: Icons.play_arrow_rounded,
                         label: 'Play All',
-                        gradient: [Colors.white.withOpacity(0.1), Colors.white.withOpacity(0.05)],
+                        gradient: [
+                          Colors.white.withOpacity(0.1),
+                          Colors.white.withOpacity(0.05)
+                        ],
                         onTap: () {
                           if (songs.isNotEmpty) {
-                            context.read<AudioProvider>().playSong(songs.first, playlist: songs, index: 0);
+                            context.read<AudioProvider>().playSong(songs.first,
+                                playlist: songs, index: 0);
                           }
                         },
                       ),
@@ -310,12 +354,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           color: AppColors.accentOrange.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.history_rounded, color: AppColors.accentOrange, size: 18),
+                        child: const Icon(Icons.history_rounded,
+                            color: AppColors.accentOrange, size: 18),
                       ),
                       const SizedBox(width: 10),
-                      Text('Recently Played', style: AppTextStyles.headingSmall.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                      Text('Recently Played',
+                          style: AppTextStyles.headingSmall.copyWith(
+                              fontSize: 17, fontWeight: FontWeight.w700)),
                       const Spacer(),
-                      Text('${recent.length}', style: AppTextStyles.bodySmall.copyWith(color: Colors.white38)),
+                      Text('${recent.length}',
+                          style: AppTextStyles.bodySmall
+                              .copyWith(color: Colors.white38)),
                     ],
                   ),
                 ),
@@ -327,7 +376,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     itemCount: recent.length,
-                    itemBuilder: (context, index) => _buildRecentSongItem(context, recent[index], recent),
+                    itemBuilder: (context, index) =>
+                        _buildRecentSongItem(context, recent[index], recent),
                   ),
                 ),
               ),
@@ -346,12 +396,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           color: Colors.blueAccent.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.trending_up_rounded, color: Colors.blueAccent, size: 18),
+                        child: const Icon(Icons.trending_up_rounded,
+                            color: Colors.blueAccent, size: 18),
                       ),
                       const SizedBox(width: 10),
-                      Text('Most Played', style: AppTextStyles.headingSmall.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                      Text('Most Played',
+                          style: AppTextStyles.headingSmall.copyWith(
+                              fontSize: 17, fontWeight: FontWeight.w700)),
                       const Spacer(),
-                      Text('${mostPlayed.length}', style: AppTextStyles.bodySmall.copyWith(color: Colors.white38)),
+                      Text('${mostPlayed.length}',
+                          style: AppTextStyles.bodySmall
+                              .copyWith(color: Colors.white38)),
                     ],
                   ),
                 ),
@@ -363,7 +418,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     itemCount: mostPlayed.length,
-                    itemBuilder: (context, index) => _buildRecentSongItem(context, mostPlayed[index], mostPlayed),
+                    itemBuilder: (context, index) => _buildRecentSongItem(
+                        context, mostPlayed[index], mostPlayed),
                   ),
                 ),
               ),
@@ -381,12 +437,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         color: Colors.purpleAccent.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.queue_music_rounded, color: Colors.purpleAccent, size: 18),
+                      child: const Icon(Icons.queue_music_rounded,
+                          color: Colors.purpleAccent, size: 18),
                     ),
                     const SizedBox(width: 10),
-                    Text('All Songs', style: AppTextStyles.headingSmall.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                    Text('All Songs',
+                        style: AppTextStyles.headingSmall.copyWith(
+                            fontSize: 17, fontWeight: FontWeight.w700)),
                     const Spacer(),
-                    Text('${songs.length}', style: AppTextStyles.bodySmall.copyWith(color: Colors.white38)),
+                    Text('${songs.length}',
+                        style: AppTextStyles.bodySmall
+                            .copyWith(color: Colors.white38)),
                   ],
                 ),
               ),
@@ -404,8 +465,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         return SongTile(
                           song: song,
                           isPlaying: audio.currentSong?.id == song.id,
-                          onTap: () => audio.playSong(song, playlist: songs, index: index),
-                          onOptionsTap: () => SongOptionsSheet.show(context, song),
+                          onTap: () => audio.playSong(song,
+                              playlist: songs, index: index),
+                          onOptionsTap: () =>
+                              SongOptionsSheet.show(context, song),
                         );
                       },
                     ),
@@ -452,7 +515,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             children: [
               Icon(icon, color: Colors.white, size: 22),
               const SizedBox(width: 8),
-              Text(label, style: AppTextStyles.buttonText.copyWith(fontWeight: FontWeight.bold)),
+              Text(label,
+                  style: AppTextStyles.buttonText
+                      .copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -479,16 +544,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.35)),
+                      border: Border.all(
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.35)),
                       borderRadius: BorderRadius.circular(14),
                       color: Theme.of(context).primaryColor.withOpacity(0.05),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_rounded, color: Theme.of(context).primaryColor, size: 22),
+                        Icon(Icons.add_rounded,
+                            color: Theme.of(context).primaryColor, size: 22),
                         const SizedBox(width: 8),
-                        Text(AppStrings.createPlaylist,
+                        Text(
+                          AppStrings.createPlaylist,
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.w600,
@@ -508,7 +577,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   // ─── Smart Playlists Section Header ───
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 16, 8),
-                    child: Text('SMART PLAYLISTS',
+                    child: Text(
+                      'SMART PLAYLISTS',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: Colors.white24,
                         fontSize: 11,
@@ -518,32 +588,50 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                   ),
 
-                  _buildSmartPlaylistTile(context,
+                  _buildSmartPlaylistTile(
+                    context,
                     title: 'Recently Played',
                     icon: Icons.history_rounded,
                     color: AppColors.accentOrange,
                     songCount: library.recentlyPlayed.length,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => PlaylistDetailScreen(playlistId: 'recent', customSongs: library.recentlyPlayed, title: 'Recently Played'),
-                    )),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PlaylistDetailScreen(
+                              playlistId: 'recent',
+                              customSongs: library.recentlyPlayed,
+                              title: 'Recently Played'),
+                        )),
                   ),
-                  _buildSmartPlaylistTile(context,
+                  _buildSmartPlaylistTile(
+                    context,
                     title: 'Most Played',
                     icon: Icons.trending_up_rounded,
                     color: Colors.blueAccent,
                     songCount: library.mostPlayed.length,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => PlaylistDetailScreen(playlistId: 'most_played', customSongs: library.mostPlayed, title: 'Most Played'),
-                    )),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PlaylistDetailScreen(
+                              playlistId: 'most_played',
+                              customSongs: library.mostPlayed,
+                              title: 'Most Played'),
+                        )),
                   ),
-                  _buildSmartPlaylistTile(context,
+                  _buildSmartPlaylistTile(
+                    context,
                     title: 'Favorites',
                     icon: Icons.favorite_rounded,
                     color: Colors.pinkAccent,
                     songCount: library.favorites.length,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => PlaylistDetailScreen(playlistId: 'favorites', customSongs: library.favorites, title: 'Favorites'),
-                    )),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PlaylistDetailScreen(
+                              playlistId: 'favorites',
+                              customSongs: library.favorites,
+                              title: 'Favorites'),
+                        )),
                   ),
 
                   // ─── Custom Playlists Section ───
@@ -551,7 +639,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     padding: const EdgeInsets.fromLTRB(20, 20, 16, 8),
                     child: Row(
                       children: [
-                        Text('MY PLAYLISTS',
+                        Text(
+                          'MY PLAYLISTS',
                           style: AppTextStyles.bodySmall.copyWith(
                             color: Colors.white24,
                             fontSize: 11,
@@ -561,12 +650,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withOpacity(0.12),
+                            color: Theme.of(context)
+                                .primaryColor
+                                .withOpacity(0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Text('${playlists.length}',
+                          child: Text(
+                            '${playlists.length}',
                             style: AppTextStyles.bodySmall.copyWith(
                               color: Theme.of(context).primaryColor,
                               fontSize: 11,
@@ -580,70 +673,92 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
                   if (playlists.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 40),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 32, horizontal: 40),
                       child: Column(
                         children: [
-                          Icon(Icons.library_music_rounded, size: 48, color: Colors.white12),
+                          Icon(Icons.library_music_rounded,
+                              size: 48, color: Colors.white12),
                           const SizedBox(height: 12),
                           Text('No playlists yet',
-                            style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)),
+                              style: AppTextStyles.bodyMedium
+                                  .copyWith(color: Colors.white38)),
                           const SizedBox(height: 4),
                           Text('Tap + above to create one',
-                            style: AppTextStyles.bodySmall.copyWith(color: Colors.white24)),
+                              style: AppTextStyles.bodySmall
+                                  .copyWith(color: Colors.white24)),
                         ],
                       ),
                     )
                   else
                     ...playlists.map((playlist) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-                      child: Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(14),
-                        child: InkWell(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(
-                            builder: (_) => PlaylistDetailScreen(playlistId: playlist.id),
-                          )),
-                          borderRadius: BorderRadius.circular(14),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            decoration: BoxDecoration(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 3),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(14),
+                            child: InkWell(
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PlaylistDetailScreen(
+                                        playlistId: playlist.id),
+                                  )),
                               borderRadius: BorderRadius.circular(14),
-                              color: Colors.white.withOpacity(0.04),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 48, height: 48,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Theme.of(context).primaryColor.withOpacity(0.3),
-                                        Theme.of(context).primaryColor.withOpacity(0.1),
-                                      ],
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Colors.white.withOpacity(0.04),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Theme.of(context)
+                                                .primaryColor
+                                                .withOpacity(0.3),
+                                            Theme.of(context)
+                                                .primaryColor
+                                                .withOpacity(0.1),
+                                          ],
+                                        ),
+                                      ),
+                                      child: Icon(Icons.queue_music_rounded,
+                                          color: Theme.of(context).primaryColor,
+                                          size: 24),
                                     ),
-                                  ),
-                                  child: Icon(Icons.queue_music_rounded, color: Theme.of(context).primaryColor, size: 24),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(playlist.name,
+                                              style: AppTextStyles.songTitle,
+                                              overflow: TextOverflow.ellipsis),
+                                          const SizedBox(height: 2),
+                                          Text('${playlist.songCount} songs',
+                                              style: AppTextStyles.songSubtitle
+                                                  .copyWith(
+                                                      color: Colors.white38)),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(Icons.chevron_right_rounded,
+                                        color: Colors.white24, size: 20),
+                                  ],
                                 ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(playlist.name, style: AppTextStyles.songTitle, overflow: TextOverflow.ellipsis),
-                                      const SizedBox(height: 2),
-                                      Text('${playlist.songCount} songs',
-                                        style: AppTextStyles.songSubtitle.copyWith(color: Colors.white38)),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(Icons.chevron_right_rounded, color: Colors.white24, size: 20),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    )),
+                        )),
                 ],
               ),
             ),
@@ -658,7 +773,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       builder: (context, library, _) {
         final folders = library.folders;
         if (folders.isEmpty) {
-          return Center(child: Text('No folders found', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)));
+          return Center(
+              child: Text('No folders found',
+                  style: AppTextStyles.bodyMedium
+                      .copyWith(color: Colors.white38)));
         }
         return ListView.builder(
           itemCount: folders.length,
@@ -667,19 +785,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             final folder = folders[index];
             return ListTile(
               leading: Container(
-                width: 50, height: 50,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   color: AppColors.accentAmber.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.folder_rounded, color: AppColors.accentAmber),
+                child: const Icon(Icons.folder_rounded,
+                    color: AppColors.accentAmber),
               ),
               title: Text(folder.name, style: AppTextStyles.songTitle),
-              subtitle: Text('${folder.songCount} songs', style: AppTextStyles.songSubtitle),
+              subtitle: Text('${folder.songCount} songs',
+                  style: AppTextStyles.songSubtitle),
               trailing: const Icon(Icons.chevron_right, color: Colors.white38),
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => FolderDetailScreen(folder: folder),
-              )),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => FolderDetailScreen(folder: folder),
+                  )),
             );
           },
         );
@@ -692,7 +815,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       builder: (context, library, _) {
         final albums = library.albums;
         if (albums.isEmpty) {
-          return Center(child: Text('No albums found', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)));
+          return Center(
+              child: Text('No albums found',
+                  style: AppTextStyles.bodyMedium
+                      .copyWith(color: Colors.white38)));
         }
         return GridView.builder(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -706,21 +832,25 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           itemBuilder: (context, index) {
             final album = albums[index];
             return GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => AlbumDetailScreen(album: album),
-              )),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AlbumDetailScreen(album: album),
+                  )),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: Colors.white.withOpacity(0.03),
-                  border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.05), width: 1),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(15)),
                         child: SizedBox(
                           width: double.infinity,
                           child: on_audio_query.QueryArtworkWidget(
@@ -733,12 +863,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    AppColors.themeColors[index % AppColors.themeColors.length].withOpacity(0.3),
+                                    AppColors.themeColors[index %
+                                            AppColors.themeColors.length]
+                                        .withOpacity(0.3),
                                     Colors.black26,
                                   ],
                                 ),
                               ),
-                              child: const Icon(Icons.album_rounded, size: 64, color: Colors.white24),
+                              child: const Icon(Icons.album_rounded,
+                                  size: 64, color: Colors.white24),
                             ),
                           ),
                         ),
@@ -749,22 +882,34 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(album.displayName, style: AppTextStyles.songTitle.copyWith(fontSize: 15), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(album.displayName,
+                              style: AppTextStyles.songTitle
+                                  .copyWith(fontSize: 15),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
                           const SizedBox(height: 4),
                           Row(
                             children: [
                               Expanded(
-                                child: Text('${album.displayArtist}',
-                                  style: AppTextStyles.songSubtitle.copyWith(fontSize: 12, color: Colors.white54), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                child: Text(album.displayArtist,
+                                    style: AppTextStyles.songSubtitle.copyWith(
+                                        fontSize: 12, color: Colors.white54),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
                               ),
                               const SizedBox(width: 4),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
-                                child: Text('${album.songCount}', style: TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.bold)),
+                                child: Text('${album.songCount}',
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.bold)),
                               ),
                             ],
                           ),
@@ -786,7 +931,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       builder: (context, library, _) {
         final artists = library.artists;
         if (artists.isEmpty) {
-          return Center(child: Text('No artists found', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white38)));
+          return Center(
+              child: Text('No artists found',
+                  style: AppTextStyles.bodyMedium
+                      .copyWith(color: Colors.white38)));
         }
         return ListView.builder(
           itemCount: artists.length,
@@ -794,20 +942,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             final artist = artists[index];
             return ListTile(
               leading: CircleAvatar(
-                backgroundColor: AppColors.themeColors[index % AppColors.themeColors.length].withOpacity(0.3),
+                backgroundColor: AppColors
+                    .themeColors[index % AppColors.themeColors.length]
+                    .withOpacity(0.3),
                 child: Text(
                   artist.displayName[0].toUpperCase(),
                   style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.themeColors[index % AppColors.themeColors.length],
+                    color: AppColors
+                        .themeColors[index % AppColors.themeColors.length],
                   ),
                 ),
               ),
               title: Text(artist.displayName, style: AppTextStyles.songTitle),
-              subtitle: Text('${artist.songCount} songs • ${artist.albumCount} albums', style: AppTextStyles.songSubtitle),
+              subtitle: Text(
+                  '${artist.songCount} songs • ${artist.albumCount} albums',
+                  style: AppTextStyles.songSubtitle),
               trailing: const Icon(Icons.chevron_right, color: Colors.white38),
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => ArtistDetailScreen(artist: artist),
-              )),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ArtistDetailScreen(artist: artist),
+                  )),
             );
           },
         );
@@ -815,12 +970,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-
-
-
-  Widget _buildRecentSongItem(BuildContext context, SongModel song, List<SongModel> playlist) {
+  Widget _buildRecentSongItem(
+      BuildContext context, SongModel song, List<SongModel> playlist) {
     return GestureDetector(
-      onTap: () => context.read<AudioProvider>().playSong(song, playlist: playlist),
+      onTap: () =>
+          context.read<AudioProvider>().playSong(song, playlist: playlist),
       child: Container(
         width: 120,
         margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -832,43 +986,58 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               child: Stack(
                 children: [
                   on_audio_query.QueryArtworkWidget(
-                    id: song.id, type: on_audio_query.ArtworkType.AUDIO,
-                    artworkWidth: 120, artworkHeight: 120,
+                    id: song.id,
+                    type: on_audio_query.ArtworkType.AUDIO,
+                    artworkWidth: 120,
+                    artworkHeight: 120,
                     artworkBorder: BorderRadius.zero,
                     nullArtworkWidget: Container(
-                      width: 120, height: 120,
+                      width: 120,
+                      height: 120,
                       color: AppColors.cardDarkLight,
-                      child: const Icon(Icons.music_note, color: Colors.white24, size: 40),
+                      child: const Icon(Icons.music_note,
+                          color: Colors.white24, size: 40),
                     ),
                   ),
                   Positioned(
-                    bottom: 8, right: 8,
+                    bottom: 8,
+                    right: 8,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: Colors.black45, shape: BoxShape.circle),
-                      child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+                      decoration: const BoxDecoration(
+                          color: Colors.black45, shape: BoxShape.circle),
+                      child: const Icon(Icons.play_arrow_rounded,
+                          color: Colors.white, size: 16),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
-            Text(song.displayTitle, style: AppTextStyles.songTitle.copyWith(fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-            Text(song.displayArtist, style: AppTextStyles.songSubtitle.copyWith(fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(song.displayTitle,
+                style: AppTextStyles.songTitle.copyWith(fontSize: 13),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+            Text(song.displayArtist,
+                style: AppTextStyles.songSubtitle.copyWith(fontSize: 11),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
           ],
         ),
       ),
     );
   }
 
-  PopupMenuItem<String> _sortMenuItem(String label, String value, String current) {
+  PopupMenuItem<String> _sortMenuItem(
+      String label, String value, String current) {
     return PopupMenuItem(
       value: value,
       child: Row(
         children: [
           Text(label, style: AppTextStyles.bodyMedium),
           const Spacer(),
-          if (current == value) Icon(Icons.check, color: Theme.of(context).primaryColor, size: 18),
+          if (current == value)
+            Icon(Icons.check, color: Theme.of(context).primaryColor, size: 18),
         ],
       ),
     );
@@ -884,7 +1053,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }) {
     return ListTile(
       leading: Container(
-        width: 50, height: 50,
+        width: 50,
+        height: 50,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: color.withOpacity(0.1),
@@ -904,7 +1074,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.cardDark,
-        title: Text(AppStrings.createPlaylist, style: AppTextStyles.headingSmall),
+        title:
+            Text(AppStrings.createPlaylist, style: AppTextStyles.headingSmall),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -912,16 +1083,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           decoration: InputDecoration(
             hintText: AppStrings.playlistName,
             hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white38),
-            enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Theme.of(context).primaryColor)),
+            enabledBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white24)),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).primaryColor)),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text(AppStrings.cancel)),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(AppStrings.cancel)),
           TextButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
-                context.read<PlaylistProvider>().createPlaylist(controller.text.trim());
+                context
+                    .read<PlaylistProvider>()
+                    .createPlaylist(controller.text.trim());
                 Navigator.pop(context);
               }
             },

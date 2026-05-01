@@ -45,16 +45,7 @@ class _DrawerMenuState extends State<DrawerMenu> with SingleTickerProviderStateM
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF1A1040).withOpacity(0.97),
-              const Color(0xFF0D0B1E).withOpacity(0.98),
-            ],
-          ),
-        ),
+        decoration: themeProvider.backgroundDecoration,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: SafeArea(

@@ -21,7 +21,8 @@ class MusicLibraryProvider extends ChangeNotifier {
   List<SongModel> get allSongs {
     if (!_initialized) return [];
     final hidden = _storage?.hiddenSongIds ?? [];
-    final visible = _allSongs.where((s) => !hidden.contains(s.id.toString())).toList();
+    final visible =
+        _allSongs.where((s) => !hidden.contains(s.id.toString())).toList();
     return SortUtils.sortSongs(visible, _sortType);
   }
 
@@ -54,7 +55,7 @@ class MusicLibraryProvider extends ChangeNotifier {
     final counts = _storage?.playCounts ?? {};
     final sortedIds = counts.keys.toList()
       ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
-    
+
     return sortedIds
         .take(20)
         .map((id) => getSongById(int.tryParse(id) ?? -1))
@@ -79,15 +80,19 @@ class MusicLibraryProvider extends ChangeNotifier {
 
     // If already initialized and no force rescan, skip
     if (_initialized && !forceRescan) return;
-    
+
     // Only scan if permission is granted
     final hasPermission = await PermissionService.hasStoragePermission();
     if (hasPermission) {
       await scanMusic();
       _initialized = true;
+      notifyListeners();
+    } else {
+      // Permission not granted - stay uninitialized so init() can retry
+      // This allows reinit when permission is granted later
+      debugPrint(
+          'MusicLibraryProvider: Storage permission not granted. Cannot initialize.');
     }
-    // NOTE: If permission is NOT granted, we do NOT set _initialized = true
-    // so that init() can be called again after permission is granted.
   }
 
   Future<void> scanMusic() async {

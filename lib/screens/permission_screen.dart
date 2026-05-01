@@ -23,6 +23,7 @@ class _PermissionScreenState extends State<PermissionScreen> {
     await PermissionService.requestNotificationPermission();
 
     if (granted) {
+      if (!mounted) return;
       final storage = await StorageService.getInstance();
       await storage.setPermissionGranted(true);
       await storage.setFirstLaunch(false);
@@ -31,10 +32,12 @@ class _PermissionScreenState extends State<PermissionScreen> {
           .read<MusicLibraryProvider>()
           .init(storage, forceRescan: true);
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
     } else {
       if (!mounted) return;
       setState(() => _requesting = false);

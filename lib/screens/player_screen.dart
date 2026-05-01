@@ -14,7 +14,6 @@ import '../models/song_model.dart';
 import '../services/audio_player_service.dart';
 import '../utils/duration_formatter.dart';
 import '../widgets/song_options_sheet.dart';
-import '../widgets/glass_container.dart';
 import 'lyrics_screen.dart';
 import 'equalizer_screen.dart';
 import 'sleep_timer_screen.dart';
@@ -138,12 +137,16 @@ class _PlayerScreenState extends State<PlayerScreen>
                     children: [
                       // Top bar
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 36, color: Colors.white),
+                              icon: const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 36,
+                                  color: Colors.white),
                               onPressed: () => Navigator.pop(context),
                             ),
                             SizedBox(
@@ -151,12 +154,15 @@ class _PlayerScreenState extends State<PlayerScreen>
                               child: TabBar(
                                 controller: _tabController,
                                 indicator: const UnderlineTabIndicator(
-                                  borderSide: BorderSide.none, // Hide default underline
+                                  borderSide:
+                                      BorderSide.none, // Hide default underline
                                 ),
                                 labelColor: Colors.white,
                                 unselectedLabelColor: Colors.white54,
-                                labelStyle: AppTextStyles.tabLabel.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
-                                unselectedLabelStyle: AppTextStyles.tabLabel.copyWith(fontSize: 18),
+                                labelStyle: AppTextStyles.tabLabel.copyWith(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                unselectedLabelStyle: AppTextStyles.tabLabel
+                                    .copyWith(fontSize: 18),
                                 dividerColor: Colors.transparent,
                                 tabs: const [
                                   Tab(text: 'Song'),
@@ -167,14 +173,17 @@ class _PlayerScreenState extends State<PlayerScreen>
                             Row(
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.color_lens_outlined, color: Colors.white, size: 28),
+                                  icon: const Icon(Icons.color_lens_outlined,
+                                      color: Colors.white, size: 28),
                                   onPressed: () {
                                     // Open theme selector
                                   },
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 28),
-                                  onPressed: () => SongOptionsSheet.show(context, song),
+                                  icon: const Icon(Icons.more_vert_rounded,
+                                      color: Colors.white, size: 28),
+                                  onPressed: () =>
+                                      SongOptionsSheet.show(context, song),
                                 ),
                               ],
                             ),
@@ -270,14 +279,14 @@ class _PlayerScreenState extends State<PlayerScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(song.displayTitle,
-                    style: AppTextStyles.playerTitle.copyWith(
-                        fontSize: 26, fontWeight: FontWeight.w800),
+                    style: AppTextStyles.playerTitle
+                        .copyWith(fontSize: 26, fontWeight: FontWeight.w800),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 6),
                 Text(song.displayArtist,
-                    style: AppTextStyles.playerArtist.copyWith(
-                        fontSize: 16, color: Colors.white70),
+                    style: AppTextStyles.playerArtist
+                        .copyWith(fontSize: 16, color: Colors.white70),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ],
@@ -302,10 +311,8 @@ class _PlayerScreenState extends State<PlayerScreen>
               ),
               _actionIcon(Icons.playlist_add_rounded, () {}),
               _actionIcon(Icons.tune_rounded, () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const EqualizerScreen()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const EqualizerScreen()));
               }),
               _actionIcon(Icons.alarm_rounded, () {
                 SleepTimerScreen.show(context);
@@ -332,7 +339,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                   Row(
                     children: [
                       Text(DurationFormatter.format(data.position),
-                          style: AppTextStyles.playerTime.copyWith(fontSize: 12)),
+                          style:
+                              AppTextStyles.playerTime.copyWith(fontSize: 12)),
                       Expanded(
                         child: SliderTheme(
                           data: SliderTheme.of(context).copyWith(
@@ -347,7 +355,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                           child: Slider(
                             value: data.position.inMilliseconds
                                 .toDouble()
-                                .clamp(0, data.duration.inMilliseconds.toDouble()),
+                                .clamp(
+                                    0, data.duration.inMilliseconds.toDouble()),
                             max: data.duration.inMilliseconds
                                 .toDouble()
                                 .clamp(1, double.infinity),
@@ -357,7 +366,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                         ),
                       ),
                       Text(DurationFormatter.format(data.duration),
-                          style: AppTextStyles.playerTime.copyWith(fontSize: 12)),
+                          style:
+                              AppTextStyles.playerTime.copyWith(fontSize: 12)),
                     ],
                   ),
                 ],

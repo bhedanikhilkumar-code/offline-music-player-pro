@@ -57,13 +57,20 @@ class AudioPlayerService {
             PositionData(position, bufferedPosition, duration ?? Duration.zero),
       );
 
+  bool _songCompleted = false;
+
   Future<void> init() async {
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.music());
 
     _player.processingStateStream.listen((state) {
-      if (state == ProcessingState.completed) {
+      if (state == ProcessingState.completed && !_songCompleted) {
+        _songCompleted = true;
         _handleSongComplete();
+        // Reset flag after a short delay to allow next completion
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _songCompleted = false;
+        });
       }
     });
 
