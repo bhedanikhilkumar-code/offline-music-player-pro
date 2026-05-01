@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import 'package:offline_music_player/services/storage_service.dart';
+import 'package:offline_music_player/services/theme_cache_service.dart';
 
 class ThemeProvider extends ChangeNotifier {
   late StorageService _storage;
@@ -20,8 +21,16 @@ class ThemeProvider extends ChangeNotifier {
       final bool isAsset = _backgroundImagePath!.startsWith('assets/');
       final bool isNetwork = _backgroundImagePath!.startsWith('http://') || _backgroundImagePath!.startsWith('https://');
       ImageProvider imageProvider;
+
       if (isNetwork) {
-        imageProvider = NetworkImage(_backgroundImagePath!);
+        // Check if we have a cached version for offline use
+        final cacheSvc = ThemeCacheService.instance;
+        final cachedPath = cacheSvc.getCachedPath(_backgroundImagePath!);
+        if (cachedPath != null) {
+          imageProvider = FileImage(File(cachedPath));
+        } else {
+          imageProvider = NetworkImage(_backgroundImagePath!);
+        }
       } else if (isAsset) {
         imageProvider = AssetImage(_backgroundImagePath!);
       } else {
@@ -127,6 +136,9 @@ class ThemeProvider extends ChangeNotifier {
       }
     }
 
+    // Initialize the theme cache service for offline support
+    await ThemeCacheService.instance.init();
+
     notifyListeners();
   }
 
@@ -150,11 +162,21 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Set a background image. If URL is a network URL, it will be cached for offline use.
   Future<void> setBackgroundImage(String path) async {
     _backgroundImagePath = path;
     _isCustomTheme = true;
     await _storage.setThemeBackgroundImagePath(path);
     await _storage.setIsCustomThemeEnabled(true);
+
+    // If it's a network URL, cache it for offline use in background
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      ThemeCacheService.instance.cacheImage(path).then((_) {
+        // Notify to switch to cached version
+        notifyListeners();
+      });
+    }
+
     notifyListeners();
   }
 

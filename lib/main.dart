@@ -30,8 +30,8 @@ Future<void> main() async {
       androidNotificationIcon: 'drawable/ic_notification',
       notificationColor: Color(0xFFFF6B35),
       androidShowNotificationBadge: true,
-      androidNotificationOngoing: false,
-      androidStopForegroundOnPause: false, // Must be false on Android 12+ to allow resuming from background widgets/notification
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
     ),
   );
 

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -5,6 +6,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../constants/app_strings.dart';
 import '../providers/theme_provider.dart';
+import '../services/theme_cache_service.dart';
 
 class ThemeScreen extends StatefulWidget {
   const ThemeScreen({super.key});
@@ -14,6 +16,10 @@ class ThemeScreen extends StatefulWidget {
 
 class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStateMixin {
   late TabController _imageTabController;
+  final ThemeCacheService _cacheService = ThemeCacheService.instance;
+  bool _isCachingAll = false;
+  int _cachedCount = 0;
+  int _totalCount = 0;
 
   // All theme colors in a single scrollable row
   static const List<Color> themeColors = [
@@ -495,7 +501,44 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                         child: Text('Theme Colors', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
                       ),
                       _buildColorRow(context),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 8),
+                      // Download All for Offline button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: _isCachingAll ? null : _cacheAllThemes,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.white.withOpacity(0.07),
+                                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    _isCachingAll ? Icons.downloading_rounded : Icons.download_for_offline_rounded,
+                                    color: Colors.lightBlueAccent,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _isCachingAll
+                                        ? 'Downloading... $_cachedCount/$_totalCount'
+                                        : 'Download All for Offline',
+                                    style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       const Divider(color: Colors.white12, height: 1, indent: 16, endIndent: 16),
                       const SizedBox(height: 8),
 
@@ -614,6 +657,10 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                 _pickCustomImage(context);
               } else if (hasImage && fullUrl != null) {
                 context.read<ThemeProvider>().setBackgroundImage(fullUrl);
+                // Also cache the thumbnail for offline grid display
+                if (imageUrl != null) {
+                  _cacheService.cacheImage(imageUrl);
+                }
               }
             },
             child: AnimatedContainer(
@@ -661,35 +708,50 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
                         ),
                       )
                     else if (hasImage)
-                      Image.network(
-                        imageUrl!,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            color: Colors.grey.shade900,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white54),
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                    : null,
+                      Builder(
+                        builder: (context) {
+                          final cachedPath = _cacheService.getCachedPath(imageUrl!);
+                          if (cachedPath != null) {
+                            return Image.file(
+                              File(cachedPath),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: Colors.grey.shade900,
+                                child: const Icon(Icons.broken_image_rounded, color: Colors.white38, size: 28),
+                              ),
+                            );
+                          }
+                          return Image.network(
+                            imageUrl!,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: Colors.grey.shade900,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white54),
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey.shade900,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.wifi_off_rounded, color: Colors.white38, size: 28),
+                                  const SizedBox(height: 4),
+                                  Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                                ],
                               ),
                             ),
                           );
                         },
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.grey.shade900,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.wifi_off_rounded, color: Colors.white38, size: 28),
-                              const SizedBox(height: 4),
-                              Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white38, fontSize: 10)),
-                            ],
-                          ),
-                        ),
                       ),
 
                     // ── Bottom vignette for label readability ──
@@ -743,6 +805,36 @@ class _ThemeScreenState extends State<ThemeScreen> with SingleTickerProviderStat
         },
       ),
     );
+  }
+
+  Future<void> _cacheAllThemes() async {
+    final urls = <String>[];
+    for (final item in themeImages) {
+      if (item.containsKey('imageUrl')) urls.add(item['imageUrl'] as String);
+      if (item.containsKey('fullUrl')) urls.add(item['fullUrl'] as String);
+    }
+
+    setState(() {
+      _isCachingAll = true;
+      _totalCount = urls.length;
+      _cachedCount = 0;
+    });
+
+    await _cacheService.cacheImages(urls, onProgress: (cached, total) {
+      if (mounted) {
+        setState(() => _cachedCount = cached);
+      }
+    });
+
+    if (mounted) {
+      setState(() => _isCachingAll = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All themes downloaded for offline use! ✅'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _pickCustomImage(BuildContext context) async {

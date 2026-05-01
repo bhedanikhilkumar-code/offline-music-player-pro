@@ -25,11 +25,7 @@ abstract class BaseMusicWidget : AppWidgetProvider() {
         /** Force-refresh every widget subclass that is registered on the home screen. */
         fun updateAllWidgets(context: Context) {
             val classes = arrayOf(
-                MiniControlsWidget::class.java,
-                NowPlayingWidget::class.java,
                 FullPlayerWidget::class.java,
-                QuickPlayWidget::class.java,
-                RecentPlaylistWidget::class.java,
             )
             for (cls in classes) {
                 val ids = AppWidgetManager.getInstance(context)

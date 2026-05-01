@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   late TabController _tabController;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _initialized = false;
+  DateTime? _lastBackPress;
 
   @override
   void initState() {
@@ -57,38 +58,57 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, _) {
-        return Scaffold(
-          key: _scaffoldKey,
-          drawer: const DrawerMenu(),
-          body: Container(
-            decoration: themeProvider.backgroundDecoration,
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildAppBar(),
-                  _buildTabBar(),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildSongsTab(),
-                        _buildPlaylistsTab(),
-                        _buildFoldersTab(),
-                        _buildAlbumsTab(),
-                        _buildArtistsTab(),
-                      ],
-                    ),
-                  ),
-                  const MiniPlayer(),
-                ],
-              ),
-            ),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        final now = DateTime.now();
+        if (_lastBackPress != null && now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
+          Navigator.of(context).pop();
+          return;
+        }
+        _lastBackPress = now;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Press back again to exit'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       },
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return Scaffold(
+            key: _scaffoldKey,
+            drawer: const DrawerMenu(),
+            body: Container(
+              decoration: themeProvider.backgroundDecoration,
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildAppBar(),
+                    _buildTabBar(),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildSongsTab(),
+                          _buildPlaylistsTab(),
+                          _buildFoldersTab(),
+                          _buildAlbumsTab(),
+                          _buildArtistsTab(),
+                        ],
+                      ),
+                    ),
+                    const MiniPlayer(),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
