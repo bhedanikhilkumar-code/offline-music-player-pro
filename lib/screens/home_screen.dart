@@ -344,16 +344,18 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Row(
                   children: [
                     Expanded(
-                      child: GlassActionButton(
-                        icon: Icons.shuffle_rounded,
-                        label: 'Shuffle',
-                        color: AppColors.accentOrange,
-                        onTap: () {
-                          final shuffled = List.from(songs)..shuffle();
-                          context
-                              .read<AudioProvider>()
-                              .setQueue(shuffled.cast(), startIndex: 0);
-                        },
+                      child: Consumer<ThemeProvider>(
+                        builder: (context, theme, _) => GlassActionButton(
+                          icon: Icons.shuffle_rounded,
+                          label: 'Shuffle',
+                          color: theme.primaryColor,
+                          onTap: () {
+                            final audio = context.read<AudioProvider>();
+                            final shuffled = List.from(songs)..shuffle();
+                            audio.setQueue(shuffled.cast(), startIndex: 0);
+                            if (!audio.shuffleMode) audio.toggleShuffle();
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
