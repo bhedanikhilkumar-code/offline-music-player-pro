@@ -93,7 +93,10 @@ class _PlayerScreenState extends State<PlayerScreen>
                     style: TextStyle(color: Colors.white54)));
           }
 
-          _updatePalette(song.id);
+          // Defer palette update to after the current build frame
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _updatePalette(song.id);
+          });
 
           if (audio.isPlaying) {
             if (!_rotationController.isAnimating) _rotationController.repeat();

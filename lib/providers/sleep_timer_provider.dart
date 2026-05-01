@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:offline_music_player/services/storage_service.dart';
 
 class SleepTimerProvider extends ChangeNotifier {
-  late StorageService _storage;
+  StorageService? _storage;
   Timer? _timer;
   DateTime? _endTime;
   bool _isRunning = false;
   int _remainingSeconds = 0;
   VoidCallback? _onTimerEnd;
+  bool _initialized = false;
 
   bool get isRunning => _isRunning;
   int get remainingSeconds => _remainingSeconds;
@@ -25,6 +26,7 @@ class SleepTimerProvider extends ChangeNotifier {
 
   Future<void> init(StorageService storage) async {
     _storage = storage;
+    _initialized = true;
   }
 
   void setOnTimerEnd(VoidCallback callback) {
@@ -37,8 +39,10 @@ class SleepTimerProvider extends ChangeNotifier {
     _endTime = DateTime.now().add(Duration(seconds: totalSeconds));
     _remainingSeconds = totalSeconds;
     _isRunning = true;
-    _storage.setSleepTimerEnabled(true);
-    _storage.setSleepTimerMinutes(minutes); // Still storing minutes as preference
+    if (_initialized) {
+      _storage?.setSleepTimerEnabled(true);
+      _storage?.setSleepTimerMinutes(minutes);
+    }
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _remainingSeconds--;
@@ -57,7 +61,9 @@ class SleepTimerProvider extends ChangeNotifier {
     _isRunning = false;
     _remainingSeconds = 0;
     _endTime = null;
-    _storage.setSleepTimerEnabled(false);
+    if (_initialized) {
+      _storage?.setSleepTimerEnabled(false);
+    }
     notifyListeners();
   }
 }

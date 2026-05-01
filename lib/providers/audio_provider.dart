@@ -48,8 +48,8 @@ class AudioProvider extends ChangeNotifier {
         _storage.setLastPlayedArtist(song.artist);
         _storage.addToRecentlyPlayed(song.id);
         _storage.incrementPlayCount(song.id);
-        notifyListeners();
       }
+      notifyListeners();
     });
 
     _initialized = true;
@@ -70,7 +70,7 @@ class AudioProvider extends ChangeNotifier {
 
   Future<void> pause() async {
     await _playerService.pause();
-    if (currentSong != null) {
+    if (_initialized && currentSong != null) {
       _storage
           .setLastPlayedPosition(_playerService.player.position.inMilliseconds);
     }
@@ -102,25 +102,25 @@ class AudioProvider extends ChangeNotifier {
 
   void toggleShuffle() {
     _playerService.toggleShuffle();
-    _storage.setShuffleEnabled(_playerService.shuffleMode);
+    if (_initialized) _storage.setShuffleEnabled(_playerService.shuffleMode);
     notifyListeners();
   }
 
   void toggleRepeat() {
     _playerService.toggleRepeat();
-    _storage.setRepeatMode(_playerService.repeatMode);
+    if (_initialized) _storage.setRepeatMode(_playerService.repeatMode);
     notifyListeners();
   }
 
   Future<void> setSpeed(double speed) async {
     await _playerService.setSpeed(speed);
-    _storage.setPlaybackSpeed(speed);
+    if (_initialized) _storage.setPlaybackSpeed(speed);
     notifyListeners();
   }
 
   Future<void> setVolume(double volume) async {
     await _playerService.setVolume(volume);
-    _storage.setVolumeLevel(volume);
+    if (_initialized) _storage.setVolumeLevel(volume);
     notifyListeners();
   }
 

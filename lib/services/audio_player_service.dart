@@ -31,6 +31,8 @@ class AudioPlayerService {
   int _currentIndex = -1;
   bool _shuffleMode = false;
   int _repeatMode = 0; // 0=off, 1=all, 2=one
+  int _playRequestId = 0;
+  Future<void> _playbackOperation = Future.value();
 
   List<SongModel> get queue => _queue;
   int get currentIndex => _currentIndex;
@@ -75,33 +77,67 @@ class AudioPlayerService {
 
   Future<void> playSong(SongModel song,
       {List<SongModel>? playlist, int? index}) async {
-    if (playlist != null) {
+    if (playlist != null && playlist.isNotEmpty) {
       _queue = List.from(playlist);
-      _currentIndex = index ?? playlist.indexOf(song);
+      final resolvedIndex = index != null && index >= 0 && index < _queue.length
+          ? index
+          : _queue.indexOf(song);
+      if (resolvedIndex >= 0) {
+        _currentIndex = resolvedIndex;
+      } else {
+        _queue.insert(0, song);
+        _currentIndex = 0;
+      }
     } else if (!_queue.contains(song)) {
       _queue = [song];
       _currentIndex = 0;
     } else {
       _currentIndex = _queue.indexOf(song);
     }
-    await _playCurrentSong();
+    await _playCurrentSong(requestId: ++_playRequestId);
   }
 
-  Future<void> _playCurrentSong({int failedAttempts = 0}) async {
+  Future<void> _playCurrentSong({
+    int failedAttempts = 0,
+    required int requestId,
+  }) {
+    final operation = _playbackOperation.then(
+      (_) => _playCurrentSongLocked(
+        failedAttempts: failedAttempts,
+        requestId: requestId,
+      ),
+    );
+    _playbackOperation = operation.catchError((_) {});
+    return operation;
+  }
+
+  Future<void> _playCurrentSongLocked({
+    int failedAttempts = 0,
+    required int requestId,
+  }) async {
+    if (requestId != _playRequestId) return;
     if (_currentIndex < 0 || _currentIndex >= _queue.length) {
+      _currentIndex = -1;
       _currentSongSubject.add(null);
+      await _player.stop();
       return;
     }
     final song = _queue[_currentIndex];
     try {
       await _player.setAudioSource(_audioSourceFor(song));
+      if (requestId != _playRequestId) return;
       _currentSongSubject.add(song);
       await _player.play();
     } catch (e) {
+      if (requestId != _playRequestId) return;
       debugPrint('Playback failed for ${song.path}: $e');
       if (failedAttempts < _queue.length - 1 && _advanceAfterPlaybackError()) {
-        await _playCurrentSong(failedAttempts: failedAttempts + 1);
+        await _playCurrentSongLocked(
+          failedAttempts: failedAttempts + 1,
+          requestId: requestId,
+        );
       } else {
+        _currentIndex = -1;
         _currentSongSubject.add(null);
         await _player.stop();
       }
@@ -129,11 +165,24 @@ class AudioPlayerService {
     return false;
   }
 
-  Future<void> play() async => await _player.play();
+  Future<void> play() async {
+    if (_currentIndex < 0 || _currentIndex >= _queue.length) return;
+    await _player.play();
+  }
+
   Future<void> pause() async => await _player.pause();
+
   Future<void> stop() async {
-    await _player.stop();
-    _currentSongSubject.add(null);
+    final requestId = ++_playRequestId;
+    final operation = _playbackOperation.then((_) async {
+      if (requestId != _playRequestId) return;
+      await _player.stop();
+      _currentIndex = -1;
+      _queue = [];
+      _currentSongSubject.add(null);
+    });
+    _playbackOperation = operation.catchError((_) {});
+    return operation;
   }
 
   Future<void> togglePlayPause() async {
@@ -158,7 +207,9 @@ class AudioPlayerService {
   }
 
   Future<void> playNext() async {
-    if (_queue.isEmpty) return;
+    if (_queue.isEmpty || _currentIndex < 0 || _currentIndex >= _queue.length) {
+      return;
+    }
     if (_repeatMode == 2) {
       await _player.seek(Duration.zero);
       await _player.play();
@@ -171,11 +222,13 @@ class AudioPlayerService {
     } else {
       return;
     }
-    await _playCurrentSong();
+    await _playCurrentSong(requestId: ++_playRequestId);
   }
 
   Future<void> playPrevious() async {
-    if (_queue.isEmpty) return;
+    if (_queue.isEmpty || _currentIndex < 0 || _currentIndex >= _queue.length) {
+      return;
+    }
     if (_player.position.inSeconds > 3) {
       await _player.seek(Duration.zero);
       return;
@@ -188,13 +241,13 @@ class AudioPlayerService {
       await _player.seek(Duration.zero);
       return;
     }
-    await _playCurrentSong();
+    await _playCurrentSong(requestId: ++_playRequestId);
   }
 
   void toggleShuffle() {
     _shuffleMode = !_shuffleMode;
-    if (_shuffleMode && _queue.length > 1) {
-      final current = _queue[_currentIndex];
+    final current = currentSong;
+    if (_shuffleMode && current != null && _queue.length > 1) {
       _queue.shuffle();
       _queue.remove(current);
       _queue.insert(0, current);
@@ -224,8 +277,15 @@ class AudioPlayerService {
 
   Future<void> setQueue(List<SongModel> songs, {int startIndex = 0}) async {
     _queue = List.from(songs);
-    _currentIndex = startIndex;
-    await _playCurrentSong();
+    if (_queue.isEmpty) {
+      _currentIndex = -1;
+      _currentSongSubject.add(null);
+      await _player.stop();
+      return;
+    }
+    _currentIndex =
+        startIndex >= 0 && startIndex < _queue.length ? startIndex : 0;
+    await _playCurrentSong(requestId: ++_playRequestId);
   }
 
   void removeFromQueue(int index) {
@@ -242,7 +302,10 @@ class AudioPlayerService {
       return;
     }
     if (insertNext) {
-      _queue.insert(_currentIndex + 1, song);
+      final insertIndex = _currentIndex >= 0 && _currentIndex < _queue.length
+          ? _currentIndex + 1
+          : _queue.length;
+      _queue.insert(insertIndex, song);
     } else {
       _queue.add(song);
     }

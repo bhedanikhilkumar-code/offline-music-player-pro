@@ -10,7 +10,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _lockScreenPlaying = true;
   bool _pauseOnHeadphoneDetach = true;
   bool _notificationEnabled = true;
-  String _selectedLanguage = 'English';
+  String _selectedLanguage = 'System default';
   bool _isPremium = false;
   bool _adsRemoved = false;
   bool _volumeBoosterEnabled = false;

@@ -6,7 +6,7 @@ import '../models/playlist_model.dart';
 import 'package:offline_music_player/services/storage_service.dart';
 
 class SearchProvider extends ChangeNotifier {
-  late StorageService _storage;
+  StorageService? _storage;
   String _query = '';
   List<SongModel> _songResults = [];
   List<AlbumModel> _albumResults = [];
@@ -24,7 +24,7 @@ class SearchProvider extends ChangeNotifier {
 
   Future<void> init(StorageService storage) async {
     _storage = storage;
-    _recentSearches = _storage.recentSearches;
+    _recentSearches = _storage?.recentSearches ?? [];
   }
 
   void search(String query, {
@@ -60,9 +60,9 @@ class SearchProvider extends ChangeNotifier {
   }
 
   Future<void> addToRecent(String query) async {
-    if (query.trim().isEmpty) return;
-    await _storage.addRecentSearch(query.trim());
-    _recentSearches = _storage.recentSearches;
+    if (query.trim().isEmpty || _storage == null) return;
+    await _storage!.addRecentSearch(query.trim());
+    _recentSearches = _storage!.recentSearches;
     notifyListeners();
   }
 

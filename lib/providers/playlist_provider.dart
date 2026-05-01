@@ -5,7 +5,7 @@ import 'package:offline_music_player/services/storage_service.dart';
 
 class PlaylistProvider extends ChangeNotifier {
   List<PlaylistModel> _playlists = [];
-  late StorageService _storage;
+  StorageService? _storage;
   bool _initialized = false;
   final _uuid = const Uuid();
 
@@ -19,12 +19,14 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void _loadPlaylists() {
-    _playlists = PlaylistModel.decodeList(_storage.playlistsJson);
+    if (_storage == null) return;
+    _playlists = PlaylistModel.decodeList(_storage!.playlistsJson);
     notifyListeners();
   }
 
   Future<void> _savePlaylists() async {
-    await _storage.setPlaylistsJson(PlaylistModel.encodeList(_playlists));
+    if (_storage == null) return;
+    await _storage!.setPlaylistsJson(PlaylistModel.encodeList(_playlists));
   }
 
   Future<PlaylistModel> createPlaylist(String name) async {

@@ -17,9 +17,12 @@ class ThemeProvider extends ChangeNotifier {
   bool get isCustomTheme => _isCustomTheme;
 
   BoxDecoration get backgroundDecoration {
-    if (_isCustomTheme && _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) {
+    if (_isCustomTheme &&
+        _backgroundImagePath != null &&
+        _backgroundImagePath!.isNotEmpty) {
       final bool isAsset = _backgroundImagePath!.startsWith('assets/');
-      final bool isNetwork = _backgroundImagePath!.startsWith('http://') || _backgroundImagePath!.startsWith('https://');
+      final bool isNetwork = _backgroundImagePath!.startsWith('http://') ||
+          _backgroundImagePath!.startsWith('https://');
       ImageProvider imageProvider;
 
       if (isNetwork) {
@@ -47,7 +50,7 @@ class ThemeProvider extends ChangeNotifier {
         ),
       );
     }
-    
+
     if (_gradientColors != null && _gradientColors!.length >= 2) {
       return BoxDecoration(
         gradient: LinearGradient(
@@ -88,7 +91,8 @@ class ThemeProvider extends ChangeNotifier {
         ),
         cardTheme: CardTheme(
           color: AppColors.cardDark,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
         ),
         dividerColor: AppColors.divider,
@@ -105,7 +109,9 @@ class ThemeProvider extends ChangeNotifier {
             return Colors.grey;
           }),
           trackColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) return _primaryColor.withOpacity(0.5);
+            if (states.contains(MaterialState.selected)) {
+              return _primaryColor.withOpacity(0.5);
+            }
             return Colors.grey.withOpacity(0.3);
           }),
         ),
@@ -156,7 +162,8 @@ class ThemeProvider extends ChangeNotifier {
     _gradientColors = colors;
     _isCustomTheme = false;
     _backgroundImagePath = null;
-    await _storage.setThemeGradient(colors.map((c) => c.value.toString()).join(','));
+    await _storage
+        .setThemeGradient(colors.map((c) => c.value.toString()).join(','));
     await _storage.setIsCustomThemeEnabled(false);
     await _storage.setThemeBackgroundImagePath('');
     notifyListeners();

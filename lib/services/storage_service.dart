@@ -139,7 +139,7 @@ class StorageService {
   bool get lockScreenPlaying => getBool('lock_screen_playing') ?? true;
   bool get pauseOnHeadphoneDetach => getBool('pause_on_detach') ?? true;
   bool get notificationEnabled => getBool('notification_enabled') ?? true;
-  String get selectedLanguage => getString('language') ?? 'en';
+  String get selectedLanguage => getString('language') ?? 'System default';
   bool get isPremiumLocal => getBool('is_premium_local') ?? false;
   bool get adsRemoved => getBool('ads_removed') ?? false;
   bool get volumeBoosterEnabled => getBool('volume_booster_enabled') ?? false;

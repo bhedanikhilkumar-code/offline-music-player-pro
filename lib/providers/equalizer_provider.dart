@@ -5,7 +5,8 @@ import '../services/equalizer_service.dart';
 import '../constants/app_constants.dart';
 
 class EqualizerProvider extends ChangeNotifier {
-  late StorageService _storage;
+  StorageService? _storage;
+  bool _initialized = false;
   final EqualizerService _eqService = EqualizerService();
   EqualizerModel _model = EqualizerModel.defaultEq;
   int _lastSessionId = 0;
@@ -20,13 +21,14 @@ class EqualizerProvider extends ChangeNotifier {
 
   Future<void> init(StorageService storage) async {
     _storage = storage;
+    _initialized = true;
     _model = EqualizerModel(
-      presetName: _storage.equalizerPreset,
-      bandLevels: _storage.eqBandValues,
-      bassBoost: _storage.bassBoostLevel,
-      virtualizer: _storage.virtualizerLevel,
-      reverbPreset: _storage.reverbPreset,
-      enabled: _storage.equalizerEnabled,
+      presetName: _storage!.equalizerPreset,
+      bandLevels: _storage!.eqBandValues,
+      bassBoost: _storage!.bassBoostLevel,
+      virtualizer: _storage!.virtualizerLevel,
+      reverbPreset: _storage!.reverbPreset,
+      enabled: _storage!.equalizerEnabled,
     );
     notifyListeners();
   }
@@ -52,7 +54,7 @@ class EqualizerProvider extends ChangeNotifier {
 
   Future<void> setEnabled(bool value) async {
     _model = _model.copyWith(enabled: value);
-    await _storage.setEqualizerEnabled(value);
+    if (_initialized) await _storage!.setEqualizerEnabled(value);
     _eqService.setEnabled(value);
     if (value) {
       // Re-apply all settings when enabling
@@ -67,8 +69,10 @@ class EqualizerProvider extends ChangeNotifier {
   Future<void> setPreset(String name) async {
     final bands = AppConstants.eqPresets[name] ?? [0, 0, 0, 0, 0];
     _model = _model.copyWith(presetName: name, bandLevels: bands);
-    await _storage.setEqualizerPreset(name);
-    await _storage.setEqBandValues(bands);
+    if (_initialized) {
+      await _storage!.setEqualizerPreset(name);
+      await _storage!.setEqBandValues(bands);
+    }
     _eqService.setBandLevels(bands);
     notifyListeners();
   }
@@ -77,29 +81,31 @@ class EqualizerProvider extends ChangeNotifier {
     final bands = List<double>.from(_model.bandLevels);
     bands[index] = level;
     _model = _model.copyWith(presetName: 'Custom', bandLevels: bands);
-    await _storage.setEqualizerPreset('Custom');
-    await _storage.setEqBandValues(bands);
+    if (_initialized) {
+      await _storage!.setEqualizerPreset('Custom');
+      await _storage!.setEqBandValues(bands);
+    }
     _eqService.setBandLevel(index, level);
     notifyListeners();
   }
 
   Future<void> setBassBoost(double level) async {
     _model = _model.copyWith(bassBoost: level);
-    await _storage.setBassBoostLevel(level);
+    if (_initialized) await _storage!.setBassBoostLevel(level);
     _eqService.setBassBoost(level);
     notifyListeners();
   }
 
   Future<void> setVirtualizer(double level) async {
     _model = _model.copyWith(virtualizer: level);
-    await _storage.setVirtualizerLevel(level);
+    if (_initialized) await _storage!.setVirtualizerLevel(level);
     _eqService.setVirtualizer(level);
     notifyListeners();
   }
 
   Future<void> setReverb(int presetIndex) async {
     _model = _model.copyWith(reverbPreset: presetIndex);
-    await _storage.setReverbPreset(presetIndex);
+    if (_initialized) await _storage!.setReverbPreset(presetIndex);
     _eqService.setReverb(presetIndex);
     notifyListeners();
   }

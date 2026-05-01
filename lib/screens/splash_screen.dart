@@ -13,7 +13,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _waveController;
   late AnimationController _mainController;
   late AnimationController _particleController;
@@ -50,33 +51,48 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     // Logo: 0% → 35%
     _logoFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.0, 0.3, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _mainController,
+          curve: const Interval(0.0, 0.3, curve: Curves.easeOut)),
     );
     _logoScale = Tween<double>(begin: 0.6, end: 1.0).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.0, 0.4, curve: Curves.easeOutCubic)),
+      CurvedAnimation(
+          parent: _mainController,
+          curve: const Interval(0.0, 0.4, curve: Curves.easeOutCubic)),
     );
 
     // Equalizer bars: 25% → 55%
     _barsFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.25, 0.55, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _mainController,
+          curve: const Interval(0.25, 0.55, curve: Curves.easeOut)),
     );
 
     // Title: 45% → 70%
     _titleFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.45, 0.7, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _mainController,
+          curve: const Interval(0.45, 0.7, curve: Curves.easeOut)),
     );
-    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.45, 0.75, curve: Curves.easeOutCubic)),
+    _titleSlide =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+      CurvedAnimation(
+          parent: _mainController,
+          curve: const Interval(0.45, 0.75, curve: Curves.easeOutCubic)),
     );
 
     // Subtitle: 60% → 85%
     _subtitleFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.6, 0.85, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _mainController,
+          curve: const Interval(0.6, 0.85, curve: Curves.easeOut)),
     );
 
     // Shimmer across text
     _shimmer = Tween<double>(begin: -1, end: 2).animate(
-      CurvedAnimation(parent: _mainController, curve: const Interval(0.7, 1.0, curve: Curves.easeInOut)),
+      CurvedAnimation(
+          parent: _mainController,
+          curve: const Interval(0.7, 1.0, curve: Curves.easeInOut)),
     );
 
     _mainController.forward();
@@ -107,11 +123,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       if (hasPermission && storage.permissionGranted) {
         // Storage permission already granted — but ensure notification permission too
         await PermissionService.requestNotificationPermission();
+        if (!mounted) return;
         destination = const HomeScreen();
       } else {
         destination = const PermissionScreen();
       }
 
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -146,7 +164,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     return Scaffold(
       body: AnimatedBuilder(
-        animation: Listenable.merge([_mainController, _waveController, _particleController]),
+        animation: Listenable.merge(
+            [_mainController, _waveController, _particleController]),
         builder: (context, _) {
           return Container(
             width: size.width,
@@ -215,7 +234,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFF6B35).withOpacity(0.35),
+                                color:
+                                    const Color(0xFFFF6B35).withOpacity(0.35),
                                 blurRadius: 30,
                                 spreadRadius: 4,
                               ),
@@ -244,7 +264,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: List.generate(7, (i) {
                             final phase = i * 0.9;
-                            final wave = _waveController.value * 2 * math.pi + phase;
+                            final wave =
+                                _waveController.value * 2 * math.pi + phase;
                             final height = 10 + 22 * ((math.sin(wave) + 1) / 2);
                             final barColor = Color.lerp(
                               const Color(0xFFFF8C00),
@@ -313,7 +334,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 20, height: 1,
+                            width: 20,
+                            height: 1,
                             color: const Color(0xFFFF8C00).withOpacity(0.4),
                           ),
                           const SizedBox(width: 12),
@@ -328,7 +350,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           ),
                           const SizedBox(width: 12),
                           Container(
-                            width: 20, height: 1,
+                            width: 20,
+                            height: 1,
                             color: const Color(0xFFFF8C00).withOpacity(0.4),
                           ),
                         ],
@@ -370,7 +393,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               const Color(0xFFFF8C00),
               const Color(0xFF7C4DFF),
               random.nextDouble(),
-            )!.withOpacity(opacity),
+            )!
+                .withOpacity(opacity),
           ),
         ),
       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:on_audio_query/on_audio_query.dart' as on_audio_query hide SongModel, AlbumModel, ArtistModel, PlaylistModel;
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -64,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         if (didPop) return;
         final now = DateTime.now();
         if (_lastBackPress != null && now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
-          Navigator.of(context).pop();
+          SystemNavigator.pop();
           return;
         }
         _lastBackPress = now;
@@ -950,6 +951,9 @@ class _OneShotListAnimation extends StatefulWidget {
 class _OneShotListAnimationState extends State<_OneShotListAnimation>
     with SingleTickerProviderStateMixin {
   static final Set<int> _animatedIndices = {};
+
+  /// Call this to reset animations (e.g., on library rescan)
+  static void resetAnimations() => _animatedIndices.clear();
   late final bool _shouldAnimate;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -984,6 +988,8 @@ class _OneShotListAnimationState extends State<_OneShotListAnimation>
       Future.delayed(Duration(milliseconds: staggerDelay), () {
         if (mounted) {
           _controller.forward();
+          // Cap set size to prevent memory leak
+          if (_animatedIndices.length > 500) _animatedIndices.clear();
           _animatedIndices.add(widget.index);
         }
       });
